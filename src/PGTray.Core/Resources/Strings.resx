@@ -1,0 +1,850 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="SelectAnExistingDirectory" xml:space="preserve">
+    <value>Select an existing directory</value>
+  </data>
+  <data name="SelectAnEmptyDataDirectoryOrChoose" xml:space="preserve">
+    <value>Select an empty data directory, or choose its parent and append a name</value>
+  </data>
+  <data name="PostgreSQLBinaries" xml:space="preserve">
+    <value>PostgreSQL Binaries</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
+  <data name="Available" xml:space="preserve">
+    <value>Available</value>
+  </data>
+  <data name="RegisteredBinaries" xml:space="preserve">
+    <value>Registered binaries</value>
+  </data>
+  <data name="RootDirectoryBin" xml:space="preserve">
+    <value>Root directory / bin</value>
+  </data>
+  <data name="RegisterBinaries" xml:space="preserve">
+    <value>Register Binaries</value>
+  </data>
+  <data name="RepairSelectedPath" xml:space="preserve">
+    <value>Repair Selected Path</value>
+  </data>
+  <data name="SelectRegisteredBinariesFirstThenEnterThe" xml:space="preserve">
+    <value>Select registered binaries first, then enter the new path.</value>
+  </data>
+  <data name="UnregisterBinaries" xml:space="preserve">
+    <value>Unregister Binaries…</value>
+  </data>
+  <data name="ThisOnlyRemovesTheBinaryRegistrationFrom" xml:space="preserve">
+    <value>This only removes the binary registration from PgHatch. No files will be deleted.&#13;
+Instances, PGDATA and logs are kept, and databases will keep running.</value>
+  </data>
+  <data name="UnregisterBinaries2" xml:space="preserve">
+    <value>Unregister Binaries</value>
+  </data>
+  <data name="FindNearbyBinaries" xml:space="preserve">
+    <value>Find Nearby Binaries…</value>
+  </data>
+  <data name="NoBinariesFoundNearbyBrowseToA" xml:space="preserve">
+    <value>No binaries found nearby. Browse to a PostgreSQL root or bin directory.</value>
+  </data>
+  <data name="Registration" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="DiscoveryListsCandidatesOnlyRegisterSavesThem" xml:space="preserve">
+    <value>Discovery lists candidates; only Register saves them. Unregistered binaries will not be added again on startup.&#13;
+Repair keeps the registration ID and requires the same major version. Binaries used by an instance cannot be unregistered.</value>
+  </data>
+  <data name="NewPostgreSQLInstance" xml:space="preserve">
+    <value>New PostgreSQL Instance</value>
+  </data>
+  <data name="ImportPostgreSQLInstance" xml:space="preserve">
+    <value>Import PostgreSQL Instance</value>
+  </data>
+  <data name="InstanceName" xml:space="preserve">
+    <value>Instance name</value>
+  </data>
+  <data name="PostgreSQLBinaries2" xml:space="preserve">
+    <value>PostgreSQL binaries</value>
+  </data>
+  <data name="PGDATADirectory" xml:space="preserve">
+    <value>PGDATA directory</value>
+  </data>
+  <data name="ReadPort" xml:space="preserve">
+    <value>Read Port</value>
+  </data>
+  <data name="CouldNotReadConfiguration" xml:space="preserve">
+    <value>Could Not Read Configuration</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="Superuser" xml:space="preserve">
+    <value>Superuser</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>Initial password</value>
+  </data>
+  <data name="OnlyAnEmptyDirectoryWillBeInitialized" xml:space="preserve">
+    <value>Only an empty directory will be initialized. Uses SCRAM-SHA-256 and listens on 127.0.0.1; the password is not saved.&#13;
+Initialization runs asynchronously from the main window. On failure, the directory is kept for inspection.</value>
+  </data>
+  <data name="ImportChecksTheClusterVersionAndConfigured" xml:space="preserve">
+    <value>Import checks the cluster, version and configured port without changing database state.&#13;
+Start and restart use the existing configuration without overriding the address or port.</value>
+  </data>
+  <data name="EnterAnInstanceNameAndDataDirectory" xml:space="preserve">
+    <value>Enter an instance name and data directory.</value>
+  </data>
+  <data name="EnterASuperuserNameAndInitialPassword" xml:space="preserve">
+    <value>Enter a superuser name and initial password.</value>
+  </data>
+  <data name="RenameInstance" xml:space="preserve">
+    <value>Rename Instance</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="OnlyTheDisplayNameInPgHatchWill" xml:space="preserve">
+    <value>Only the display name in PgHatch will change.</value>
+  </data>
+  <data name="TheNameCannotBeEmpty" xml:space="preserve">
+    <value>The name cannot be empty.</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Logs — </value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="OpenFullLog" xml:space="preserve">
+    <value>Open Full Log</value>
+  </data>
+  <data name="NoPgHatchStartupLogYetExistingLogging" xml:space="preserve">
+    <value>No PgHatch startup log yet. Existing logging_collector logs remain at their configured location.</value>
+  </data>
+  <data name="RNRNPostgreSQLLogLast" xml:space="preserve">
+    <value>&#13;
+&#13;
+--- PostgreSQL log (last 64 KiB) ---&#13;
+</value>
+  </data>
+  <data name="ScanReadOnly" xml:space="preserve">
+    <value>Scan (Read Only)</value>
+  </data>
+  <data name="ImportSelected" xml:space="preserve">
+    <value>Import Selected</value>
+  </data>
+  <data name="ScanLocalPostgreSQLInstances" xml:space="preserve">
+    <value>Scan Local PostgreSQL Instances</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>Choose Location…</value>
+  </data>
+  <data name="ChooseALimitedSearchDirectory" xml:space="preserve">
+    <value>Choose a limited search directory</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="DataDirectory" xml:space="preserve">
+    <value>Data Directory</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="ListenAddress" xml:space="preserve">
+    <value>Listen Address</value>
+  </data>
+  <data name="UseBinaries" xml:space="preserve">
+    <value>Use Binaries</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes</value>
+  </data>
+  <data name="ChooseCompatiblePostgreSQLBinariesForThisRow" xml:space="preserve">
+    <value>Choose compatible PostgreSQL binaries for this row.</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="NothingIsSelectedByDefaultScanningFinds" xml:space="preserve">
+    <value>Nothing is selected by default. Scanning finds candidates; importing registers them. Neither changes configuration nor starts or stops a database.</value>
+  </data>
+  <data name="SavingImportedInstancesPleaseWaitBeforeClosing" xml:space="preserve">
+    <value>Saving imported instances. Please wait before closing.</value>
+  </data>
+  <data name="CancelingTheReadOnlyScan" xml:space="preserve">
+    <value>Canceling the read-only scan…</value>
+  </data>
+  <data name="ScanningReadOnly" xml:space="preserve">
+    <value>Scanning (read only)…</value>
+  </data>
+  <data name="ChooseBinaries" xml:space="preserve">
+    <value>Choose binaries</value>
+  </data>
+  <data name="CandidatesAlreadyRegisteredRN" xml:space="preserve">
+    <value>Candidates: {0}; already registered: {1}.&#13;
+</value>
+  </data>
+  <data name="SelectTheInstancesYouWantToImport" xml:space="preserve">
+    <value>Select the instances you want to import.</value>
+  </data>
+  <data name="ChooseCompatibleBinariesForEverySelectedRow" xml:space="preserve">
+    <value>Choose compatible binaries for every selected row.</value>
+  </data>
+  <data name="ImportedNotStarted" xml:space="preserve">
+    <value>Imported. Not started.</value>
+  </data>
+  <data name="ImportedAllDatabasesKeepTheirCurrentState" xml:space="preserve">
+    <value>Imported: {0}. All databases keep their current state.</value>
+  </data>
+  <data name="InstanceSettingsRepairBinaries" xml:space="preserve">
+    <value>Instance Settings / Repair Binaries</value>
+  </data>
+  <data name="NotLinkedChooseCompatibleBinaries" xml:space="preserve">
+    <value>Not linked — choose compatible binaries</value>
+  </data>
+  <data name="Unavailable2" xml:space="preserve">
+    <value>Unavailable · </value>
+  </data>
+  <data name="LinkedBinaries" xml:space="preserve">
+    <value>Linked binaries</value>
+  </data>
+  <data name="OpenPostgresqlConf" xml:space="preserve">
+    <value>Open postgresql.conf…</value>
+  </data>
+  <data name="ConfigurationFileNotFound" xml:space="preserve">
+    <value>Configuration file not found.</value>
+  </data>
+  <data name="OriginalConfiguration" xml:space="preserve">
+    <value>Original configuration</value>
+  </data>
+  <data name="RelinkingChecksPGVERSIONAgainstTheBinary" xml:space="preserve">
+    <value>Relinking checks PG_VERSION against the binary major version. It does not start, stop or modify the database. Register missing binaries in PostgreSQL Binaries first.&#13;
+If you edit port/listen_addresses, changes apply on the next start or restart. Non-local listening may allow more clients, subject to pg_hba.conf and firewall rules.</value>
+  </data>
+  <data name="ChoosePostgreSQLBinaries" xml:space="preserve">
+    <value>Choose PostgreSQL binaries.</value>
+  </data>
+  <data name="PgHatchPostgreSQLInstanceManager" xml:space="preserve">
+    <value>PgHatch — PostgreSQL Instance Manager</value>
+  </data>
+  <data name="LocalPostgreSQLInstancesV" xml:space="preserve">
+    <value>Local PostgreSQL instances · v0.2.0</value>
+  </data>
+  <data name="AddInstance" xml:space="preserve">
+    <value>Add Instance</value>
+  </data>
+  <data name="NewInstance" xml:space="preserve">
+    <value>New Instance…</value>
+  </data>
+  <data name="ImportInstance" xml:space="preserve">
+    <value>Import Instance…</value>
+  </data>
+  <data name="ScanLocalInstances" xml:space="preserve">
+    <value>Scan Local Instances…</value>
+  </data>
+  <data name="PostgreSQLBinaries3" xml:space="preserve">
+    <value>PostgreSQL Binaries…</value>
+  </data>
+  <data name="ExitPgHatchKeepDatabasesRunning" xml:space="preserve">
+    <value>Exit PgHatch (Keep Databases Running)</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="OpenConfigurationFolder" xml:space="preserve">
+    <value>Open Configuration Folder</value>
+  </data>
+  <data name="ReloadConfiguration" xml:space="preserve">
+    <value>Reload Configuration</value>
+  </data>
+  <data name="AboutPgHatch" xml:space="preserve">
+    <value>About PgHatch</value>
+  </data>
+  <data name="PgHatchVNPostgreSQLReadyWhenYouAre" xml:space="preserve">
+    <value>PgHatch v0.2.0&#13;
+PostgreSQL, ready when you are.&#13;
+A portable PostgreSQL instance manager for Windows.&#13;
+&#13;
+Formerly PGTray. An independent community tool, not affiliated with PostgreSQL.&#13;
+UI icons: Lucide (ISC; some Feather/MIT). Licenses are embedded and included with the application.</value>
+  </data>
+  <data name="OpenConfigurationFile" xml:space="preserve">
+    <value>Open Configuration File</value>
+  </data>
+  <data name="TheConfigurationFileHasNotBeenCreated" xml:space="preserve">
+    <value>The configuration file has not been created yet.</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>Reload</value>
+  </data>
+  <data name="RestoreBak" xml:space="preserve">
+    <value>Restore .bak…</value>
+  </data>
+  <data name="PreserveFileAndStartFresh" xml:space="preserve">
+    <value>Preserve File and Start Fresh…</value>
+  </data>
+  <data name="Instances" xml:space="preserve">
+    <value>Instances</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Binaries" xml:space="preserve">
+    <value>Binaries</value>
+  </data>
+  <data name="Connection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="Restart" xml:space="preserve">
+    <value>Restart</value>
+  </data>
+  <data name="Logs2" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="OpenDataDirectory" xml:space="preserve">
+    <value>Open Data Directory</value>
+  </data>
+  <data name="InstanceSettings" xml:space="preserve">
+    <value>Instance Settings…</value>
+  </data>
+  <data name="UnregisterInstance" xml:space="preserve">
+    <value>Unregister Instance…</value>
+  </data>
+  <data name="MoreActions" xml:space="preserve">
+    <value>More Actions</value>
+  </data>
+  <data name="LoadingConfiguration" xml:space="preserve">
+    <value>Loading configuration…</value>
+  </data>
+  <data name="OpenManager" xml:space="preserve">
+    <value>Open Manager</value>
+  </data>
+  <data name="HideWindow" xml:space="preserve">
+    <value>Hide Window</value>
+  </data>
+  <data name="StopAllRegisteredInstancesAndExit" xml:space="preserve">
+    <value>Stop All Registered Instances and Exit…</value>
+  </data>
+  <data name="PgHatchLoadingConfiguration" xml:space="preserve">
+    <value>PgHatch — Loading configuration</value>
+  </data>
+  <data name="ManagePostgreSQL" xml:space="preserve">
+    <value>Manage PostgreSQL</value>
+  </data>
+  <data name="CreateANewLocalInstanceOrRegister" xml:space="preserve">
+    <value>Create a new local instance or register an existing data directory.&#13;
+Scanning and importing won't start the database.</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="ScanLocalInstances2" xml:space="preserve">
+    <value>Scan Local Instances</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>Working…</value>
+  </data>
+  <data name="CloseToHideInTrayCtrlQ" xml:space="preserve">
+    <value>{0} · Close to hide in tray · Ctrl+Q to exit</value>
+  </data>
+  <data name="WaitForTheCurrentOperationToFinish" xml:space="preserve">
+    <value>Wait for the current operation to finish before reloading.</value>
+  </data>
+  <data name="CouldNotLoadConfigurationTheOriginalFile" xml:space="preserve">
+    <value>Could not load configuration. The original file is preserved: </value>
+  </data>
+  <data name="ValidateAndRestoreBakTheCurrentFile" xml:space="preserve">
+    <value>Validate and restore {0}.bak? The current file will be saved as a preserved copy.</value>
+  </data>
+  <data name="PreserveTheCurrentFileAndCreateAn" xml:space="preserve">
+    <value>Preserve the current file and create an empty configuration? Database files and running state will not change.</value>
+  </data>
+  <data name="RestoreConfiguration" xml:space="preserve">
+    <value>Restore Configuration</value>
+  </data>
+  <data name="NotLinked" xml:space="preserve">
+    <value>Not linked</value>
+  </data>
+  <data name="BinariesUnavailable" xml:space="preserve">
+    <value>! Binaries unavailable</value>
+  </data>
+  <data name="RunningV" xml:space="preserve">
+    <value>{0} / {1} running · v0.2.0</value>
+  </data>
+  <data name="PgHatchRunning" xml:space="preserve">
+    <value>PgHatch — {0} running</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>● Running</value>
+  </data>
+  <data name="Stopped" xml:space="preserve">
+    <value>○ Stopped</value>
+  </data>
+  <data name="Starting" xml:space="preserve">
+    <value>◌ Starting</value>
+  </data>
+  <data name="Stopping" xml:space="preserve">
+    <value>◌ Stopping</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>! Error</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>? Unknown</value>
+  </data>
+  <data name="InstanceSettingsChooseCompatibleBinaries" xml:space="preserve">
+    <value>Instance Settings → choose compatible binaries</value>
+  </data>
+  <data name="BinariesUnavailableRepairInInstanceSettings" xml:space="preserve">
+    <value>! Binaries unavailable · repair in Instance Settings</value>
+  </data>
+  <data name="ReadingOriginalConfiguration" xml:space="preserve">
+    <value>Reading original configuration…</value>
+  </data>
+  <data name="TCPListeningIsDisabled" xml:space="preserve">
+    <value>TCP listening is disabled</value>
+  </data>
+  <data name="UnknownBinariesUnavailable" xml:space="preserve">
+    <value>Unknown · binaries unavailable</value>
+  </data>
+  <data name="ReadyAcceptingConnectionsPIDVerified" xml:space="preserve">
+    <value>Ready · accepting connections (PID verified)</value>
+  </data>
+  <data name="NotReadyNotAcceptingConnectionsYet" xml:space="preserve">
+    <value>Not Ready · not accepting connections yet</value>
+  </data>
+  <data name="ServerProcessIsStopped" xml:space="preserve">
+    <value>— · server process is stopped</value>
+  </data>
+  <data name="UnknownReadinessNotConfirmed" xml:space="preserve">
+    <value>Unknown · readiness not confirmed</value>
+  </data>
+  <data name="UnknownBinariesNotLinkedOrUnavailable" xml:space="preserve">
+    <value>Unknown · binaries not linked or unavailable</value>
+  </data>
+  <data name="CouldNotReadConfigurationSeeStatusDetails" xml:space="preserve">
+    <value>Could not read configuration; see status details</value>
+  </data>
+  <data name="SelectAnInstanceFirst" xml:space="preserve">
+    <value>Select an instance first.</value>
+  </data>
+  <data name="NoPostgreSQLBinaryDirectoryIsConfiguredYet" xml:space="preserve">
+    <value>No PostgreSQL binary directory is configured yet. Add one before importing an instance.</value>
+  </data>
+  <data name="ImportInstance2" xml:space="preserve">
+    <value>Import Instance</value>
+  </data>
+  <data name="UnregisterRNDataAndLogsAreKept" xml:space="preserve">
+    <value>Unregister “{0}”?&#13;
+Data and logs are kept. The database keeps its current state.</value>
+  </data>
+  <data name="UnregisterInstance2" xml:space="preserve">
+    <value>Unregister Instance</value>
+  </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>Directory not found: </value>
+  </data>
+  <data name="StopAllRunningRegisteredInstancesInFast" xml:space="preserve">
+    <value>Stop all running registered instances in fast mode (including those started outside PgHatch), then exit?</value>
+  </data>
+  <data name="StopInstancesAndExit" xml:space="preserve">
+    <value>Stop Instances and Exit</value>
+  </data>
+  <data name="WaitingForCurrentOperationsBeforeExiting" xml:space="preserve">
+    <value>Waiting for current operations before exiting…</value>
+  </data>
+  <data name="CouldNotExit" xml:space="preserve">
+    <value>Could Not Exit</value>
+  </data>
+  <data name="EmbeddedIconMissing" xml:space="preserve">
+    <value>Embedded icon missing: </value>
+  </data>
+  <data name="TheConfigurationWasChangedOutsidePgHatchSaving" xml:space="preserve">
+    <value>The configuration was changed outside PgHatch. Saving was canceled to protect those changes. Reload before continuing.</value>
+  </data>
+  <data name="InvalidJSONNTheOriginalFileWas" xml:space="preserve">
+    <value>Invalid JSON: {0}&#13;
+{1}. The original file was not changed.</value>
+  </data>
+  <data name="TheConfigurationRootMustBeAnObject" xml:space="preserve">
+    <value>The configuration root must be an object.</value>
+  </data>
+  <data name="TheConfigurationIsEmpty" xml:space="preserve">
+    <value>The configuration is empty.</value>
+  </data>
+  <data name="InstancesContainsDuplicateDataDirectories" xml:space="preserve">
+    <value>Instances contains duplicate data directories.</value>
+  </data>
+  <data name="InvalidConfigurationFieldTypeNTheOriginal" xml:space="preserve">
+    <value>Invalid configuration field type: {0}&#13;
+{1}. The original file was not changed.</value>
+  </data>
+  <data name="CouldNotParseAConfigurationFieldN" xml:space="preserve">
+    <value>Could not parse a configuration field: {0}&#13;
+{1}. The original file was not changed.</value>
+  </data>
+  <data name="DuplicateFieldIncludingCaseVariants" xml:space="preserve">
+    <value>Duplicate field {0}.{1} (including case variants).</value>
+  </data>
+  <data name="UnsupportedSchemaVersionSupportedOverwritingIsBlocked" xml:space="preserve">
+    <value>Unsupported schema version {0}. Supported: 1–{1}. Overwriting is blocked; use a compatible application version.</value>
+  </data>
+  <data name="BinariesInstancesMustBeArrays" xml:space="preserve">
+    <value>Binaries / Instances must be arrays.</value>
+  </data>
+  <data name="BinariesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Binaries contains a null record, invalid ID or duplicate ID.</value>
+  </data>
+  <data name="InvalidBinDirectoryVersionOrMajorInBinaries" xml:space="preserve">
+    <value>Invalid BinDirectory, Version or Major in Binaries[{0}].</value>
+  </data>
+  <data name="InstancesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Instances contains a null record, invalid ID or duplicate ID.</value>
+  </data>
+  <data name="InvalidNameDataDirectoryLogPathOrPortIn" xml:space="preserve">
+    <value>Invalid Name, DataDirectory, LogPath or Port in Instances[{0}].</value>
+  </data>
+  <data name="TheBackupHasInstancesWithMissingBinary" xml:space="preserve">
+    <value>The backup has instances with missing binary links and cannot be restored directly. Open it to check the references. The original file was not changed.</value>
+  </data>
+  <data name="ConfigurationDirectoryIsNotWritableMovePgHatch" xml:space="preserve">
+    <value>Configuration directory is not writable: {0}. Move PgHatch to a writable directory. Configuration will not be relocated automatically.</value>
+  </data>
+  <data name="TheScanDirectoryDoesNotExistChoose" xml:space="preserve">
+    <value>The scan directory does not exist. Choose another location.</value>
+  </data>
+  <data name="SkippedDirectoryLink" xml:space="preserve">
+    <value>Skipped directory link: </value>
+  </data>
+  <data name="Unknown2" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="AlreadyRegisteredItWillNotBeAdded" xml:space="preserve">
+    <value>Already registered; it will not be added again.</value>
+  </data>
+  <data name="CheckThePathAndPurposeBeforeSelecting" xml:space="preserve">
+    <value>Check the path and purpose before selecting this instance to import. It will not be started.</value>
+  </data>
+  <data name="IncompleteClusterMarkersThisDirectoryCannotBe" xml:space="preserve">
+    <value>Incomplete cluster markers; this directory cannot be safely imported.</value>
+  </data>
+  <data name="NoMatchingPostgreSQLBinariesRegisterThatVersion" xml:space="preserve">
+    <value>No matching PostgreSQL {0} binaries. Register that version first.</value>
+  </data>
+  <data name="PossibleBackupOrCopyVerifyItsPurpose" xml:space="preserve">
+    <value>Possible backup or copy. Verify its purpose manually; this wizard will not import it. </value>
+  </data>
+  <data name="MultipleCompatibleBinaryInstallationsChooseOneExplicitly" xml:space="preserve">
+    <value>Multiple compatible binary installations. Choose one explicitly. </value>
+  </data>
+  <data name="SkippedDirectory" xml:space="preserve">
+    <value>Skipped directory {0}: {1}</value>
+  </data>
+  <data name="ReachedTheDirectoryLimitSelectAMore" xml:space="preserve">
+    <value>Reached the 256-directory limit. Select a more specific root directory and try again.</value>
+  </data>
+  <data name="ReadOnlyScanUpToLevelsDirectories" xml:space="preserve">
+    <value>Read-only scan: up to 3 levels / 256 directories. Discovery does not import; importing does not start a database.</value>
+  </data>
+  <data name="PgHatchIsExitingAndCannotAcceptNew" xml:space="preserve">
+    <value>PgHatch is exiting and cannot accept new operations.</value>
+  </data>
+  <data name="ConfigurationHasNotLoadedSuccessfullyRetryOr" xml:space="preserve">
+    <value>Configuration has not loaded successfully. Retry or explicitly choose recovery. The original file will not be overwritten automatically.</value>
+  </data>
+  <data name="WaitForStartStopOperationsToFinish" xml:space="preserve">
+    <value>Wait for start/stop operations to finish before reloading.</value>
+  </data>
+  <data name="TheCurrentConfigurationIsValidRecoveryIs" xml:space="preserve">
+    <value>The current configuration is valid; recovery is not needed.</value>
+  </data>
+  <data name="BinariesAreNotLinkedChooseCompatiblePostgreSQL" xml:space="preserve">
+    <value>Binaries are not linked. Choose compatible PostgreSQL binaries in Instance Settings.</value>
+  </data>
+  <data name="BinariesUnavailableMissing" xml:space="preserve">
+    <value>Binaries unavailable. Missing: </value>
+  </data>
+  <data name="RepairThePathOrRelinkTheInstance" xml:space="preserve">
+    <value>. Repair the path or relink the instance.</value>
+  </data>
+  <data name="CannotUnregisterTheseInstancesStillUseThese" xml:space="preserve">
+    <value>Cannot unregister: these instances still use these binaries:&#13;
+</value>
+  </data>
+  <data name="NRelinkThemInInstanceSettingsFirstNo" xml:space="preserve">
+    <value>&#13;
+Relink them in Instance Settings first. No instances or files will be deleted.</value>
+  </data>
+  <data name="TheBinariesAreNotRegistered" xml:space="preserve">
+    <value>The binaries are not registered.</value>
+  </data>
+  <data name="TheReplacementPathMustUseTheSame" xml:space="preserve">
+    <value>The replacement path must use the same PostgreSQL major version.</value>
+  </data>
+  <data name="ThisPathIsAlreadyRegisteredRelinkThe" xml:space="preserve">
+    <value>This path is already registered. Relink the existing binaries in Instance Settings.</value>
+  </data>
+  <data name="ALinkedInstanceIsStartingOrStopping" xml:space="preserve">
+    <value>A linked instance is starting or stopping. Wait before repairing the path.</value>
+  </data>
+  <data name="TheInstanceNameCannotBeEmpty" xml:space="preserve">
+    <value>The instance name cannot be empty.</value>
+  </data>
+  <data name="TheInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>The instance is starting or stopping. Wait before changing its binary link.</value>
+  </data>
+  <data name="TheInstanceIsNotRegistered" xml:space="preserve">
+    <value>The instance is not registered.</value>
+  </data>
+  <data name="RegisterTheSelectedBinariesFirst" xml:space="preserve">
+    <value>Register the selected binaries first.</value>
+  </data>
+  <data name="TheBinaryVersionHasChangedRepairIts" xml:space="preserve">
+    <value>The binary version has changed. Repair its registration first.</value>
+  </data>
+  <data name="RegisterAPostgreSQLBinaryDirectoryFirst" xml:space="preserve">
+    <value>Register a PostgreSQL binary directory first.</value>
+  </data>
+  <data name="ThisDataDirectoryIsAlreadyRegisteredIt" xml:space="preserve">
+    <value>This data directory is already registered; it will not be imported again.</value>
+  </data>
+  <data name="CannotInitializeAnInstanceInsideARegistered" xml:space="preserve">
+    <value>Cannot initialize an instance inside a registered data directory.</value>
+  </data>
+  <data name="PortIsAssignedToAnotherInstanceChoose" xml:space="preserve">
+    <value>Port {0} is assigned to another instance. Choose a different port.</value>
+  </data>
+  <data name="ThePortMustBeBetweenAnd" xml:space="preserve">
+    <value>The port must be between 1 and 65535.</value>
+  </data>
+  <data name="ThisInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>This instance is starting or stopping. Wait before unregistering it.</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>Unknown operation.</value>
+  </data>
+  <data name="ThisInstanceIsAlreadyStartingOrStopping" xml:space="preserve">
+    <value>This instance is already starting or stopping.</value>
+  </data>
+  <data name="TheDataDirectoryNowPointsElsewhereOr" xml:space="preserve">
+    <value>The data directory now points elsewhere or through a directory link. Recheck the path and import it again. This operation was blocked.</value>
+  </data>
+  <data name="RNActualState" xml:space="preserve">
+    <value>&#13;
+Actual state: </value>
+  </data>
+  <data name="CannotConfirmThatTheInstanceIsStopped" xml:space="preserve">
+    <value>Cannot confirm that the instance is stopped. Start was blocked.&#13;
+</value>
+  </data>
+  <data name="StartingWithTheOriginalPGDATAPortAnd" xml:space="preserve">
+    <value>Starting with the original PGDATA port and listen configuration.</value>
+  </data>
+  <data name="CouldNotConfirmTheServerProcessAfter" xml:space="preserve">
+    <value>Could not confirm the server process after starting. Its actual state was checked again; see the logs.&#13;
+</value>
+  </data>
+  <data name="CannotConfirmThatTheTargetClusterProcess" xml:space="preserve">
+    <value>Cannot confirm that the target cluster process is running. Stop was blocked.&#13;
+</value>
+  </data>
+  <data name="StoppingInFastMode" xml:space="preserve">
+    <value>Stopping in fast mode…</value>
+  </data>
+  <data name="ShutdownIsNotYetConfirmedTheActual" xml:space="preserve">
+    <value>Shutdown is not yet confirmed. The actual state was checked again.&#13;
+</value>
+  </data>
+  <data name="ThePathCannotBeEmpty" xml:space="preserve">
+    <value>The path cannot be empty.</value>
+  </data>
+  <data name="DevicePathsAreNotSupportedChooseA" xml:space="preserve">
+    <value>Device paths are not supported. Choose a regular absolute path.</value>
+  </data>
+  <data name="ThePathContainsAmbiguousTrailingSpacesPeriods" xml:space="preserve">
+    <value>The path contains ambiguous trailing spaces, periods or stream names.</value>
+  </data>
+  <data name="CannotCheckPathPermissionsThisOperationWas" xml:space="preserve">
+    <value>Cannot check path permissions. This operation was blocked: {0}</value>
+  </data>
+  <data name="CannotSafelyResolveDirectoryLink" xml:space="preserve">
+    <value>Cannot safely resolve directory link: {0}</value>
+  </data>
+  <data name="DirectoryLinkTargetDoesNotExist" xml:space="preserve">
+    <value>Directory link target does not exist: {0}</value>
+  </data>
+  <data name="NewClustersRequireALocalDiskDirectory" xml:space="preserve">
+    <value>New clusters require a local disk directory that can be safely checked.</value>
+  </data>
+  <data name="PathIsNotADirectory" xml:space="preserve">
+    <value>Path is not a directory: {0}</value>
+  </data>
+  <data name="InitializationPathsCannotTraverseASymbolicLink" xml:space="preserve">
+    <value>Initialization paths cannot traverse a symbolic link or junction: {0}</value>
+  </data>
+  <data name="CannotInitializeInsideAnExistingOrSuspected" xml:space="preserve">
+    <value>Cannot initialize inside an existing or suspected PostgreSQL cluster: {0}</value>
+  </data>
+  <data name="TheInitializationDirectoryMustBeEmptyOr" xml:space="preserve">
+    <value>The initialization directory must be empty or absent. Existing contents will not be overwritten, reset or removed.</value>
+  </data>
+  <data name="MissingPostgreSQLTool" xml:space="preserve">
+    <value>Missing PostgreSQL tool: {0}</value>
+  </data>
+  <data name="CouldNotIdentifyPostgreSQLVersion" xml:space="preserve">
+    <value>Could not identify PostgreSQL version: </value>
+  </data>
+  <data name="IncompletePostgreSQLDataDirectoryMissingGlobalPg" xml:space="preserve">
+    <value>Incomplete PostgreSQL data directory (missing global/pg_control).</value>
+  </data>
+  <data name="MajorVersionMismatchDataBinariesRegisteredUse" xml:space="preserve">
+    <value>Major version mismatch: data {0}, binaries {1}, registered {2}. Use matching binaries; automatic upgrades are not supported.</value>
+  </data>
+  <data name="CouldNotReadInstancePort" xml:space="preserve">
+    <value>Could not read instance port: </value>
+  </data>
+  <data name="CouldNotReadListenConfiguration" xml:space="preserve">
+    <value>Could not read listen configuration: </value>
+  </data>
+  <data name="TheDataDirectoryInPostgresqlConfDiffers" xml:space="preserve">
+    <value>The data_directory in postgresql.conf differs from the selected PGDATA or cannot be confirmed. This layout is not supported to prevent operating on another cluster.</value>
+  </data>
+  <data name="RNIncompletePIDFileOrClusterIdentity" xml:space="preserve">
+    <value>&#13;
+Incomplete PID file or cluster identity mismatch. Connection readiness is unknown.</value>
+  </data>
+  <data name="RNCannotConfirmALocalTCPEndpoint" xml:space="preserve">
+    <value>&#13;
+Cannot confirm a local TCP endpoint owned by this server. Connection readiness is unknown.</value>
+  </data>
+  <data name="ServerIdentityChangedDuringTheProbeIt" xml:space="preserve">
+    <value>Server identity changed during the probe. It will be checked again on the next poll.</value>
+  </data>
+  <data name="RNConnectionReadinessUnknown" xml:space="preserve">
+    <value>&#13;
+Connection readiness unknown: </value>
+  </data>
+  <data name="ListenAddressIsInUseOrUnavailable" xml:space="preserve">
+    <value>Listen address {0}:{1} is in use or unavailable.</value>
+  </data>
+  <data name="EnterASuperuserNameAndANon" xml:space="preserve">
+    <value>Enter a superuser name and a non-empty, single-line password.</value>
+  </data>
+  <data name="TheBinaryMajorVersionHasChangedRegister" xml:space="preserve">
+    <value>The binary major version has changed. Register the directory again.</value>
+  </data>
+  <data name="InitializationFailedTheTargetDirectoryIsKept" xml:space="preserve">
+    <value>Initialization failed. The target directory is kept for inspection.&#13;
+</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="FollowSystem" xml:space="preserve">
+    <value>Follow Windows</value>
+  </data>
+  <data name="LanguageRestart" xml:space="preserve">
+    <value>Language saved. It will apply the next time you start PgHatch.</value>
+  </data>
+  <data name="PreferenceReadFailed" xml:space="preserve">
+    <value>Could not read UI preferences. Windows language will be used. The file is preserved.&#13;
+{0}</value>
+  </data>
+  <data name="PreferenceInvalid" xml:space="preserve">
+    <value>Invalid UI preferences. Expected Language to be null, zh-CN, en-US or zh-TW.</value>
+  </data>
+  <data name="PreferenceConflict" xml:space="preserve">
+    <value>UI preferences were changed externally. Restart PgHatch before saving a language choice.</value>
+  </data>
+  <data name="PreferenceBlocked" xml:space="preserve">
+    <value>The UI preferences file could not be read and will not be overwritten. Open {0} to repair it, then restart PgHatch.</value>
+  </data>
+  <data name="InstanceCountOne" xml:space="preserve">
+    <value>{0} instance</value>
+  </data>
+  <data name="InstanceCountMany" xml:space="preserve">
+    <value>{0} instances</value>
+  </data>
+  <data name="RunningCountOne" xml:space="preserve">
+    <value>{0} process</value>
+  </data>
+  <data name="RunningCountMany" xml:space="preserve">
+    <value>{0} processes</value>
+  </data>
+  <data name="PgHatchLogo" xml:space="preserve">
+    <value>PgHatch logo</value>
+  </data>
+  <data name="CommandDiagnostic" xml:space="preserve">
+    <value>Exit code: {0}; timeout: {1}&#13;
+{2}&#13;
+{3}</value>
+  </data>
+  <data name="DiagnosticYes" xml:space="preserve">
+    <value>yes</value>
+  </data>
+  <data name="DiagnosticNo" xml:space="preserve">
+    <value>no</value>
+  </data>
+  <data name="LanguageSimplifiedChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageTraditionalChinese" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="BinaryFilesMissing" xml:space="preserve">
+    <value>Binaries unavailable. Missing: {0}. Repair the path or relink the instance.</value>
+  </data>
+  <data name="BinaryStillInUse" xml:space="preserve">
+    <value>Cannot unregister: these instances still use these binaries:&#13;
+{0}&#13;
+Relink them in Instance Settings first. No instances or files will be deleted.</value>
+  </data>
+  <data name="ListSeparator" xml:space="preserve">
+    <value>, </value>
+  </data>
+  <data name="LogWindowTitle" xml:space="preserve">
+    <value>Logs — {0}</value>
+  </data>
+  <data name="DirectoryMissing" xml:space="preserve">
+    <value>Directory not found: {0}</value>
+  </data>
+  <data name="ActualStateDetail" xml:space="preserve">
+    <value>{0}&#13;
+Actual state: {1}&#13;
+{2}</value>
+  </data>
+</root>

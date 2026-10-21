@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/TestResults/
+artifacts/
+pgtray.json
+pghatch.json
+pghatch.ui.json
+*.user
+.vs/
+
+# Local source snapshot; not part of the published repository.
+/PGTray开发.zip

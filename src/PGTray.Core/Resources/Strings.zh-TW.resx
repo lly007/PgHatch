@@ -1,0 +1,850 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name="OK" xml:space="preserve">
+    <value>確定</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>瀏覽…</value>
+  </data>
+  <data name="SelectAnExistingDirectory" xml:space="preserve">
+    <value>選擇現有目錄</value>
+  </data>
+  <data name="SelectAnEmptyDataDirectoryOrChoose" xml:space="preserve">
+    <value>選擇空的資料目錄，或選擇上層目錄後手動加上名稱</value>
+  </data>
+  <data name="PostgreSQLBinaries" xml:space="preserve">
+    <value>PostgreSQL 程式管理</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>無法使用</value>
+  </data>
+  <data name="Available" xml:space="preserve">
+    <value>可用</value>
+  </data>
+  <data name="RegisteredBinaries" xml:space="preserve">
+    <value>已註冊程式</value>
+  </data>
+  <data name="RootDirectoryBin" xml:space="preserve">
+    <value>程式根目錄 / bin</value>
+  </data>
+  <data name="RegisterBinaries" xml:space="preserve">
+    <value>註冊程式</value>
+  </data>
+  <data name="RepairSelectedPath" xml:space="preserve">
+    <value>修復所選路徑</value>
+  </data>
+  <data name="SelectRegisteredBinariesFirstThenEnterThe" xml:space="preserve">
+    <value>請先選擇已註冊程式，再指定新路徑。</value>
+  </data>
+  <data name="UnregisterBinaries" xml:space="preserve">
+    <value>取消註冊程式…</value>
+  </data>
+  <data name="ThisOnlyRemovesTheBinaryRegistrationFrom" xml:space="preserve">
+    <value>此操作只會從 PgHatch 移除程式註冊，不會刪除磁碟檔案。&#13;
+不會刪除執行個體、PGDATA、日誌或停止資料庫。</value>
+  </data>
+  <data name="UnregisterBinaries2" xml:space="preserve">
+    <value>取消註冊程式</value>
+  </data>
+  <data name="FindNearbyBinaries" xml:space="preserve">
+    <value>尋找附近程式…</value>
+  </data>
+  <data name="NoBinariesFoundNearbyBrowseToA" xml:space="preserve">
+    <value>附近找不到程式，請瀏覽並選擇 PostgreSQL 根目錄或 bin。</value>
+  </data>
+  <data name="Registration" xml:space="preserve">
+    <value>註冊操作</value>
+  </data>
+  <data name="DiscoveryListsCandidatesOnlyRegisterSavesThem" xml:space="preserve">
+    <value>搜尋僅列出候選目錄，按下註冊才會儲存。取消註冊後，下次啟動不會自動加回。&#13;
+修復路徑會保留註冊 ID，且主版本必須相容；仍有執行個體使用的程式無法取消註冊。</value>
+  </data>
+  <data name="NewPostgreSQLInstance" xml:space="preserve">
+    <value>新增 PostgreSQL 執行個體</value>
+  </data>
+  <data name="ImportPostgreSQLInstance" xml:space="preserve">
+    <value>匯入現有 PostgreSQL 執行個體</value>
+  </data>
+  <data name="InstanceName" xml:space="preserve">
+    <value>執行個體名稱</value>
+  </data>
+  <data name="PostgreSQLBinaries2" xml:space="preserve">
+    <value>PostgreSQL 程式</value>
+  </data>
+  <data name="PGDATADirectory" xml:space="preserve">
+    <value>PGDATA 目錄</value>
+  </data>
+  <data name="ReadPort" xml:space="preserve">
+    <value>讀取連接埠</value>
+  </data>
+  <data name="CouldNotReadConfiguration" xml:space="preserve">
+    <value>讀取失敗</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>連接埠</value>
+  </data>
+  <data name="Superuser" xml:space="preserve">
+    <value>超級使用者</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>初始密碼</value>
+  </data>
+  <data name="OnlyAnEmptyDirectoryWillBeInitialized" xml:space="preserve">
+    <value>僅初始化空目錄。使用 SCRAM-SHA-256 並監聽 127.0.0.1；密碼不會儲存。&#13;
+初始化會在主視窗非同步執行；失敗時保留目錄供檢查，不會自動清理。</value>
+  </data>
+  <data name="ImportChecksTheClusterVersionAndConfigured" xml:space="preserve">
+    <value>匯入僅以唯讀方式檢查叢集、版本及原始連接埠，不會啟停資料庫。&#13;
+啟動和重新啟動皆沿用原始設定，不會覆寫監聽位址或連接埠。</value>
+  </data>
+  <data name="EnterAnInstanceNameAndDataDirectory" xml:space="preserve">
+    <value>請填寫執行個體名稱和資料目錄。</value>
+  </data>
+  <data name="EnterASuperuserNameAndInitialPassword" xml:space="preserve">
+    <value>請填寫超級使用者名稱和初始密碼。</value>
+  </data>
+  <data name="RenameInstance" xml:space="preserve">
+    <value>重新命名執行個體</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>顯示名稱</value>
+  </data>
+  <data name="OnlyTheDisplayNameInPgHatchWill" xml:space="preserve">
+    <value>僅變更 PgHatch 中的顯示名稱。</value>
+  </data>
+  <data name="TheNameCannotBeEmpty" xml:space="preserve">
+    <value>名稱不能空白。</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>日誌 — </value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>重新整理</value>
+  </data>
+  <data name="OpenFullLog" xml:space="preserve">
+    <value>開啟完整日誌</value>
+  </data>
+  <data name="NoPgHatchStartupLogYetExistingLogging" xml:space="preserve">
+    <value>尚無 PgHatch 啟動日誌。現有叢集的 logging_collector 日誌仍在原設定位置。</value>
+  </data>
+  <data name="RNRNPostgreSQLLogLast" xml:space="preserve">
+    <value>&#13;
+&#13;
+--- PostgreSQL 日誌（最後 64 KiB）---&#13;
+</value>
+  </data>
+  <data name="ScanReadOnly" xml:space="preserve">
+    <value>唯讀掃描</value>
+  </data>
+  <data name="ImportSelected" xml:space="preserve">
+    <value>匯入勾選項目</value>
+  </data>
+  <data name="ScanLocalPostgreSQLInstances" xml:space="preserve">
+    <value>掃描現有 PostgreSQL 執行個體</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>選擇範圍…</value>
+  </data>
+  <data name="ChooseALimitedSearchDirectory" xml:space="preserve">
+    <value>選擇有限範圍的掃描根目錄</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>匯入</value>
+  </data>
+  <data name="DataDirectory" xml:space="preserve">
+    <value>資料目錄</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="ListenAddress" xml:space="preserve">
+    <value>監聽位址</value>
+  </data>
+  <data name="UseBinaries" xml:space="preserve">
+    <value>使用程式</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>說明</value>
+  </data>
+  <data name="ChooseCompatiblePostgreSQLBinariesForThisRow" xml:space="preserve">
+    <value>請為此列選擇相容的 PostgreSQL 程式。</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>關閉</value>
+  </data>
+  <data name="NothingIsSelectedByDefaultScanningFinds" xml:space="preserve">
+    <value>所有結果預設不勾選。掃描僅尋找候選項目，匯入僅註冊，不會變更設定或啟停資料庫。</value>
+  </data>
+  <data name="SavingImportedInstancesPleaseWaitBeforeClosing" xml:space="preserve">
+    <value>正在儲存匯入結果，請稍候再關閉。</value>
+  </data>
+  <data name="CancelingTheReadOnlyScan" xml:space="preserve">
+    <value>正在取消唯讀掃描…</value>
+  </data>
+  <data name="ScanningReadOnly" xml:space="preserve">
+    <value>正在以唯讀方式掃描…</value>
+  </data>
+  <data name="ChooseBinaries" xml:space="preserve">
+    <value>請選擇程式</value>
+  </data>
+  <data name="CandidatesAlreadyRegisteredRN" xml:space="preserve">
+    <value>候選項目：{0}；已註冊：{1}。&#13;
+</value>
+  </data>
+  <data name="SelectTheInstancesYouWantToImport" xml:space="preserve">
+    <value>請先勾選要匯入的執行個體。</value>
+  </data>
+  <data name="ChooseCompatibleBinariesForEverySelectedRow" xml:space="preserve">
+    <value>請為所有勾選列明確選擇相容程式。</value>
+  </data>
+  <data name="ImportedNotStarted" xml:space="preserve">
+    <value>已匯入，尚未啟動。</value>
+  </data>
+  <data name="ImportedAllDatabasesKeepTheirCurrentState" xml:space="preserve">
+    <value>已匯入：{0}。所有資料庫執行狀態維持不變。</value>
+  </data>
+  <data name="InstanceSettingsRepairBinaries" xml:space="preserve">
+    <value>執行個體設定 / 修復程式關聯</value>
+  </data>
+  <data name="NotLinkedChooseCompatibleBinaries" xml:space="preserve">
+    <value>未關聯 — 請選擇相容程式</value>
+  </data>
+  <data name="Unavailable2" xml:space="preserve">
+    <value>無法使用 · </value>
+  </data>
+  <data name="LinkedBinaries" xml:space="preserve">
+    <value>關聯程式</value>
+  </data>
+  <data name="OpenPostgresqlConf" xml:space="preserve">
+    <value>開啟 postgresql.conf…</value>
+  </data>
+  <data name="ConfigurationFileNotFound" xml:space="preserve">
+    <value>找不到設定檔。</value>
+  </data>
+  <data name="OriginalConfiguration" xml:space="preserve">
+    <value>原始設定</value>
+  </data>
+  <data name="RelinkingChecksPGVERSIONAgainstTheBinary" xml:space="preserve">
+    <value>變更關聯會檢查 PG_VERSION 與程式主版本，不會啟停或改寫資料。缺少程式時，請先回到程式管理註冊。&#13;
+若自行編輯 port/listen_addresses，變更將於下次啟動或重新啟動生效；非本機監聽可能擴大連線範圍，仍受 pg_hba.conf 與防火牆限制。</value>
+  </data>
+  <data name="ChoosePostgreSQLBinaries" xml:space="preserve">
+    <value>請選擇 PostgreSQL 程式。</value>
+  </data>
+  <data name="PgHatchPostgreSQLInstanceManager" xml:space="preserve">
+    <value>PgHatch — PostgreSQL 執行個體管理員</value>
+  </data>
+  <data name="LocalPostgreSQLInstancesV" xml:space="preserve">
+    <value>本機 PostgreSQL 執行個體 · v0.2.0</value>
+  </data>
+  <data name="AddInstance" xml:space="preserve">
+    <value>新增執行個體</value>
+  </data>
+  <data name="NewInstance" xml:space="preserve">
+    <value>新增執行個體…</value>
+  </data>
+  <data name="ImportInstance" xml:space="preserve">
+    <value>匯入現有執行個體…</value>
+  </data>
+  <data name="ScanLocalInstances" xml:space="preserve">
+    <value>掃描本機執行個體…</value>
+  </data>
+  <data name="PostgreSQLBinaries3" xml:space="preserve">
+    <value>PostgreSQL 程式…</value>
+  </data>
+  <data name="ExitPgHatchKeepDatabasesRunning" xml:space="preserve">
+    <value>結束 PgHatch（資料庫繼續執行）</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="OpenConfigurationFolder" xml:space="preserve">
+    <value>開啟設定目錄</value>
+  </data>
+  <data name="ReloadConfiguration" xml:space="preserve">
+    <value>重新載入設定</value>
+  </data>
+  <data name="AboutPgHatch" xml:space="preserve">
+    <value>關於 PgHatch</value>
+  </data>
+  <data name="PgHatchVNPostgreSQLReadyWhenYouAre" xml:space="preserve">
+    <value>PgHatch v0.2.0&#13;
+PostgreSQL, ready when you are.&#13;
+Windows 專用的可攜式 PostgreSQL 執行個體管理工具。&#13;
+&#13;
+前身為 PGTray，獨立社群工具，與 PostgreSQL 官方無隸屬關係。&#13;
+功能圖示：Lucide（ISC；部分 Feather/MIT），授權已內嵌並隨程式提供。</value>
+  </data>
+  <data name="OpenConfigurationFile" xml:space="preserve">
+    <value>開啟設定檔</value>
+  </data>
+  <data name="TheConfigurationFileHasNotBeenCreated" xml:space="preserve">
+    <value>尚未建立設定檔。</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>重新載入</value>
+  </data>
+  <data name="RestoreBak" xml:space="preserve">
+    <value>從 .bak 還原…</value>
+  </data>
+  <data name="PreserveFileAndStartFresh" xml:space="preserve">
+    <value>保留原檔並建立空白設定…</value>
+  </data>
+  <data name="Instances" xml:space="preserve">
+    <value>執行個體</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>狀態</value>
+  </data>
+  <data name="Binaries" xml:space="preserve">
+    <value>程式目錄</value>
+  </data>
+  <data name="Connection" xml:space="preserve">
+    <value>連線狀態</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>啟動</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Restart" xml:space="preserve">
+    <value>重新啟動</value>
+  </data>
+  <data name="Logs2" xml:space="preserve">
+    <value>日誌</value>
+  </data>
+  <data name="OpenDataDirectory" xml:space="preserve">
+    <value>開啟資料目錄</value>
+  </data>
+  <data name="InstanceSettings" xml:space="preserve">
+    <value>執行個體設定…</value>
+  </data>
+  <data name="UnregisterInstance" xml:space="preserve">
+    <value>取消註冊執行個體…</value>
+  </data>
+  <data name="MoreActions" xml:space="preserve">
+    <value>更多操作</value>
+  </data>
+  <data name="LoadingConfiguration" xml:space="preserve">
+    <value>正在讀取設定…</value>
+  </data>
+  <data name="OpenManager" xml:space="preserve">
+    <value>開啟管理介面</value>
+  </data>
+  <data name="HideWindow" xml:space="preserve">
+    <value>隱藏視窗</value>
+  </data>
+  <data name="StopAllRegisteredInstancesAndExit" xml:space="preserve">
+    <value>停止所有已註冊執行個體並結束…</value>
+  </data>
+  <data name="PgHatchLoadingConfiguration" xml:space="preserve">
+    <value>PgHatch — 正在讀取設定</value>
+  </data>
+  <data name="ManagePostgreSQL" xml:space="preserve">
+    <value>開始管理 PostgreSQL</value>
+  </data>
+  <data name="CreateANewLocalInstanceOrRegister" xml:space="preserve">
+    <value>建立獨立的本機叢集，或註冊現有資料目錄。&#13;
+掃描和匯入都不會自動啟動資料庫。</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>新增</value>
+  </data>
+  <data name="ScanLocalInstances2" xml:space="preserve">
+    <value>掃描本機執行個體</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>正在處理…</value>
+  </data>
+  <data name="CloseToHideInTrayCtrlQ" xml:space="preserve">
+    <value>{0} · 關閉視窗會隱藏至通知區域 · Ctrl+Q 結束管理員</value>
+  </data>
+  <data name="WaitForTheCurrentOperationToFinish" xml:space="preserve">
+    <value>請等候目前操作完成後再重新載入設定。</value>
+  </data>
+  <data name="CouldNotLoadConfigurationTheOriginalFile" xml:space="preserve">
+    <value>無法讀取設定，已保留原始檔案：</value>
+  </data>
+  <data name="ValidateAndRestoreBakTheCurrentFile" xml:space="preserve">
+    <value>驗證並還原 {0}.bak？原始檔案將另存為 preserved 副本。</value>
+  </data>
+  <data name="PreserveTheCurrentFileAndCreateAn" xml:space="preserve">
+    <value>保留原檔並建立空白設定？資料庫檔案與執行狀態不會改變。</value>
+  </data>
+  <data name="RestoreConfiguration" xml:space="preserve">
+    <value>還原設定</value>
+  </data>
+  <data name="NotLinked" xml:space="preserve">
+    <value>未關聯</value>
+  </data>
+  <data name="BinariesUnavailable" xml:space="preserve">
+    <value>! 程式無法使用</value>
+  </data>
+  <data name="RunningV" xml:space="preserve">
+    <value>本機 PostgreSQL · {0} / {1}執行中 · v0.2.0</value>
+  </data>
+  <data name="PgHatchRunning" xml:space="preserve">
+    <value>PgHatch — {0}執行中</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>● 執行中</value>
+  </data>
+  <data name="Stopped" xml:space="preserve">
+    <value>○ 已停止</value>
+  </data>
+  <data name="Starting" xml:space="preserve">
+    <value>◌ 啟動中</value>
+  </data>
+  <data name="Stopping" xml:space="preserve">
+    <value>◌ 停止中</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>! 錯誤</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>? 尚未確認</value>
+  </data>
+  <data name="InstanceSettingsChooseCompatibleBinaries" xml:space="preserve">
+    <value>執行個體設定 → 選擇相容程式</value>
+  </data>
+  <data name="BinariesUnavailableRepairInInstanceSettings" xml:space="preserve">
+    <value>! 程式無法使用 · 請至執行個體設定修復</value>
+  </data>
+  <data name="ReadingOriginalConfiguration" xml:space="preserve">
+    <value>正在讀取原始設定…</value>
+  </data>
+  <data name="TCPListeningIsDisabled" xml:space="preserve">
+    <value>未啟用 TCP 監聽</value>
+  </data>
+  <data name="UnknownBinariesUnavailable" xml:space="preserve">
+    <value>未知 · 程式無法使用，無法讀取</value>
+  </data>
+  <data name="ReadyAcceptingConnectionsPIDVerified" xml:space="preserve">
+    <value>就緒 · 可接受連線（已核對 PID）</value>
+  </data>
+  <data name="NotReadyNotAcceptingConnectionsYet" xml:space="preserve">
+    <value>未就緒 · 暫不接受連線</value>
+  </data>
+  <data name="ServerProcessIsStopped" xml:space="preserve">
+    <value>— · 伺服器程序已停止</value>
+  </data>
+  <data name="UnknownReadinessNotConfirmed" xml:space="preserve">
+    <value>未知 · 尚未確認連線就緒</value>
+  </data>
+  <data name="UnknownBinariesNotLinkedOrUnavailable" xml:space="preserve">
+    <value>未知 · 程式未關聯或目錄無法使用</value>
+  </data>
+  <data name="CouldNotReadConfigurationSeeStatusDetails" xml:space="preserve">
+    <value>設定讀取失敗，請查看狀態詳情</value>
+  </data>
+  <data name="SelectAnInstanceFirst" xml:space="preserve">
+    <value>請先選擇執行個體。</value>
+  </data>
+  <data name="NoPostgreSQLBinaryDirectoryIsConfiguredYet" xml:space="preserve">
+    <value>尚未設定 PostgreSQL 程式。請先新增 PostgreSQL 程式目錄，再繼續匯入執行個體。</value>
+  </data>
+  <data name="ImportInstance2" xml:space="preserve">
+    <value>匯入執行個體</value>
+  </data>
+  <data name="UnregisterRNDataAndLogsAreKept" xml:space="preserve">
+    <value>取消註冊「{0}」？&#13;
+資料與日誌會保留，資料庫執行狀態維持不變。</value>
+  </data>
+  <data name="UnregisterInstance2" xml:space="preserve">
+    <value>取消註冊執行個體</value>
+  </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>目錄不存在：</value>
+  </data>
+  <data name="StopAllRunningRegisteredInstancesInFast" xml:space="preserve">
+    <value>以 fast 模式停止所有已註冊且正在執行的執行個體（含從外部啟動者），然後結束？</value>
+  </data>
+  <data name="StopInstancesAndExit" xml:space="preserve">
+    <value>停止執行個體並結束</value>
+  </data>
+  <data name="WaitingForCurrentOperationsBeforeExiting" xml:space="preserve">
+    <value>正在等候目前操作完成後結束…</value>
+  </data>
+  <data name="CouldNotExit" xml:space="preserve">
+    <value>尚未完成結束操作</value>
+  </data>
+  <data name="EmbeddedIconMissing" xml:space="preserve">
+    <value>缺少內嵌圖示：</value>
+  </data>
+  <data name="TheConfigurationWasChangedOutsidePgHatchSaving" xml:space="preserve">
+    <value>磁碟設定已由外部變更。為保護變更，本次儲存已取消，請重新載入設定後再操作。</value>
+  </data>
+  <data name="InvalidJSONNTheOriginalFileWas" xml:space="preserve">
+    <value>JSON 語法錯誤：{0}&#13;
+{1}。原始檔案未變更。</value>
+  </data>
+  <data name="TheConfigurationRootMustBeAnObject" xml:space="preserve">
+    <value>設定根節點必須為物件。</value>
+  </data>
+  <data name="TheConfigurationIsEmpty" xml:space="preserve">
+    <value>設定為空白。</value>
+  </data>
+  <data name="InstancesContainsDuplicateDataDirectories" xml:space="preserve">
+    <value>Instances 中有重複的資料目錄。</value>
+  </data>
+  <data name="InvalidConfigurationFieldTypeNTheOriginal" xml:space="preserve">
+    <value>設定欄位型別錯誤：{0}&#13;
+{1}。原始檔案未變更。</value>
+  </data>
+  <data name="CouldNotParseAConfigurationFieldN" xml:space="preserve">
+    <value>無法解析設定欄位：{0}&#13;
+{1}。原始檔案未變更。</value>
+  </data>
+  <data name="DuplicateFieldIncludingCaseVariants" xml:space="preserve">
+    <value>{0}.{1} 欄位重複（含大小寫別名）。</value>
+  </data>
+  <data name="UnsupportedSchemaVersionSupportedOverwritingIsBlocked" xml:space="preserve">
+    <value>不支援設定版本 {0}，此版本支援 1–{1}；禁止覆寫，請使用相容版本。</value>
+  </data>
+  <data name="BinariesInstancesMustBeArrays" xml:space="preserve">
+    <value>Binaries / Instances 必須為陣列。</value>
+  </data>
+  <data name="BinariesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Binaries 中存在空記錄、無效或重複的 Id。</value>
+  </data>
+  <data name="InvalidBinDirectoryVersionOrMajorInBinaries" xml:space="preserve">
+    <value>Binaries[{0}] 的 BinDirectory、Version 或 Major 無效。</value>
+  </data>
+  <data name="InstancesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Instances 中存在空記錄、無效或重複的 Id。</value>
+  </data>
+  <data name="InvalidNameDataDirectoryLogPathOrPortIn" xml:space="preserve">
+    <value>Instances[{0}] 的 Name、DataDirectory、LogPath 或 Port 無效。</value>
+  </data>
+  <data name="TheBackupHasInstancesWithMissingBinary" xml:space="preserve">
+    <value>備份包含未關聯程式的執行個體，無法直接還原；請開啟備份檢查參照。原始檔案未變更。</value>
+  </data>
+  <data name="ConfigurationDirectoryIsNotWritableMovePgHatch" xml:space="preserve">
+    <value>無法寫入設定目錄：{0}。請將 PgHatch 放至可寫入的目錄；不會自動搬移設定。</value>
+  </data>
+  <data name="TheScanDirectoryDoesNotExistChoose" xml:space="preserve">
+    <value>掃描目錄不存在，請重新選擇。</value>
+  </data>
+  <data name="SkippedDirectoryLink" xml:space="preserve">
+    <value>已略過目錄連結：</value>
+  </data>
+  <data name="Unknown2" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="AlreadyRegisteredItWillNotBeAdded" xml:space="preserve">
+    <value>已註冊，不會重複新增。</value>
+  </data>
+  <data name="CheckThePathAndPurposeBeforeSelecting" xml:space="preserve">
+    <value>確認路徑與用途後勾選匯入；不會啟動。</value>
+  </data>
+  <data name="IncompleteClusterMarkersThisDirectoryCannotBe" xml:space="preserve">
+    <value>叢集識別資訊不完整，無法安全匯入。</value>
+  </data>
+  <data name="NoMatchingPostgreSQLBinariesRegisterThatVersion" xml:space="preserve">
+    <value>沒有符合 PostgreSQL {0} 的程式，請先註冊對應版本。</value>
+  </data>
+  <data name="PossibleBackupOrCopyVerifyItsPurpose" xml:space="preserve">
+    <value>疑似備份或副本：掃描精靈不會直接匯入，請手動確認用途。 </value>
+  </data>
+  <data name="MultipleCompatibleBinaryInstallationsChooseOneExplicitly" xml:space="preserve">
+    <value>有多套相容程式，請明確選擇要使用的程式。 </value>
+  </data>
+  <data name="SkippedDirectory" xml:space="preserve">
+    <value>已略過無法檢查的目錄 {0}：{1}</value>
+  </data>
+  <data name="ReachedTheDirectoryLimitSelectAMore" xml:space="preserve">
+    <value>已達 256 個目錄的掃描上限。請選擇更明確的根目錄重試。</value>
+  </data>
+  <data name="ReadOnlyScanUpToLevelsDirectories" xml:space="preserve">
+    <value>唯讀掃描，最多 3 層 / 256 個目錄。搜尋不等於匯入，匯入不等於啟動。</value>
+  </data>
+  <data name="PgHatchIsExitingAndCannotAcceptNew" xml:space="preserve">
+    <value>PgHatch 正在結束，不再接受新操作。</value>
+  </data>
+  <data name="ConfigurationHasNotLoadedSuccessfullyRetryOr" xml:space="preserve">
+    <value>設定尚未成功讀取。請先重試或明確選擇還原；原始檔案不會自動覆寫。</value>
+  </data>
+  <data name="WaitForStartStopOperationsToFinish" xml:space="preserve">
+    <value>請等候啟停操作結束後再重新載入設定。</value>
+  </data>
+  <data name="TheCurrentConfigurationIsValidRecoveryIs" xml:space="preserve">
+    <value>目前設定有效，不需要還原。</value>
+  </data>
+  <data name="BinariesAreNotLinkedChooseCompatiblePostgreSQL" xml:space="preserve">
+    <value>程式未關聯，請至執行個體設定選擇相容的 PostgreSQL 程式。</value>
+  </data>
+  <data name="BinariesUnavailableMissing" xml:space="preserve">
+    <value>程式目錄無法使用，缺少 </value>
+  </data>
+  <data name="RepairThePathOrRelinkTheInstance" xml:space="preserve">
+    <value>；請修復路徑或重新關聯。</value>
+  </data>
+  <data name="CannotUnregisterTheseInstancesStillUseThese" xml:space="preserve">
+    <value>無法取消註冊，以下執行個體仍使用此程式：&#13;
+</value>
+  </data>
+  <data name="NRelinkThemInInstanceSettingsFirstNo" xml:space="preserve">
+    <value>&#13;
+請先至執行個體設定重新關聯程式。不會刪除執行個體或磁碟檔案。</value>
+  </data>
+  <data name="TheBinariesAreNotRegistered" xml:space="preserve">
+    <value>程式尚未註冊。</value>
+  </data>
+  <data name="TheReplacementPathMustUseTheSame" xml:space="preserve">
+    <value>修復路徑必須使用相同的 PostgreSQL 主版本。</value>
+  </data>
+  <data name="ThisPathIsAlreadyRegisteredRelinkThe" xml:space="preserve">
+    <value>該路徑已註冊，請至執行個體設定重新關聯現有程式。</value>
+  </data>
+  <data name="ALinkedInstanceIsStartingOrStopping" xml:space="preserve">
+    <value>關聯的執行個體正在啟停，請稍後再修復路徑。</value>
+  </data>
+  <data name="TheInstanceNameCannotBeEmpty" xml:space="preserve">
+    <value>執行個體名稱不能空白。</value>
+  </data>
+  <data name="TheInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>執行個體正在啟停，請稍後再變更關聯。</value>
+  </data>
+  <data name="TheInstanceIsNotRegistered" xml:space="preserve">
+    <value>執行個體尚未註冊。</value>
+  </data>
+  <data name="RegisterTheSelectedBinariesFirst" xml:space="preserve">
+    <value>請先註冊所選程式。</value>
+  </data>
+  <data name="TheBinaryVersionHasChangedRepairIts" xml:space="preserve">
+    <value>程式版本已變更，請先修復程式註冊。</value>
+  </data>
+  <data name="RegisterAPostgreSQLBinaryDirectoryFirst" xml:space="preserve">
+    <value>請先註冊 PostgreSQL 程式目錄。</value>
+  </data>
+  <data name="ThisDataDirectoryIsAlreadyRegisteredIt" xml:space="preserve">
+    <value>此資料目錄已註冊，不會重複匯入。</value>
+  </data>
+  <data name="CannotInitializeAnInstanceInsideARegistered" xml:space="preserve">
+    <value>禁止在已註冊的資料目錄內初始化執行個體。</value>
+  </data>
+  <data name="PortIsAssignedToAnotherInstanceChoose" xml:space="preserve">
+    <value>連接埠 {0} 已指派給其他執行個體，請選擇不同的連接埠。</value>
+  </data>
+  <data name="ThePortMustBeBetweenAnd" xml:space="preserve">
+    <value>連接埠必須介於 1–65535。</value>
+  </data>
+  <data name="ThisInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>此執行個體正在啟停，請稍後再移除註冊設定。</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>未知操作。</value>
+  </data>
+  <data name="ThisInstanceIsAlreadyStartingOrStopping" xml:space="preserve">
+    <value>此執行個體正在執行啟停操作。</value>
+  </data>
+  <data name="TheDataDirectoryNowPointsElsewhereOr" xml:space="preserve">
+    <value>資料目錄目前指向其他位置或目錄連結。請重新確認路徑並匯入，本次操作已拒絕。</value>
+  </data>
+  <data name="RNActualState" xml:space="preserve">
+    <value>&#13;
+實際狀態：</value>
+  </data>
+  <data name="CannotConfirmThatTheInstanceIsStopped" xml:space="preserve">
+    <value>無法確認執行個體已停止，拒絕啟動。&#13;
+</value>
+  </data>
+  <data name="StartingWithTheOriginalPGDATAPortAnd" xml:space="preserve">
+    <value>正在啟動；沿用 PGDATA 原始連接埠及監聽設定。</value>
+  </data>
+  <data name="CouldNotConfirmTheServerProcessAfter" xml:space="preserve">
+    <value>啟動後尚未確認伺服器程序正在執行；已重新檢查實際狀態，請查看日誌。&#13;
+</value>
+  </data>
+  <data name="CannotConfirmThatTheTargetClusterProcess" xml:space="preserve">
+    <value>無法確認目標叢集程序正在執行，拒絕停止。&#13;
+</value>
+  </data>
+  <data name="StoppingInFastMode" xml:space="preserve">
+    <value>正在以 fast 模式停止…</value>
+  </data>
+  <data name="ShutdownIsNotYetConfirmedTheActual" xml:space="preserve">
+    <value>停止後仍未確認關閉；已重新檢查實際狀態。&#13;
+</value>
+  </data>
+  <data name="ThePathCannotBeEmpty" xml:space="preserve">
+    <value>路徑不能空白。</value>
+  </data>
+  <data name="DevicePathsAreNotSupportedChooseA" xml:space="preserve">
+    <value>不支援裝置路徑，請選擇一般絕對路徑。</value>
+  </data>
+  <data name="ThePathContainsAmbiguousTrailingSpacesPeriods" xml:space="preserve">
+    <value>路徑包含不明確的結尾空白、句點或資料流名稱。</value>
+  </data>
+  <data name="CannotCheckPathPermissionsThisOperationWas" xml:space="preserve">
+    <value>無法檢查路徑權限，已拒絕無法確定安全的操作：{0}</value>
+  </data>
+  <data name="CannotSafelyResolveDirectoryLink" xml:space="preserve">
+    <value>無法安全解析目錄連結：{0}</value>
+  </data>
+  <data name="DirectoryLinkTargetDoesNotExist" xml:space="preserve">
+    <value>目錄連結的目標不存在：{0}</value>
+  </data>
+  <data name="NewClustersRequireALocalDiskDirectory" xml:space="preserve">
+    <value>新叢集僅支援本機磁碟目錄，請選擇可安全檢查的本機路徑。</value>
+  </data>
+  <data name="PathIsNotADirectory" xml:space="preserve">
+    <value>路徑不是目錄：{0}</value>
+  </data>
+  <data name="InitializationPathsCannotTraverseASymbolicLink" xml:space="preserve">
+    <value>初始化路徑不能經過符號連結或 junction：{0}</value>
+  </data>
+  <data name="CannotInitializeInsideAnExistingOrSuspected" xml:space="preserve">
+    <value>禁止在現有或疑似 PostgreSQL 叢集內初始化：{0}</value>
+  </data>
+  <data name="TheInitializationDirectoryMustBeEmptyOr" xml:space="preserve">
+    <value>初始化目錄必須為空或不存在；不會覆寫、重設或清除現有內容。</value>
+  </data>
+  <data name="MissingPostgreSQLTool" xml:space="preserve">
+    <value>缺少 PostgreSQL 工具：{0}</value>
+  </data>
+  <data name="CouldNotIdentifyPostgreSQLVersion" xml:space="preserve">
+    <value>無法識別 PostgreSQL 版本：</value>
+  </data>
+  <data name="IncompletePostgreSQLDataDirectoryMissingGlobalPg" xml:space="preserve">
+    <value>不是完整的 PostgreSQL 資料目錄（缺少 global/pg_control）。</value>
+  </data>
+  <data name="MajorVersionMismatchDataBinariesRegisteredUse" xml:space="preserve">
+    <value>主版本不相容：資料目錄 {0}、程式 {1}、註冊版本 {2}。請使用相符程式；不會自動升級。</value>
+  </data>
+  <data name="CouldNotReadInstancePort" xml:space="preserve">
+    <value>無法讀取執行個體連接埠：</value>
+  </data>
+  <data name="CouldNotReadListenConfiguration" xml:space="preserve">
+    <value>無法讀取監聽設定：</value>
+  </data>
+  <data name="TheDataDirectoryInPostgresqlConfDiffers" xml:space="preserve">
+    <value>postgresql.conf 的 data_directory 與所選 PGDATA 不一致或無法確認。為避免操作其他叢集，目前不支援此分離配置。</value>
+  </data>
+  <data name="RNIncompletePIDFileOrClusterIdentity" xml:space="preserve">
+    <value>&#13;
+PID 檔案不完整或叢集身分不一致，連線狀態未知。</value>
+  </data>
+  <data name="RNCannotConfirmALocalTCPEndpoint" xml:space="preserve">
+    <value>&#13;
+無法確認屬於此伺服器的本機 TCP 監聽端點，連線狀態未知。</value>
+  </data>
+  <data name="ServerIdentityChangedDuringTheProbeIt" xml:space="preserve">
+    <value>探測期間伺服器身分已變更，將於下次輪詢重新檢查。</value>
+  </data>
+  <data name="RNConnectionReadinessUnknown" xml:space="preserve">
+    <value>&#13;
+連線狀態未知：</value>
+  </data>
+  <data name="ListenAddressIsInUseOrUnavailable" xml:space="preserve">
+    <value>監聽位址 {0}:{1} 已被占用或無法使用。</value>
+  </data>
+  <data name="EnterASuperuserNameAndANon" xml:space="preserve">
+    <value>請輸入超級使用者名稱及非空白的單行密碼。</value>
+  </data>
+  <data name="TheBinaryMajorVersionHasChangedRegister" xml:space="preserve">
+    <value>程式目錄的主版本已變更，請重新註冊程式目錄。</value>
+  </data>
+  <data name="InitializationFailedTheTargetDirectoryIsKept" xml:space="preserve">
+    <value>初始化失敗，已保留目標目錄供檢查。&#13;
+</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="FollowSystem" xml:space="preserve">
+    <value>跟隨系統</value>
+  </data>
+  <data name="LanguageRestart" xml:space="preserve">
+    <value>語言已儲存，下次啟動 PgHatch 時生效。</value>
+  </data>
+  <data name="PreferenceReadFailed" xml:space="preserve">
+    <value>無法讀取介面偏好，將跟隨系統語言。原始檔案已保留。&#13;
+{0}</value>
+  </data>
+  <data name="PreferenceInvalid" xml:space="preserve">
+    <value>介面偏好無效，Language 應為 null、zh-CN、en-US 或 zh-TW。</value>
+  </data>
+  <data name="PreferenceConflict" xml:space="preserve">
+    <value>介面偏好已由外部變更。請重新啟動 PgHatch 後再選擇語言。</value>
+  </data>
+  <data name="PreferenceBlocked" xml:space="preserve">
+    <value>介面偏好檔讀取失敗，不會覆寫。請開啟 {0} 修復後重新啟動 PgHatch。</value>
+  </data>
+  <data name="InstanceCountOne" xml:space="preserve">
+    <value>{0} 個執行個體</value>
+  </data>
+  <data name="InstanceCountMany" xml:space="preserve">
+    <value>{0} 個執行個體</value>
+  </data>
+  <data name="RunningCountOne" xml:space="preserve">
+    <value>{0} 個程序</value>
+  </data>
+  <data name="RunningCountMany" xml:space="preserve">
+    <value>{0} 個程序</value>
+  </data>
+  <data name="PgHatchLogo" xml:space="preserve">
+    <value>PgHatch 品牌圖示</value>
+  </data>
+  <data name="CommandDiagnostic" xml:space="preserve">
+    <value>結束代碼：{0}；逾時：{1}&#13;
+{2}&#13;
+{3}</value>
+  </data>
+  <data name="DiagnosticYes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="DiagnosticNo" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="LanguageSimplifiedChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageTraditionalChinese" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="BinaryFilesMissing" xml:space="preserve">
+    <value>程式目錄無法使用，缺少 {0}；請修復路徑或重新關聯。</value>
+  </data>
+  <data name="BinaryStillInUse" xml:space="preserve">
+    <value>無法取消註冊，以下執行個體仍使用此程式：&#13;
+{0}&#13;
+請先至執行個體設定重新關聯程式。不會刪除執行個體或磁碟檔案。</value>
+  </data>
+  <data name="ListSeparator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="LogWindowTitle" xml:space="preserve">
+    <value>日誌 — {0}</value>
+  </data>
+  <data name="DirectoryMissing" xml:space="preserve">
+    <value>目錄不存在：{0}</value>
+  </data>
+  <data name="ActualStateDetail" xml:space="preserve">
+    <value>{0}&#13;
+實際狀態：{1}&#13;
+{2}</value>
+  </data>
+</root>

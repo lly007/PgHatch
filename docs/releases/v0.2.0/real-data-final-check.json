@@ -1,0 +1,27 @@
+[
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\PG_VERSION",
+    "Hash": "7EE29791FC17E986B97128845622B077FB45E349FDB80523FAC9DBA879B4AD60",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\postgresql.conf",
+    "Hash": "9DBD60A208A39086E88CD0F7942C7A63E4FCB38237E1CD139E3FE54AC4323084",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\postgresql.auto.conf",
+    "Hash": "EF0843FCE52217A6815D36E76A88F618494C851EFC3EB9E1A794FE0D8DCCDD81",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\pg_hba.conf",
+    "Hash": "E00C09968E6BE8D8EE83020F23AC9E8BFBDC73B492CD122EFE493EDFC5388B3A",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\pgtray.json",
+    "Hash": "40DC08797710D32975FD03298614DDDAEE5822DB0CA44C3CBB0DBC592FB60494",
+    "Unchanged": true
+  }
+]

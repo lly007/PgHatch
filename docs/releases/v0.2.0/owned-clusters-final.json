@@ -1,0 +1,42 @@
+[
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210035-db70f61a\\中文 空格\\导入集群",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210035-db70f61a\\第二个 cluster",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210155-3c141c66\\中文 空格\\导入集群",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210155-3c141c66\\第二个 cluster",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210557-865436ec\\中文 空格\\导入集群",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-210557-865436ec\\第二个 cluster",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-211424-0d52a276\\中文 空格\\导入集群",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  },
+  {
+    "DataDirectory": "D:\\PGTray-Test\\run-20261017-211424-0d52a276\\第二个 cluster",
+    "ExitCode": 3,
+    "Output": "pg_ctl: no server running"
+  }
+]

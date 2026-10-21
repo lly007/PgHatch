@@ -1,0 +1,67 @@
+PASS: Identify actual PostgreSQL 18.6 tools
+PASS: Discover adjacent ZIP layout
+PASS: Reject missing tools
+PASS: Import uses configured port instead of supplied stale metadata
+PASS: Import recognizes stopped cluster
+PASS: Read port without modifying imported config
+PASS: Polling does not block manual start or overwrite its Running result
+PASS: Custom 127.0.0.2 listener is tied to the owning postmaster and Ready
+PASS: Import and start preserve original PostgreSQL configuration bytes
+PASS: Real SQL connection with initial password
+PASS: PostgreSQL stores SCRAM password
+PASS: Fast stop reaches Stopped
+PASS: JSON stores neither password nor live state
+PASS: JSON stores relative data path
+PASS: Relative paths relocate with whole layout
+PASS: Process deadline terminates only test helper and returns
+PASS: Reject duplicate data directory
+PASS: Reject duplicate registered port
+PASS: Never overwrite existing cluster
+PASS: Reject initialization inside unregistered existing cluster ancestry
+PASS: Reject normalized case alias nested initialization through manager
+PASS: Nested initialization rejection creates no target directory
+PASS: Create dedicated test junction without elevation
+PASS: Junction cannot bypass manager initialization protection
+PASS: Junction alias cannot register duplicate PGDATA
+PASS: Occupied port rejected
+PASS: Port failure preserves actual stopped state
+PASS: Startup error reported without hanging
+PASS: Preserve return code and server log
+PASS: Periodic status refresh preserves last operation diagnostic
+PASS: Real pg_ctl zero-wait timeout retains diagnostics and detects eventual running process
+PASS: Reject major version 17 metadata with 18 tools
+PASS: Two clusters run using same binaries on independent ports
+PASS: New manager detects already running clusters
+PASS: Shutdown cancels pending polling without stopping PostgreSQL
+PASS: Reject simultaneous operations on same cluster
+PASS: Restart allows real reconnect
+PASS: Restart preserves imported listener and configuration bytes
+PASS: Stopping first leaves second operational
+PASS: Rename persisted
+PASS: Late polling cannot resurrect a removed instance state
+PASS: Remove registration preserves data and running server
+PASS: Real running postmaster remains Running when endpoint inspection is unavailable (injected inspection failure)
+PASS: Live cluster registration survives a missing binary reference without guessing process state
+PASS: Missing binary reference blocks lifecycle without stopping real test cluster
+PASS: Reassociate actual running PG18 cluster without restart or data changes
+PASS: Referenced binary cannot unregister during real cluster operation
+PASS: Unavailable program registration leaves running server untouched
+PASS: Repair path restores real cluster monitoring without lifecycle operation
+PASS: Two real postmasters on the same port and different addresses each probe their own PID-owned listener
+PASS: Actual warm-standby recovery reports a running Starting process with NotReady connection
+PASS: Repeated scanning only reports registered clusters and never registers duplicates
+PASS: Read-only scan leaves every file hash in existing test PGDATA and manager JSON unchanged
+PASS: Scan flags incompatible major version without importing
+PASS: Scan presents importable candidates without automatic import or startup
+PASS: Explicit discovery import remains stopped and is excluded from duplicate selection
+PASS: Suspected backup is shown but excluded from wizard import
+PASS: Multiple compatible binaries remain explicit choices rather than silent selection
+PASS: Report config write failure
+PASS: Malformed config remains untouched
+PASS: Faulted configuration cannot be overwritten by normal registration
+PASS: Explicit backup recovery preserves malformed original and restores valid configuration
+PASS: Recovery does not replace valid backup with malformed original
+PASS: Unwritable configuration directory reports failure
+PASS: Permission-denied initdb fails without overwriting any existing cluster
+PASS: Temporary password file removed
+Results: D:\PGTray-Test\run-20261017-211424-0d52a276\results.txt

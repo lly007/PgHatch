@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Brand\Masters\PgHatch.transparent.png" LogicalName="PgHatch.Brand.Header.png" />
+    <ProjectReference Include="..\PGTray.Core\PGTray.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <Version>0.2.0</Version>
+    <AssemblyName>PgHatch</AssemblyName>
+    <Product>PgHatch</Product>
+    <Title>PgHatch</Title>
+    <Description>A portable PostgreSQL instance manager for Windows.</Description>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Ui\Png\*.png" LogicalName="PgHatch.Ui.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Assets\Ui\Lucide\LICENSE" LogicalName="PgHatch.Ui.LICENSE" />
+    <None Update="Assets\Ui\Lucide\LICENSE" TargetPath="LICENSE-LUCIDE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Assets\Brand\PgHatch.ico" Condition="Exists('Assets\Brand\PgHatch.ico')" LogicalName="PgHatch.Brand.Application.ico" />
+    <EmbeddedResource Include="Assets\Brand\PgHatch.Tray.ico" Condition="Exists('Assets\Brand\PgHatch.Tray.ico')" LogicalName="PgHatch.Brand.Tray.ico" />
+  </ItemGroup>
+  <!-- Only a supplied, approved brand asset changes the EXE icon. Missing assets keep today's default. -->
+  <PropertyGroup Condition="Exists('Assets\Brand\PgHatch.ico')">
+    <ApplicationIcon>Assets\Brand\PgHatch.ico</ApplicationIcon>
+  </PropertyGroup>
+
+</Project>

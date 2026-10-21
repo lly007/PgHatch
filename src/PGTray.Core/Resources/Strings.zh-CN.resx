@@ -1,0 +1,850 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name="OK" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>浏览…</value>
+  </data>
+  <data name="SelectAnExistingDirectory" xml:space="preserve">
+    <value>选择已有目录</value>
+  </data>
+  <data name="SelectAnEmptyDataDirectoryOrChoose" xml:space="preserve">
+    <value>选择空数据目录或其父目录后手动追加名称</value>
+  </data>
+  <data name="PostgreSQLBinaries" xml:space="preserve">
+    <value>PostgreSQL 程序管理</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>不可用</value>
+  </data>
+  <data name="Available" xml:space="preserve">
+    <value>可用</value>
+  </data>
+  <data name="RegisteredBinaries" xml:space="preserve">
+    <value>已注册程序</value>
+  </data>
+  <data name="RootDirectoryBin" xml:space="preserve">
+    <value>程序根目录 / bin</value>
+  </data>
+  <data name="RegisterBinaries" xml:space="preserve">
+    <value>注册程序</value>
+  </data>
+  <data name="RepairSelectedPath" xml:space="preserve">
+    <value>修复所选路径</value>
+  </data>
+  <data name="SelectRegisteredBinariesFirstThenEnterThe" xml:space="preserve">
+    <value>请先选择已注册程序，再指定新路径。</value>
+  </data>
+  <data name="UnregisterBinaries" xml:space="preserve">
+    <value>取消注册程序…</value>
+  </data>
+  <data name="ThisOnlyRemovesTheBinaryRegistrationFrom" xml:space="preserve">
+    <value>此操作只会从 PgHatch 中移除程序注册，不会删除磁盘文件。&#13;
+不会删除实例、PGDATA、日志或停止数据库。</value>
+  </data>
+  <data name="UnregisterBinaries2" xml:space="preserve">
+    <value>取消注册程序</value>
+  </data>
+  <data name="FindNearbyBinaries" xml:space="preserve">
+    <value>发现附近程序…</value>
+  </data>
+  <data name="NoBinariesFoundNearbyBrowseToA" xml:space="preserve">
+    <value>附近未发现程序，请浏览选择 PostgreSQL 根目录或 bin。</value>
+  </data>
+  <data name="Registration" xml:space="preserve">
+    <value>注册操作</value>
+  </data>
+  <data name="DiscoveryListsCandidatesOnlyRegisterSavesThem" xml:space="preserve">
+    <value>发现只提供候选目录，点击注册才会保存。取消注册不会在下次启动时自动加回。&#13;
+修复路径保留注册 ID，要求主版本兼容；有关联实例的程序不可取消注册。</value>
+  </data>
+  <data name="NewPostgreSQLInstance" xml:space="preserve">
+    <value>新建 PostgreSQL 实例</value>
+  </data>
+  <data name="ImportPostgreSQLInstance" xml:space="preserve">
+    <value>导入已有 PostgreSQL 实例</value>
+  </data>
+  <data name="InstanceName" xml:space="preserve">
+    <value>实例名称</value>
+  </data>
+  <data name="PostgreSQLBinaries2" xml:space="preserve">
+    <value>PostgreSQL 程序</value>
+  </data>
+  <data name="PGDATADirectory" xml:space="preserve">
+    <value>PGDATA 目录</value>
+  </data>
+  <data name="ReadPort" xml:space="preserve">
+    <value>读取端口</value>
+  </data>
+  <data name="CouldNotReadConfiguration" xml:space="preserve">
+    <value>读取失败</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>端口</value>
+  </data>
+  <data name="Superuser" xml:space="preserve">
+    <value>超级用户</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>初始密码</value>
+  </data>
+  <data name="OnlyAnEmptyDirectoryWillBeInitialized" xml:space="preserve">
+    <value>仅初始化空目录。使用 SCRAM-SHA-256 与 127.0.0.1 监听；密码不会保存。&#13;
+初始化在主窗口异步执行；失败时保留目录供检查，不会自动清理。</value>
+  </data>
+  <data name="ImportChecksTheClusterVersionAndConfigured" xml:space="preserve">
+    <value>导入只读检查集群、版本及原始端口；不启停数据库。&#13;
+启动和重启均沿用原始配置，不覆盖监听地址或端口。</value>
+  </data>
+  <data name="EnterAnInstanceNameAndDataDirectory" xml:space="preserve">
+    <value>请填写实例名称和数据目录。</value>
+  </data>
+  <data name="EnterASuperuserNameAndInitialPassword" xml:space="preserve">
+    <value>请填写超级用户和初始密码。</value>
+  </data>
+  <data name="RenameInstance" xml:space="preserve">
+    <value>重命名实例</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>显示名称</value>
+  </data>
+  <data name="OnlyTheDisplayNameInPgHatchWill" xml:space="preserve">
+    <value>只修改 PgHatch 中的显示名称。</value>
+  </data>
+  <data name="TheNameCannotBeEmpty" xml:space="preserve">
+    <value>名称不能为空。</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>日志 — </value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="OpenFullLog" xml:space="preserve">
+    <value>打开完整日志</value>
+  </data>
+  <data name="NoPgHatchStartupLogYetExistingLogging" xml:space="preserve">
+    <value>尚无 PgHatch 启动日志。已有集群自身的 logging_collector 日志仍在原配置位置。</value>
+  </data>
+  <data name="RNRNPostgreSQLLogLast" xml:space="preserve">
+    <value>&#13;
+&#13;
+--- PostgreSQL 日志（最近 64 KiB）---&#13;
+</value>
+  </data>
+  <data name="ScanReadOnly" xml:space="preserve">
+    <value>只读扫描</value>
+  </data>
+  <data name="ImportSelected" xml:space="preserve">
+    <value>导入勾选实例</value>
+  </data>
+  <data name="ScanLocalPostgreSQLInstances" xml:space="preserve">
+    <value>扫描已有 PostgreSQL 实例</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>选择范围…</value>
+  </data>
+  <data name="ChooseALimitedSearchDirectory" xml:space="preserve">
+    <value>选择有限范围的扫描根目录</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="DataDirectory" xml:space="preserve">
+    <value>数据目录</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="ListenAddress" xml:space="preserve">
+    <value>监听地址</value>
+  </data>
+  <data name="UseBinaries" xml:space="preserve">
+    <value>使用程序</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>说明</value>
+  </data>
+  <data name="ChooseCompatiblePostgreSQLBinariesForThisRow" xml:space="preserve">
+    <value>请为该行选择兼容的 PostgreSQL 程序。</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="NothingIsSelectedByDefaultScanningFinds" xml:space="preserve">
+    <value>发现不等于导入，导入不等于启动。所有结果默认不勾选。扫描不改配置、不启停数据库。</value>
+  </data>
+  <data name="SavingImportedInstancesPleaseWaitBeforeClosing" xml:space="preserve">
+    <value>正在保存导入结果，请稍候再关闭。</value>
+  </data>
+  <data name="CancelingTheReadOnlyScan" xml:space="preserve">
+    <value>正在取消只读扫描…</value>
+  </data>
+  <data name="ScanningReadOnly" xml:space="preserve">
+    <value>正在只读扫描，请稍候…</value>
+  </data>
+  <data name="ChooseBinaries" xml:space="preserve">
+    <value>请选择程序</value>
+  </data>
+  <data name="CandidatesAlreadyRegisteredRN" xml:space="preserve">
+    <value>发现 {0} 个候选；{1} 个已注册。&#13;
+</value>
+  </data>
+  <data name="SelectTheInstancesYouWantToImport" xml:space="preserve">
+    <value>请先勾选需要导入的实例。</value>
+  </data>
+  <data name="ChooseCompatibleBinariesForEverySelectedRow" xml:space="preserve">
+    <value>请为所有勾选行明确选择兼容程序。</value>
+  </data>
+  <data name="ImportedNotStarted" xml:space="preserve">
+    <value>已导入，未启动。</value>
+  </data>
+  <data name="ImportedAllDatabasesKeepTheirCurrentState" xml:space="preserve">
+    <value>导入完成：{0} 个。所有数据库运行状态不变。</value>
+  </data>
+  <data name="InstanceSettingsRepairBinaries" xml:space="preserve">
+    <value>实例设置 / 修复程序关联</value>
+  </data>
+  <data name="NotLinkedChooseCompatibleBinaries" xml:space="preserve">
+    <value>未关联 — 请选择兼容程序</value>
+  </data>
+  <data name="Unavailable2" xml:space="preserve">
+    <value>不可用 · </value>
+  </data>
+  <data name="LinkedBinaries" xml:space="preserve">
+    <value>关联程序</value>
+  </data>
+  <data name="OpenPostgresqlConf" xml:space="preserve">
+    <value>打开 postgresql.conf…</value>
+  </data>
+  <data name="ConfigurationFileNotFound" xml:space="preserve">
+    <value>找不到配置文件。</value>
+  </data>
+  <data name="OriginalConfiguration" xml:space="preserve">
+    <value>原始配置</value>
+  </data>
+  <data name="RelinkingChecksPGVERSIONAgainstTheBinary" xml:space="preserve">
+    <value>关联变更会检查 PG_VERSION 与程序主版本，不启停或改写数据。缺少程序？请先返回程序管理进行注册。&#13;
+如主动编辑 port/listen_addresses，修改将在下次启动或重启生效；非本机监听可能扩大可连接范围，并受 pg_hba.conf 与防火墙限制。</value>
+  </data>
+  <data name="ChoosePostgreSQLBinaries" xml:space="preserve">
+    <value>请选择程序。</value>
+  </data>
+  <data name="PgHatchPostgreSQLInstanceManager" xml:space="preserve">
+    <value>PgHatch — PostgreSQL 实例管理器</value>
+  </data>
+  <data name="LocalPostgreSQLInstancesV" xml:space="preserve">
+    <value>PostgreSQL 本地实例 · v0.2.0</value>
+  </data>
+  <data name="AddInstance" xml:space="preserve">
+    <value>添加实例</value>
+  </data>
+  <data name="NewInstance" xml:space="preserve">
+    <value>新建实例…</value>
+  </data>
+  <data name="ImportInstance" xml:space="preserve">
+    <value>导入已有实例…</value>
+  </data>
+  <data name="ScanLocalInstances" xml:space="preserve">
+    <value>扫描已有实例…</value>
+  </data>
+  <data name="PostgreSQLBinaries3" xml:space="preserve">
+    <value>PostgreSQL 程序…</value>
+  </data>
+  <data name="ExitPgHatchKeepDatabasesRunning" xml:space="preserve">
+    <value>退出 PgHatch（数据库继续运行）</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="OpenConfigurationFolder" xml:space="preserve">
+    <value>打开配置目录</value>
+  </data>
+  <data name="ReloadConfiguration" xml:space="preserve">
+    <value>重新读取配置</value>
+  </data>
+  <data name="AboutPgHatch" xml:space="preserve">
+    <value>关于 PgHatch</value>
+  </data>
+  <data name="PgHatchVNPostgreSQLReadyWhenYouAre" xml:space="preserve">
+    <value>PgHatch v0.2.0&#13;
+PostgreSQL, ready when you are.&#13;
+A portable PostgreSQL instance manager for Windows.&#13;
+&#13;
+原 PGTray · 独立社区工具，与 PostgreSQL 官方无隶属关系。&#13;
+功能图标：Lucide（ISC；部分 Feather/MIT），许可已内嵌并随构建提供。</value>
+  </data>
+  <data name="OpenConfigurationFile" xml:space="preserve">
+    <value>打开配置文件</value>
+  </data>
+  <data name="TheConfigurationFileHasNotBeenCreated" xml:space="preserve">
+    <value>配置文件尚未创建。</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>重新读取</value>
+  </data>
+  <data name="RestoreBak" xml:space="preserve">
+    <value>从 .bak 恢复…</value>
+  </data>
+  <data name="PreserveFileAndStartFresh" xml:space="preserve">
+    <value>保留原文件并新建空配置…</value>
+  </data>
+  <data name="Instances" xml:space="preserve">
+    <value>实例</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>状态</value>
+  </data>
+  <data name="Binaries" xml:space="preserve">
+    <value>程序目录</value>
+  </data>
+  <data name="Connection" xml:space="preserve">
+    <value>连接状态</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+  <data name="Restart" xml:space="preserve">
+    <value>重启</value>
+  </data>
+  <data name="Logs2" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="OpenDataDirectory" xml:space="preserve">
+    <value>打开数据目录</value>
+  </data>
+  <data name="InstanceSettings" xml:space="preserve">
+    <value>实例设置…</value>
+  </data>
+  <data name="UnregisterInstance" xml:space="preserve">
+    <value>移除实例配置…</value>
+  </data>
+  <data name="MoreActions" xml:space="preserve">
+    <value>更多操作</value>
+  </data>
+  <data name="LoadingConfiguration" xml:space="preserve">
+    <value>正在读取配置…</value>
+  </data>
+  <data name="OpenManager" xml:space="preserve">
+    <value>打开管理界面</value>
+  </data>
+  <data name="HideWindow" xml:space="preserve">
+    <value>隐藏窗口</value>
+  </data>
+  <data name="StopAllRegisteredInstancesAndExit" xml:space="preserve">
+    <value>停止全部已注册实例并退出…</value>
+  </data>
+  <data name="PgHatchLoadingConfiguration" xml:space="preserve">
+    <value>PgHatch — 正在读取配置</value>
+  </data>
+  <data name="ManagePostgreSQL" xml:space="preserve">
+    <value>开始管理 PostgreSQL</value>
+  </data>
+  <data name="CreateANewLocalInstanceOrRegister" xml:space="preserve">
+    <value>创建独立的本地集群，或发现已有的数据目录。&#13;
+扫描和导入都不会自动启动数据库。</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>新建</value>
+  </data>
+  <data name="ScanLocalInstances2" xml:space="preserve">
+    <value>扫描本地实例</value>
+  </data>
+  <data name="Working" xml:space="preserve">
+    <value>正在处理…</value>
+  </data>
+  <data name="CloseToHideInTrayCtrlQ" xml:space="preserve">
+    <value>{0} · 关闭窗口隐藏到托盘 · Ctrl+Q 退出管理器</value>
+  </data>
+  <data name="WaitForTheCurrentOperationToFinish" xml:space="preserve">
+    <value>请等待当前操作完成后重新读取配置。</value>
+  </data>
+  <data name="CouldNotLoadConfigurationTheOriginalFile" xml:space="preserve">
+    <value>配置读取失败，原文件已保留：</value>
+  </data>
+  <data name="ValidateAndRestoreBakTheCurrentFile" xml:space="preserve">
+    <value>验证并恢复 {0}.bak？原文件将另存为 preserved 文件。</value>
+  </data>
+  <data name="PreserveTheCurrentFileAndCreateAn" xml:space="preserve">
+    <value>保留原文件并新建空配置？数据库文件与运行状态不会改变。</value>
+  </data>
+  <data name="RestoreConfiguration" xml:space="preserve">
+    <value>明确恢复配置</value>
+  </data>
+  <data name="NotLinked" xml:space="preserve">
+    <value>未关联</value>
+  </data>
+  <data name="BinariesUnavailable" xml:space="preserve">
+    <value>! 程序不可用</value>
+  </data>
+  <data name="RunningV" xml:space="preserve">
+    <value>PostgreSQL 本地实例 · {0} / {1}运行中 · v0.2.0</value>
+  </data>
+  <data name="PgHatchRunning" xml:space="preserve">
+    <value>PgHatch — {0}运行中</value>
+  </data>
+  <data name="Running" xml:space="preserve">
+    <value>● 运行中</value>
+  </data>
+  <data name="Stopped" xml:space="preserve">
+    <value>○ 已停止</value>
+  </data>
+  <data name="Starting" xml:space="preserve">
+    <value>◌ 启动中</value>
+  </data>
+  <data name="Stopping" xml:space="preserve">
+    <value>◌ 停止中</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>! 错误</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>? 未确认</value>
+  </data>
+  <data name="InstanceSettingsChooseCompatibleBinaries" xml:space="preserve">
+    <value>实例设置 → 选择兼容程序</value>
+  </data>
+  <data name="BinariesUnavailableRepairInInstanceSettings" xml:space="preserve">
+    <value>! 程序不可用 · 请在实例设置修复</value>
+  </data>
+  <data name="ReadingOriginalConfiguration" xml:space="preserve">
+    <value>正在读取原配置…</value>
+  </data>
+  <data name="TCPListeningIsDisabled" xml:space="preserve">
+    <value>未启用 TCP 监听</value>
+  </data>
+  <data name="UnknownBinariesUnavailable" xml:space="preserve">
+    <value>Unknown · 程序不可用，无法读取</value>
+  </data>
+  <data name="ReadyAcceptingConnectionsPIDVerified" xml:space="preserve">
+    <value>Ready · 可接受连接（已核对 PID）</value>
+  </data>
+  <data name="NotReadyNotAcceptingConnectionsYet" xml:space="preserve">
+    <value>Not Ready · 暂不接受连接</value>
+  </data>
+  <data name="ServerProcessIsStopped" xml:space="preserve">
+    <value>— · 进程已停止</value>
+  </data>
+  <data name="UnknownReadinessNotConfirmed" xml:space="preserve">
+    <value>Unknown · 尚未确认连接就绪</value>
+  </data>
+  <data name="UnknownBinariesNotLinkedOrUnavailable" xml:space="preserve">
+    <value>Unknown · 程序未关联或目录不可用</value>
+  </data>
+  <data name="CouldNotReadConfigurationSeeStatusDetails" xml:space="preserve">
+    <value>配置读取失败，见状态详情</value>
+  </data>
+  <data name="SelectAnInstanceFirst" xml:space="preserve">
+    <value>请先选择实例。</value>
+  </data>
+  <data name="NoPostgreSQLBinaryDirectoryIsConfiguredYet" xml:space="preserve">
+    <value>尚未配置 PostgreSQL 程序。请先添加 PostgreSQL 程序目录，再继续导入实例。</value>
+  </data>
+  <data name="ImportInstance2" xml:space="preserve">
+    <value>导入实例</value>
+  </data>
+  <data name="UnregisterRNDataAndLogsAreKept" xml:space="preserve">
+    <value>移除“{0}”的注册配置？&#13;
+数据和日志保留，数据库运行状态不变。</value>
+  </data>
+  <data name="UnregisterInstance2" xml:space="preserve">
+    <value>移除配置</value>
+  </data>
+  <data name="DirectoryNotFound" xml:space="preserve">
+    <value>目录不存在：</value>
+  </data>
+  <data name="StopAllRunningRegisteredInstancesInFast" xml:space="preserve">
+    <value>以 fast 模式停止所有已注册的运行实例（包括外部启动的实例），然后退出？</value>
+  </data>
+  <data name="StopInstancesAndExit" xml:space="preserve">
+    <value>停止实例并退出</value>
+  </data>
+  <data name="WaitingForCurrentOperationsBeforeExiting" xml:space="preserve">
+    <value>正在等待当前操作完成后退出…</value>
+  </data>
+  <data name="CouldNotExit" xml:space="preserve">
+    <value>退出未完成</value>
+  </data>
+  <data name="EmbeddedIconMissing" xml:space="preserve">
+    <value>缺少内嵌图标：</value>
+  </data>
+  <data name="TheConfigurationWasChangedOutsidePgHatchSaving" xml:space="preserve">
+    <value>磁盘配置已被外部修改。为保护修改，本次保存已取消；请重新读取配置后再操作。</value>
+  </data>
+  <data name="InvalidJSONNTheOriginalFileWas" xml:space="preserve">
+    <value>JSON 语法错误：{0}&#13;
+{1}。原文件未修改。</value>
+  </data>
+  <data name="TheConfigurationRootMustBeAnObject" xml:space="preserve">
+    <value>配置根节点必须为对象。</value>
+  </data>
+  <data name="TheConfigurationIsEmpty" xml:space="preserve">
+    <value>配置为空。</value>
+  </data>
+  <data name="InstancesContainsDuplicateDataDirectories" xml:space="preserve">
+    <value>Instances 中有重复的数据目录。</value>
+  </data>
+  <data name="InvalidConfigurationFieldTypeNTheOriginal" xml:space="preserve">
+    <value>配置字段类型错误：{0}&#13;
+{1}。原文件未修改。</value>
+  </data>
+  <data name="CouldNotParseAConfigurationFieldN" xml:space="preserve">
+    <value>配置字段无法解析：{0}&#13;
+{1}。原文件未修改。</value>
+  </data>
+  <data name="DuplicateFieldIncludingCaseVariants" xml:space="preserve">
+    <value>{0}.{1} 字段重复（含大小写别名）。</value>
+  </data>
+  <data name="UnsupportedSchemaVersionSupportedOverwritingIsBlocked" xml:space="preserve">
+    <value>不支持配置版本 {0}，此版本支持 1–{1}；禁止覆盖，请使用兼容版本。</value>
+  </data>
+  <data name="BinariesInstancesMustBeArrays" xml:space="preserve">
+    <value>Binaries / Instances 必须是数组。</value>
+  </data>
+  <data name="BinariesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Binaries 中存在空记录、无效或重复 Id。</value>
+  </data>
+  <data name="InvalidBinDirectoryVersionOrMajorInBinaries" xml:space="preserve">
+    <value>Binaries[{0}] 的 BinDirectory、Version 或 Major 无效。</value>
+  </data>
+  <data name="InstancesContainsANullRecordInvalidID" xml:space="preserve">
+    <value>Instances 中存在空记录、无效或重复 Id。</value>
+  </data>
+  <data name="InvalidNameDataDirectoryLogPathOrPortIn" xml:space="preserve">
+    <value>Instances[{0}] 的 Name、DataDirectory、LogPath 或 Port 无效。</value>
+  </data>
+  <data name="TheBackupHasInstancesWithMissingBinary" xml:space="preserve">
+    <value>备份包含未关联程序的实例，不能直接恢复；请打开备份检查引用。原文件未修改。</value>
+  </data>
+  <data name="ConfigurationDirectoryIsNotWritableMovePgHatch" xml:space="preserve">
+    <value>配置目录不可写：{0}。请将 PgHatch 放到可写目录；不会迁移配置。</value>
+  </data>
+  <data name="TheScanDirectoryDoesNotExistChoose" xml:space="preserve">
+    <value>扫描目录不存在，请重新选择。</value>
+  </data>
+  <data name="SkippedDirectoryLink" xml:space="preserve">
+    <value>跳过目录链接：</value>
+  </data>
+  <data name="Unknown2" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="AlreadyRegisteredItWillNotBeAdded" xml:space="preserve">
+    <value>已注册，不会重复添加。</value>
+  </data>
+  <data name="CheckThePathAndPurposeBeforeSelecting" xml:space="preserve">
+    <value>确认路径和用途后勾选导入；不会启动。</value>
+  </data>
+  <data name="IncompleteClusterMarkersThisDirectoryCannotBe" xml:space="preserve">
+    <value>集群标识不完整，不能安全导入。</value>
+  </data>
+  <data name="NoMatchingPostgreSQLBinariesRegisterThatVersion" xml:space="preserve">
+    <value>没有匹配 PostgreSQL {0} 的程序，请先注册相应版本。</value>
+  </data>
+  <data name="PossibleBackupOrCopyVerifyItsPurpose" xml:space="preserve">
+    <value>疑似备份或副本：扫描向导不直接导入，请手动核实用途。 </value>
+  </data>
+  <data name="MultipleCompatibleBinaryInstallationsChooseOneExplicitly" xml:space="preserve">
+    <value>有多套兼容程序，请明确选择使用哪一套。 </value>
+  </data>
+  <data name="SkippedDirectory" xml:space="preserve">
+    <value>跳过无法检查的目录 {0}：{1}</value>
+  </data>
+  <data name="ReachedTheDirectoryLimitSelectAMore" xml:space="preserve">
+    <value>已到达 256 个目录的扫描上限。可选择更具体的根目录重试。</value>
+  </data>
+  <data name="ReadOnlyScanUpToLevelsDirectories" xml:space="preserve">
+    <value>只读扫描，最多 3 层 / 256 个目录；发现不等于导入，导入不等于启动。</value>
+  </data>
+  <data name="PgHatchIsExitingAndCannotAcceptNew" xml:space="preserve">
+    <value>PgHatch 正在退出，不再接受新操作。</value>
+  </data>
+  <data name="ConfigurationHasNotLoadedSuccessfullyRetryOr" xml:space="preserve">
+    <value>配置尚未成功读取。请先重试或明确选择恢复；原文件不会被自动覆盖。</value>
+  </data>
+  <data name="WaitForStartStopOperationsToFinish" xml:space="preserve">
+    <value>请等待启停操作结束后重新读取配置。</value>
+  </data>
+  <data name="TheCurrentConfigurationIsValidRecoveryIs" xml:space="preserve">
+    <value>当前配置有效，无需恢复。</value>
+  </data>
+  <data name="BinariesAreNotLinkedChooseCompatiblePostgreSQL" xml:space="preserve">
+    <value>程序未关联，请在实例设置中选择兼容的 PostgreSQL 程序。</value>
+  </data>
+  <data name="BinariesUnavailableMissing" xml:space="preserve">
+    <value>程序目录不可用，缺少 </value>
+  </data>
+  <data name="RepairThePathOrRelinkTheInstance" xml:space="preserve">
+    <value>；请修复路径或重新关联。</value>
+  </data>
+  <data name="CannotUnregisterTheseInstancesStillUseThese" xml:space="preserve">
+    <value>无法取消注册，以下实例仍依赖此程序：&#13;
+</value>
+  </data>
+  <data name="NRelinkThemInInstanceSettingsFirstNo" xml:space="preserve">
+    <value>&#13;
+请先在实例设置中重新关联程序。不会删除实例或磁盘文件。</value>
+  </data>
+  <data name="TheBinariesAreNotRegistered" xml:space="preserve">
+    <value>程序未注册。</value>
+  </data>
+  <data name="TheReplacementPathMustUseTheSame" xml:space="preserve">
+    <value>修复路径必须使用相同 PostgreSQL 主版本。</value>
+  </data>
+  <data name="ThisPathIsAlreadyRegisteredRelinkThe" xml:space="preserve">
+    <value>该路径已经注册，请在实例设置中重新关联已有程序。</value>
+  </data>
+  <data name="ALinkedInstanceIsStartingOrStopping" xml:space="preserve">
+    <value>关联实例正在启停，请稍后再修复路径。</value>
+  </data>
+  <data name="TheInstanceNameCannotBeEmpty" xml:space="preserve">
+    <value>实例名称不能为空。</value>
+  </data>
+  <data name="TheInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>实例正在启停，请稍后再修改关联。</value>
+  </data>
+  <data name="TheInstanceIsNotRegistered" xml:space="preserve">
+    <value>实例未注册。</value>
+  </data>
+  <data name="RegisterTheSelectedBinariesFirst" xml:space="preserve">
+    <value>请先注册所选程序。</value>
+  </data>
+  <data name="TheBinaryVersionHasChangedRepairIts" xml:space="preserve">
+    <value>程序版本已变化，请先修复程序注册。</value>
+  </data>
+  <data name="RegisterAPostgreSQLBinaryDirectoryFirst" xml:space="preserve">
+    <value>请先注册程序目录。</value>
+  </data>
+  <data name="ThisDataDirectoryIsAlreadyRegisteredIt" xml:space="preserve">
+    <value>该数据目录已经注册，不会重复导入。</value>
+  </data>
+  <data name="CannotInitializeAnInstanceInsideARegistered" xml:space="preserve">
+    <value>禁止在已注册数据目录内部初始化新实例。</value>
+  </data>
+  <data name="PortIsAssignedToAnotherInstanceChoose" xml:space="preserve">
+    <value>端口 {0} 已分配给其他实例，请选择独立端口。</value>
+  </data>
+  <data name="ThePortMustBeBetweenAnd" xml:space="preserve">
+    <value>端口必须在 1–65535 之间。</value>
+  </data>
+  <data name="ThisInstanceIsStartingOrStoppingWait" xml:space="preserve">
+    <value>此实例正在执行启停操作，请稍后再移除配置。</value>
+  </data>
+  <data name="UnknownOperation" xml:space="preserve">
+    <value>未知操作。</value>
+  </data>
+  <data name="ThisInstanceIsAlreadyStartingOrStopping" xml:space="preserve">
+    <value>此实例正在执行启停操作。</value>
+  </data>
+  <data name="TheDataDirectoryNowPointsElsewhereOr" xml:space="preserve">
+    <value>数据目录现在指向其他位置或目录链接。请重新确认路径并导入，当前操作已拒绝。</value>
+  </data>
+  <data name="RNActualState" xml:space="preserve">
+    <value>&#13;
+实际状态：</value>
+  </data>
+  <data name="CannotConfirmThatTheInstanceIsStopped" xml:space="preserve">
+    <value>无法确认实例已停止，拒绝启动。&#13;
+</value>
+  </data>
+  <data name="StartingWithTheOriginalPGDATAPortAnd" xml:space="preserve">
+    <value>正在启动；使用 PGDATA 的原始端口与监听配置。</value>
+  </data>
+  <data name="CouldNotConfirmTheServerProcessAfter" xml:space="preserve">
+    <value>启动后尚未确认服务器进程运行；已重新检测实际状态，请查看日志。&#13;
+</value>
+  </data>
+  <data name="CannotConfirmThatTheTargetClusterProcess" xml:space="preserve">
+    <value>无法确认目标集群进程正在运行，拒绝停止。&#13;
+</value>
+  </data>
+  <data name="StoppingInFastMode" xml:space="preserve">
+    <value>正在以 fast 模式停止…</value>
+  </data>
+  <data name="ShutdownIsNotYetConfirmedTheActual" xml:space="preserve">
+    <value>停止后仍未确认关闭；已重新检测实际状态。&#13;
+</value>
+  </data>
+  <data name="ThePathCannotBeEmpty" xml:space="preserve">
+    <value>路径不能为空。</value>
+  </data>
+  <data name="DevicePathsAreNotSupportedChooseA" xml:space="preserve">
+    <value>不支持设备路径，请选择常规绝对路径。</value>
+  </data>
+  <data name="ThePathContainsAmbiguousTrailingSpacesPeriods" xml:space="preserve">
+    <value>路径含有不明确的尾随空格、句点或数据流名称。</value>
+  </data>
+  <data name="CannotCheckPathPermissionsThisOperationWas" xml:space="preserve">
+    <value>无法检查路径权限，拒绝不确定的操作：{0}</value>
+  </data>
+  <data name="CannotSafelyResolveDirectoryLink" xml:space="preserve">
+    <value>无法安全解析目录链接：{0}</value>
+  </data>
+  <data name="DirectoryLinkTargetDoesNotExist" xml:space="preserve">
+    <value>目录链接的目标不存在：{0}</value>
+  </data>
+  <data name="NewClustersRequireALocalDiskDirectory" xml:space="preserve">
+    <value>新建集群仅支持本机磁盘目录，请选择可安全检查的本地路径。</value>
+  </data>
+  <data name="PathIsNotADirectory" xml:space="preserve">
+    <value>路径不是目录：{0}</value>
+  </data>
+  <data name="InitializationPathsCannotTraverseASymbolicLink" xml:space="preserve">
+    <value>初始化路径不能经过符号链接或 junction：{0}</value>
+  </data>
+  <data name="CannotInitializeInsideAnExistingOrSuspected" xml:space="preserve">
+    <value>禁止在已有或疑似 PostgreSQL 集群内部初始化：{0}</value>
+  </data>
+  <data name="TheInitializationDirectoryMustBeEmptyOr" xml:space="preserve">
+    <value>初始化目录必须为空或不存在；不会覆盖、重置或清理已有内容。</value>
+  </data>
+  <data name="MissingPostgreSQLTool" xml:space="preserve">
+    <value>缺少 PostgreSQL 工具：{0}</value>
+  </data>
+  <data name="CouldNotIdentifyPostgreSQLVersion" xml:space="preserve">
+    <value>无法识别版本：</value>
+  </data>
+  <data name="IncompletePostgreSQLDataDirectoryMissingGlobalPg" xml:space="preserve">
+    <value>不是完整的 PostgreSQL 数据目录（缺少 global/pg_control）。</value>
+  </data>
+  <data name="MajorVersionMismatchDataBinariesRegisteredUse" xml:space="preserve">
+    <value>主版本不兼容：数据目录 {0}，程序 {1}，注册版本 {2}。请使用匹配的程序；不会自动升级。</value>
+  </data>
+  <data name="CouldNotReadInstancePort" xml:space="preserve">
+    <value>无法读取实例端口：</value>
+  </data>
+  <data name="CouldNotReadListenConfiguration" xml:space="preserve">
+    <value>无法读取监听配置：</value>
+  </data>
+  <data name="TheDataDirectoryInPostgresqlConfDiffers" xml:space="preserve">
+    <value>postgresql.conf 的 data_directory 与所选 PGDATA 不一致或无法确认。当前版本拒绝这种分离布局，避免操作其他集群。</value>
+  </data>
+  <data name="RNIncompletePIDFileOrClusterIdentity" xml:space="preserve">
+    <value>&#13;
+PID 文件不完整或集群身份不一致，连接状态未知。</value>
+  </data>
+  <data name="RNCannotConfirmALocalTCPEndpoint" xml:space="preserve">
+    <value>&#13;
+无法确认属于该服务器的本地 TCP 监听端点，连接状态未知。</value>
+  </data>
+  <data name="ServerIdentityChangedDuringTheProbeIt" xml:space="preserve">
+    <value>探测期间服务器身份发生变化，将在下次轮询重新检查。</value>
+  </data>
+  <data name="RNConnectionReadinessUnknown" xml:space="preserve">
+    <value>&#13;
+连接状态未知：</value>
+  </data>
+  <data name="ListenAddressIsInUseOrUnavailable" xml:space="preserve">
+    <value>监听地址 {0}:{1} 已被占用或不可用。</value>
+  </data>
+  <data name="EnterASuperuserNameAndANon" xml:space="preserve">
+    <value>请输入超级用户名及非空单行密码。</value>
+  </data>
+  <data name="TheBinaryMajorVersionHasChangedRegister" xml:space="preserve">
+    <value>程序目录的主版本已改变，请重新注册程序目录。</value>
+  </data>
+  <data name="InitializationFailedTheTargetDirectoryIsKept" xml:space="preserve">
+    <value>初始化失败；保留目标目录供检查。&#13;
+</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="FollowSystem" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="LanguageRestart" xml:space="preserve">
+    <value>语言已保存，下次启动 PgHatch 时生效。</value>
+  </data>
+  <data name="PreferenceReadFailed" xml:space="preserve">
+    <value>无法读取界面偏好，将跟随系统语言。原文件已保留。&#13;
+{0}</value>
+  </data>
+  <data name="PreferenceInvalid" xml:space="preserve">
+    <value>界面偏好无效，Language 应为 null、zh-CN、en-US 或 zh-TW。</value>
+  </data>
+  <data name="PreferenceConflict" xml:space="preserve">
+    <value>界面偏好已被外部修改。请重启 PgHatch 后再选择语言。</value>
+  </data>
+  <data name="PreferenceBlocked" xml:space="preserve">
+    <value>界面偏好文件读取失败，不会覆盖。请打开 {0} 修复后重启 PgHatch。</value>
+  </data>
+  <data name="InstanceCountOne" xml:space="preserve">
+    <value>{0} 个实例</value>
+  </data>
+  <data name="InstanceCountMany" xml:space="preserve">
+    <value>{0} 个实例</value>
+  </data>
+  <data name="RunningCountOne" xml:space="preserve">
+    <value>{0} 个进程</value>
+  </data>
+  <data name="RunningCountMany" xml:space="preserve">
+    <value>{0} 个进程</value>
+  </data>
+  <data name="PgHatchLogo" xml:space="preserve">
+    <value>PgHatch 品牌图标</value>
+  </data>
+  <data name="CommandDiagnostic" xml:space="preserve">
+    <value>返回码：{0}；超时：{1}&#13;
+{2}&#13;
+{3}</value>
+  </data>
+  <data name="DiagnosticYes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="DiagnosticNo" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="LanguageSimplifiedChinese" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageTraditionalChinese" xml:space="preserve">
+    <value>繁體中文</value>
+  </data>
+  <data name="BinaryFilesMissing" xml:space="preserve">
+    <value>程序目录不可用，缺少 {0}；请修复路径或重新关联。</value>
+  </data>
+  <data name="BinaryStillInUse" xml:space="preserve">
+    <value>无法取消注册，以下实例仍依赖此程序：&#13;
+{0}&#13;
+请先在实例设置中重新关联程序。不会删除实例或磁盘文件。</value>
+  </data>
+  <data name="ListSeparator" xml:space="preserve">
+    <value>、</value>
+  </data>
+  <data name="LogWindowTitle" xml:space="preserve">
+    <value>日志 — {0}</value>
+  </data>
+  <data name="DirectoryMissing" xml:space="preserve">
+    <value>目录不存在：{0}</value>
+  </data>
+  <data name="ActualStateDetail" xml:space="preserve">
+    <value>{0}&#13;
+实际状态：{1}&#13;
+{2}</value>
+  </data>
+</root>

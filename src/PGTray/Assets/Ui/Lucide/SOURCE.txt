@@ -1,0 +1,3 @@
+Source: https://github.com/lucide-icons/lucide
+Revision: 1ef60af944de207e0d5176905a0759ba12e6ee8d
+Selected SVG icons, unchanged. Generated PNGs recolor the stroke for native controls; retain LICENSE in distributions.

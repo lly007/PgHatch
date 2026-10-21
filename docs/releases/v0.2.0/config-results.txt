@@ -1,0 +1,76 @@
+PASS: Missing binaries and schema use compatible defaults
+PASS: Missing instances accepted
+PASS: Empty arrays accepted
+PASS: Null optional collections use empty defaults
+PASS: UTF-8 BOM from Windows editors accepted
+PASS: Orphan preserves ID, PGDATA, binary reference and port
+PASS: Nullable optional flags default false
+PASS: Unknown root and instance fields survive save
+PASS: Orphan displays Unknown with repairable reason
+PASS: Orphan blocks start [InvalidOperationException]
+PASS: Orphan blocks stop [InvalidOperationException]
+PASS: Orphan blocks restart [InvalidOperationException]
+PASS: Malformed, typed, duplicate or future schema rejected: { [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: {"Binaries":[ [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: [] [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: {"Binaries":{}} [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: {"SchemaVersion":"two"} [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: {"SchemaVersion":99} [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Malformed, typed, duplicate or future schema rejected: {"Binaries":[],"binaries":[]} [InvalidDataException]
+PASS: Failed load cannot be silently overwritten [ConfigurationConflictException]
+PASS: Rejected source bytes preserved
+PASS: Duplicate binary ID rejected [InvalidDataException]
+PASS: Duplicate instance ID rejected [InvalidDataException]
+PASS: Null record is reported rather than silently discarded [InvalidDataException]
+PASS: Missing binary ID stays as an unassociated repairable instance
+PASS: Invalid important field reports record [InvalidDataException]
+PASS: Invalid Guid reports field type [InvalidDataException]
+PASS: Truncation reported [InvalidDataException]
+PASS: Corrupted current file cannot replace backup [ConfigurationConflictException]
+PASS: Last valid backup preserved after corruption
+PASS: Explicit restore validates backup and preserves broken source
+PASS: Restore keeps valid backup
+PASS: Corrupt backup rejected [InvalidDataException]
+PASS: Failed restore leaves current untouched
+PASS: Backup reference validation reports orphan [InvalidDataException]
+PASS: Explicit blank reset preserves source and creates usable config
+PASS: Atomic replacement failure is reported [IOException]
+PASS: Failed replacement leaves original complete and cleans temp
+PASS: Concurrent saves on same store serialize without corruption
+PASS: External edit conflicts rather than overwriting [ConfigurationConflictException]
+PASS: Other stale store cannot overwrite external edit [ConfigurationConflictException]
+PASS: External bytes preserved
+PASS: Explicit reload resolves conflict
+PASS: Independent stores share save gate and detect stale snapshot [ConfigurationConflictException]
+PASS: Legacy migrates to pghatch with count and metadata intact
+PASS: Legacy source retained byte-for-byte
+PASS: Repeated load does not repeat migration
+PASS: New file wins when both names exist, no merge
+PASS: Whole portable directory move retains relative semantics
+PASS: Invalid new file never silently falls back to legacy [InvalidDataException]
+PASS: Invalid legacy refuses migration [InvalidDataException]
+PASS: Invalid legacy does not produce empty new file
+PASS: Unused binary unregisters
+PASS: Unregister never deletes or modifies binary files
+PASS: Unregister persists after reload
+PASS: Manual discovery still finds unregistered directory
+PASS: User can explicitly register again
+PASS: Referenced binary unregister refused and names affected instance [InvalidOperationException]
+PASS: Moved binary directory loads with preserved instance and unavailable state
+PASS: Repair path retains binary identity and references
+PASS: Orphan reassociation checks PG_VERSION and preserves instance identity
+PASS: Incompatible reassociation rejected [InvalidOperationException]
+PASS: Unavailable unused registration removed without deleting PGDATA
+75 PASS; fixtures: D:\PGTray-Test\v020-config-20261017-211421-86e41361

@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\PG_VERSION",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\postgresql.conf",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\postgresql.auto.conf",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\PGData\\main\\pg_hba.conf",
+    "Unchanged": true
+  },
+  {
+    "Path": "D:\\PostgreSQL\\pgtray.json",
+    "Unchanged": true
+  }
+]
