@@ -62,7 +62,7 @@ internal class LayoutForm : Form
 internal sealed class BinaryForm : LayoutForm
 {
     private sealed record Choice(BinaryInstallation Binary, string Label) { public override string ToString() => Label; }
-    public BinaryForm(InstanceManager manager) : base(L10n.Get("PostgreSQLBinaries"))
+    public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
     {
         ClientSize = new(820, 510); MinimumSize = new(720, 470);
         var list = new ListBox { Height = 170, HorizontalScrollbar = true };
@@ -108,6 +108,9 @@ internal sealed class BinaryForm : LayoutForm
             });
         };
         actions.Controls.AddRange([add, repair, remove, discover]); Row(L10n.Get("Registration"), actions);
+        var catalog = new Button { Text = L10n.Get("CatalogTitle"), AutoSize = true };
+        catalog.Click += (_, _) => { using var dialog = new CatalogForm(store ?? new ConfigStore(AppContext.BaseDirectory)); dialog.ShowDialog(this); };
+        Row(L10n.Get("CatalogMetadata"), catalog);
         RefreshList();
         Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy) e.Cancel = true; };

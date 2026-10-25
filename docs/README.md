@@ -3,6 +3,7 @@
 - [user-guide.md](user-guide.md)：当前用户指南，包括使用方法、数据保护、配置、升级和状态语义。
 - [releasing.md](releasing.md)：构建、四配置打包、校验和 GUI 发行验收流程。
 - [localization.md](localization.md)：语言资源和独立 UI 偏好的维护方式。
+- [postgresql-catalog.md](postgresql-catalog.md)：EDB ZIP 目录来源、在线更新、缓存回退与验证接口。
 - `releases/`：正式版本的历史说明、验证结论与发行矩阵。
 
 ## 版本记录

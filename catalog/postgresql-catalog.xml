@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PostgreSQLCatalog schemaVersion="1">
+  <Update url="https://raw.githubusercontent.com/lly007/PgHatch/main/catalog/postgresql-catalog.xml" intervalHours="24" />
+  <Packages>
+    <Package version="18.6" revision="5" architecture="x64" provider="EDB">
+      <DownloadUrl>https://get.enterprisedb.com/postgresql/postgresql-18.6-5-windows-x64-binaries.zip</DownloadUrl>
+      <SHA256 source="https://github.com/EnterpriseDB/edb-installers/issues/746#issuecomment-6283764485">e2246ba91d22345bc3d017586c09ede52d9df180b1eeb480f050445f1cad84e2</SHA256>
+    </Package>
+    <Package version="17.11" revision="5" architecture="x64" provider="EDB">
+      <DownloadUrl>https://get.enterprisedb.com/postgresql/postgresql-17.11-5-windows-x64-binaries.zip</DownloadUrl>
+      <SHA256 source="https://github.com/EnterpriseDB/edb-installers/issues/731#issuecomment-6014410619">80379b2c04d51c30225532e0ae04509899141e9957ed096fe749d7fd9df8f82f</SHA256>
+    </Package>
+    <Package version="16.15" revision="5" architecture="x64" provider="EDB">
+      <DownloadUrl>https://get.enterprisedb.com/postgresql/postgresql-16.15-5-windows-x64-binaries.zip</DownloadUrl>
+      <SHA256 source="https://github.com/EnterpriseDB/edb-installers/issues/731#issuecomment-6014410619">43bb45f173a6f08cf1d29a97a6d8deb119e8e8093a24c00d2d1001a0ccaa8281</SHA256>
+    </Package>
+    <Package version="15.19" revision="5" architecture="x64" provider="EDB">
+      <DownloadUrl>https://get.enterprisedb.com/postgresql/postgresql-15.19-5-windows-x64-binaries.zip</DownloadUrl>
+      <SHA256 source="https://github.com/EnterpriseDB/edb-installers/issues/749#issuecomment-6334213046">49e0690194d9fe2bb4d7d6587fdddaa85a3eaaafe2fd5480e0916fcb25d0143e</SHA256>
+    </Package>
+  </Packages>
+</PostgreSQLCatalog>

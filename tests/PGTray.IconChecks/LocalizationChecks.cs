@@ -68,8 +68,9 @@ internal static class LocalizationChecks
                 using var settings = new InstanceSettingsForm(instance, manager);
                 using var rename = new RenameForm("Fixture");
                 using var logs = new LogForm(instance, "raw diagnostic");
-                Form[] forms = [main, binaries, create, import, scan, settings, rename, logs];
-                check(main.Text == L10n.Get("PgHatchPostgreSQLInstanceManager") && forms.All(f => !string.IsNullOrEmpty(f.Text)), $"{code}: all eight forms construct with localized titles");
+                using var catalog = new CatalogForm(new ConfigStore(Path.Combine(output, "catalog-form-fixture")));
+                Form[] forms = [main, binaries, create, import, scan, settings, rename, logs, catalog];
+                check(main.Text == L10n.Get("PgHatchPostgreSQLInstanceManager") && catalog.Text == L10n.Get("CatalogTitle") && forms.All(f => !string.IsNullOrEmpty(f.Text)), $"{code}: all nine forms construct with localized titles");
                 var tray = (NotifyIcon)typeof(MainForm).GetField("tray", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(main)!;
                 check(tray.ContextMenuStrip!.Items[0].Text == L10n.Get("OpenManager"), $"{code}: tray text uses the selected language");
                 var menus = (List<ContextMenuStrip>)typeof(MainForm).GetField("dropDownMenus", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(main)!;

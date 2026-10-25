@@ -21,6 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\catalog\postgresql-catalog.xml" Link="postgresql-catalog.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
     <EmbeddedResource Include="Assets\Ui\Png\*.png" LogicalName="PgHatch.Ui.%(Filename)%(Extension)" />
     <EmbeddedResource Include="Assets\Ui\Lucide\LICENSE" LogicalName="PgHatch.Ui.LICENSE" />
     <None Update="Assets\Ui\Lucide\LICENSE" TargetPath="LICENSE-LUCIDE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

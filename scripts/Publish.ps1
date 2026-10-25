@@ -63,11 +63,16 @@ try {
         $build = Join-Path $work ('build/' + $name)
         $command = @('publish',$project,'-c','Release','-r',$rid,'--self-contained',$selfContained.ToString().ToLowerInvariant(),
             '--artifacts-path',$build,'-p:PublishSingleFile=true','-p:PublishTrimmed=false','-p:PublishAot=false','-p:PublishReadyToRun=false',
-            ('-p:IncludeNativeLibrariesForSelfExtract=' + $selfContained.ToString().ToLowerInvariant()),'-p:DebugType=None','-p:DebugSymbols=false','-o',$publish)
+            ('-p:IncludeNativeLibrariesForSelfExtract=' + $selfContained.ToString().ToLowerInvariant()),'-p:IncludeSourceRevisionInInformationalVersion=false','-p:DebugType=None','-p:DebugSymbols=false','-o',$publish)
         Write-Json $command (Join-Path $candidate "logs/$name-command.json")
         Invoke-Dotnet $command (Join-Path $candidate "logs/$name-publish.log")
         $exe = Join-Path $publish 'PgHatch.exe'
         if (-not (Test-Path -LiteralPath $exe)) { throw "Missing $exe" }
+        $catalogSource = Join-Path $repoRoot 'catalog/postgresql-catalog.xml'
+        $catalogOutput = Join-Path $publish 'postgresql-catalog.xml'
+        # Keep the sole maintained catalog external to the single-file bundle.
+        Copy-Item -LiteralPath $catalogSource -Destination $catalogOutput -Force
+        if ((Get-FileHash -LiteralPath $catalogSource).Hash -ne (Get-FileHash -LiteralPath $catalogOutput).Hash) { throw 'Published catalog differs from the maintained XML.' }
         # Keep every file produced by the clean GUI publish, not a guessed EXE-only allowlist.
         if (@(Get-ChildItem -LiteralPath $publish -Recurse -File | Where-Object { $_.Name -match '^(postgres|pg_ctl|initdb|pg_isready)\.exe$|^(pghatch|pgtray)\.json$|^PG_VERSION$|Tests' }).Count) { throw 'Unexpected database, user configuration or test file in publish output.' }
         $validation = Join-Path $publish 'VALIDATION.json'
@@ -114,6 +119,8 @@ Windows x64 使用 x64 发行包；Windows ARM64 优先使用 ARM64 发行包。
 ARM64 产物的构建/静态检查不代表真实 ARM64 运行已验证。VALIDATION.json 记录静态结果；RELEASE.json 标明发行属性，不将静态结果冒充 GUI 验证。
 
 请保留随包 README、校验信息及许可文件。LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
+
+postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。进入 PostgreSQL 程序管理中的软件包目录时才按间隔检查在线目录，失败时使用有效缓存或发行 XML。目录中的 PostgreSQL 包目前仅含 Windows x64 ZIP；此版本不下载、解压或注册在线软件包。
 "@ | Set-Content -LiteralPath (Join-Path $publish 'README.md') -Encoding utf8
         $noticesPath = Join-Path $publish 'THIRD-PARTY-NOTICES.md'
         (Get-Content -Raw -LiteralPath $noticesPath).Replace('](src/PGTray/Assets/Ui/Lucide/LICENSE)','](LICENSE-LUCIDE.txt)') | Set-Content -LiteralPath $noticesPath -Encoding utf8

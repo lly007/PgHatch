@@ -22,6 +22,10 @@ pwsh -NoProfile -File scripts/Publish.ps1 -OutputRoot 'D:\候选发布 [测试]&
 
 脚本会验证当前 SDK 和 TFM、创建独立临时构建目录，并用 `--artifacts-path` 隔离每个项目和矩阵成员的 obj/bin。应用无需新增第三方依赖；静态检查器只使用 .NET 标准库。
 
+四种包都保留 EXE 旁的外部 `postgresql-catalog.xml`，由唯一母版 `catalog/postgresql-catalog.xml` 复制并比对 SHA-256；项目直接构建/发布同样复制该文件，不将其打入单文件 EXE。该 XML 进入包内校验清单及 ZIP 回验。目录机制和维护要求见 [PostgreSQL 目录说明](postgresql-catalog.md)。历史 Release 不因更新目录而自动替换。
+
+发布显式设置 `IncludeSourceRevisionInInformationalVersion=false`，避免初始化 Git 后 SDK 自动把提交哈希追加到 EXE ProductVersion，确保仍为项目指定的 0.2.0，并继续通过现有精确版本检查。
+
 ## 输出与成功标准
 
 每次执行都会新建 `artifacts/candidates/run-<UTC 时间>-<随机 ID>/`，不会重用旧目录或覆盖历史包：

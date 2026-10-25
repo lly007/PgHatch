@@ -377,7 +377,7 @@ public sealed class MainForm : Form
         try { await RunAsync(() => manager.OperateAsync(instance, operation)); }
         finally { operating.Remove(instance.Id); if (!closing) Render(); }
     }
-    private Task BinariesAsync() { using var dialog = new BinaryForm(manager); dialog.ShowDialog(this); return Task.CompletedTask; }
+    private Task BinariesAsync() { using var dialog = new BinaryForm(manager, store); dialog.ShowDialog(this); return Task.CompletedTask; }
     private Task ScanAsync() { using var dialog = new DiscoveryForm(manager, tools); dialog.ShowDialog(this); return Task.CompletedTask; }
     private async Task AddAsync(bool create)
     {

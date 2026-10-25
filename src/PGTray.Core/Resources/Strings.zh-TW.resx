@@ -847,4 +847,49 @@ PID 檔案不完整或叢集身分不一致，連線狀態未知。</value>
 實際狀態：{1}&#13;
 {2}</value>
   </data>
+  <data name="CatalogTitle" xml:space="preserve">
+    <value>PostgreSQL 套件目錄</value>
+  </data>
+  <data name="CatalogMetadata" xml:space="preserve">
+    <value>線上目錄</value>
+  </data>
+  <data name="CatalogNote" xml:space="preserve">
+    <value>僅顯示 Windows x64 ZIP 目錄資訊；此視窗不會下載或註冊 PostgreSQL。</value>
+  </data>
+  <data name="CatalogArchitecture" xml:space="preserve">
+    <value>架構</value>
+  </data>
+  <data name="CatalogProvider" xml:space="preserve">
+    <value>供應商</value>
+  </data>
+  <data name="CatalogRefresh" xml:space="preserve">
+    <value>重新整理線上目錄</value>
+  </data>
+  <data name="CatalogLoading" xml:space="preserve">
+    <value>正在讀取目錄…</value>
+  </data>
+  <data name="CatalogStatus" xml:space="preserve">
+    <value>來源：{0} · 套件：{1}</value>
+  </data>
+  <data name="CatalogSourceBundled" xml:space="preserve">
+    <value>發行版 XML</value>
+  </data>
+  <data name="CatalogSourceCache" xml:space="preserve">
+    <value>本機快取</value>
+  </data>
+  <data name="CatalogSourceOnline" xml:space="preserve">
+    <value>線上 XML</value>
+  </data>
+  <data name="CatalogInvalid" xml:space="preserve">
+    <value>PostgreSQL 目錄無效：{0}</value>
+  </data>
+  <data name="CatalogCacheUnavailable" xml:space="preserve">
+    <value>目錄快取無法使用：{0}</value>
+  </data>
+  <data name="CatalogUpdateFailed" xml:space="preserve">
+    <value>線上檢查失敗，已使用可用的離線目錄。{0}</value>
+  </data>
+  <data name="CatalogLoadFailed" xml:space="preserve">
+    <value>無法讀取目錄：{0}</value>
+  </data>
 </root>

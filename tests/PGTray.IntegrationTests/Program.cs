@@ -8,6 +8,8 @@ using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
 if (args is ["--config-repro"]) { await ConfigTests.ReproduceAsync(); return 0; }
+if (args is ["--catalog-tests", var catalogFile, var catalogTestParent]) return await CatalogTests.RunAsync(catalogFile, catalogTestParent);
+if (args is ["--catalog-online", var onlineCatalogFile, var onlineTestParent]) return await CatalogTests.RunOnlineAsync(onlineCatalogFile, onlineTestParent);
 
 if (args is ["--config-tests", var binaryPath]) return await ConfigRegression.RunAsync(binaryPath);
 if (args is ["--config-tests", var configuredBinary, var configTestParent]) return await ConfigRegression.RunAsync(configuredBinary, configTestParent);

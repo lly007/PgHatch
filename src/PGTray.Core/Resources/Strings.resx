@@ -847,4 +847,49 @@ Relink them in Instance Settings first. No instances or files will be deleted.</
 Actual state: {1}&#13;
 {2}</value>
   </data>
+  <data name="CatalogTitle" xml:space="preserve">
+    <value>PostgreSQL Package Catalog</value>
+  </data>
+  <data name="CatalogMetadata" xml:space="preserve">
+    <value>Online catalog</value>
+  </data>
+  <data name="CatalogNote" xml:space="preserve">
+    <value>Windows x64 ZIP metadata only. This window does not download or register PostgreSQL.</value>
+  </data>
+  <data name="CatalogArchitecture" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
+  <data name="CatalogProvider" xml:space="preserve">
+    <value>Provider</value>
+  </data>
+  <data name="CatalogRefresh" xml:space="preserve">
+    <value>Refresh Online Catalog</value>
+  </data>
+  <data name="CatalogLoading" xml:space="preserve">
+    <value>Loading catalog…</value>
+  </data>
+  <data name="CatalogStatus" xml:space="preserve">
+    <value>Source: {0} · Packages: {1}</value>
+  </data>
+  <data name="CatalogSourceBundled" xml:space="preserve">
+    <value>Bundled XML</value>
+  </data>
+  <data name="CatalogSourceCache" xml:space="preserve">
+    <value>Local cache</value>
+  </data>
+  <data name="CatalogSourceOnline" xml:space="preserve">
+    <value>Online XML</value>
+  </data>
+  <data name="CatalogInvalid" xml:space="preserve">
+    <value>Invalid PostgreSQL catalog: {0}</value>
+  </data>
+  <data name="CatalogCacheUnavailable" xml:space="preserve">
+    <value>Catalog cache is unavailable: {0}</value>
+  </data>
+  <data name="CatalogUpdateFailed" xml:space="preserve">
+    <value>Online check failed; using the available offline catalog. {0}</value>
+  </data>
+  <data name="CatalogLoadFailed" xml:space="preserve">
+    <value>Could not load catalog: {0}</value>
+  </data>
 </root>

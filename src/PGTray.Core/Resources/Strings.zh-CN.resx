@@ -847,4 +847,49 @@ PID 文件不完整或集群身份不一致，连接状态未知。</value>
 实际状态：{1}&#13;
 {2}</value>
   </data>
+  <data name="CatalogTitle" xml:space="preserve">
+    <value>PostgreSQL 软件包目录</value>
+  </data>
+  <data name="CatalogMetadata" xml:space="preserve">
+    <value>在线目录</value>
+  </data>
+  <data name="CatalogNote" xml:space="preserve">
+    <value>仅展示 Windows x64 ZIP 目录信息；此窗口不会下载或注册 PostgreSQL。</value>
+  </data>
+  <data name="CatalogArchitecture" xml:space="preserve">
+    <value>架构</value>
+  </data>
+  <data name="CatalogProvider" xml:space="preserve">
+    <value>供应商</value>
+  </data>
+  <data name="CatalogRefresh" xml:space="preserve">
+    <value>刷新在线目录</value>
+  </data>
+  <data name="CatalogLoading" xml:space="preserve">
+    <value>正在读取目录…</value>
+  </data>
+  <data name="CatalogStatus" xml:space="preserve">
+    <value>来源：{0} · 软件包：{1}</value>
+  </data>
+  <data name="CatalogSourceBundled" xml:space="preserve">
+    <value>发行版 XML</value>
+  </data>
+  <data name="CatalogSourceCache" xml:space="preserve">
+    <value>本地缓存</value>
+  </data>
+  <data name="CatalogSourceOnline" xml:space="preserve">
+    <value>在线 XML</value>
+  </data>
+  <data name="CatalogInvalid" xml:space="preserve">
+    <value>PostgreSQL 目录无效：{0}</value>
+  </data>
+  <data name="CatalogCacheUnavailable" xml:space="preserve">
+    <value>目录缓存不可用：{0}</value>
+  </data>
+  <data name="CatalogUpdateFailed" xml:space="preserve">
+    <value>在线检查失败，已使用可用的离线目录。{0}</value>
+  </data>
+  <data name="CatalogLoadFailed" xml:space="preserve">
+    <value>无法读取目录：{0}</value>
+  </data>
 </root>
