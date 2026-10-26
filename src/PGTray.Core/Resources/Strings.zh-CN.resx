@@ -892,4 +892,114 @@ PID 文件不完整或集群身份不一致，连接状态未知。</value>
   <data name="CatalogLoadFailed" xml:space="preserve">
     <value>无法读取目录：{0}</value>
   </data>
+  <data name="DownloadTitle" xml:space="preserve">
+    <value>下载 PostgreSQL</value>
+  </data>
+  <data name="DownloadBinaries" xml:space="preserve">
+    <value>获取程序</value>
+  </data>
+  <data name="DeployTarget" xml:space="preserve">
+    <value>程序部署目录</value>
+  </data>
+  <data name="DownloadSource" xml:space="preserve">
+    <value>下载来源</value>
+  </data>
+  <data name="DownloadNote" xml:space="preserve">
+    <value>请选择空目录，或现有父目录下的新目录。下载和注册程序不会创建或启动数据库实例。</value>
+  </data>
+  <data name="DownloadArmNote" xml:space="preserve">
+    <value>此 PostgreSQL 程序为 x64，在 Windows ARM64 上运行依赖 x64 兼容能力，实际可用性需验证。</value>
+  </data>
+  <data name="DownloadBegin" xml:space="preserve">
+    <value>下载并部署</value>
+  </data>
+  <data name="DownloadChooseTarget" xml:space="preserve">
+    <value>请选择版本和空的程序部署目录。</value>
+  </data>
+  <data name="DownloadReady" xml:space="preserve">
+    <value>PostgreSQL 已准备就绪：{0}&#13;
+可回到主窗口继续创建实例；本次未创建或启动实例。</value>
+  </data>
+  <data name="DownloadCanceled" xml:space="preserve">
+    <value>已取消。符合条件的未完成下载会保留，供安全重试。</value>
+  </data>
+  <data name="DownloadFailed" xml:space="preserve">
+    <value>下载或部署失败：{0}</value>
+  </data>
+  <data name="DownloadTransferProgress" xml:space="preserve">
+    <value>正在下载 {0} / {1} · {2}/s · {3}%（第 {4} 次尝试）</value>
+  </data>
+  <data name="DownloadVerifying" xml:space="preserve">
+    <value>正在验证整个 ZIP 的 SHA-256…</value>
+  </data>
+  <data name="DownloadExtracting" xml:space="preserve">
+    <value>正在解压并验证 PostgreSQL 程序…</value>
+  </data>
+  <data name="DownloadRegistering" xml:space="preserve">
+    <value>正在注册程序，请等待此步骤完成。</value>
+  </data>
+  <data name="DownloadFinished" xml:space="preserve">
+    <value>已完成。</value>
+  </data>
+  <data name="DownloadInvalidPackage" xml:space="preserve">
+    <value>软件包元数据无效。</value>
+  </data>
+  <data name="DownloadInvalidResponse" xml:space="preserve">
+    <value>服务器返回了不安全或不支持的下载响应。</value>
+  </data>
+  <data name="DownloadInvalidRange" xml:space="preserve">
+    <value>服务器的续传响应或文件标识不匹配，未追加任何数据。</value>
+  </data>
+  <data name="DownloadSizeLimit" xml:space="preserve">
+    <value>ZIP 超过 2 GiB 上限或声明的大小。</value>
+  </data>
+  <data name="DownloadIncomplete" xml:space="preserve">
+    <value>下载在完整接收文件之前中断。</value>
+  </data>
+  <data name="DownloadTransferFailed" xml:space="preserve">
+    <value>传输失败或超时，可重试：{0}</value>
+  </data>
+  <data name="DownloadHashMismatch" xml:space="preserve">
+    <value>SHA-256 与目录记录不匹配，不会部署此压缩包。</value>
+  </data>
+  <data name="DeployLocalDisk" xml:space="preserve">
+    <value>请选择本地磁盘目录。</value>
+  </data>
+  <data name="DeployUnsafePath" xml:space="preserve">
+    <value>路径含文件、符号链接、junction 或重解析点，请选择普通本地目录。</value>
+  </data>
+  <data name="DeployClusterPath" xml:space="preserve">
+    <value>禁止在已有或疑似 PGDATA 内部署程序。</value>
+  </data>
+  <data name="DeployInsufficientSpace" xml:space="preserve">
+    <value>磁盘可用空间不足，无法下载或部署。</value>
+  </data>
+  <data name="DeployParentMissing" xml:space="preserve">
+    <value>父目录必须已存在，请先选择本地父目录。</value>
+  </data>
+  <data name="DeployTargetNotEmpty" xml:space="preserve">
+    <value>部署目录非空，请选择新目录或空目录；不会覆盖已有文件。</value>
+  </data>
+  <data name="DeployRegisteredPath" xml:space="preserve">
+    <value>部署路径与已注册的 PostgreSQL 程序目录重叠，请选择其他目录。</value>
+  </data>
+  <data name="DeployRegistrationFailed" xml:space="preserve">
+    <value>程序已部署到 {0}，但注册失败，已保留文件。可在“PostgreSQL 程序”中手动注册 {1}。&#13;
+{2}</value>
+  </data>
+  <data name="DeployUnsafeZip" xml:space="preserve">
+    <value>ZIP 已损坏、含不安全路径或超过解压限制，未提交部署。</value>
+  </data>
+  <data name="DeployBinaryStructure" xml:space="preserve">
+    <value>压缩包必须包含且只包含一套有效的 Windows x64 PostgreSQL 程序。</value>
+  </data>
+  <data name="DeployVersionMismatch" xml:space="preserve">
+    <value>压缩包内 PostgreSQL 版本与所选目录版本不一致。</value>
+  </data>
+  <data name="DeployStagingRetained" xml:space="preserve">
+    <value>为确保安全，已保留临时资源。请检查此目录：{0}</value>
+  </data>
+  <data name="DeployCleanupWarning" xml:space="preserve">
+    <value>部分临时资源未能清理，请检查 {0} 和 {1}。上方的部署结果不受影响。{2}</value>
+  </data>
 </root>

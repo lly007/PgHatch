@@ -12,7 +12,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，管理用户自行提供的 Post
 - 新建、只读扫描和导入已有集群，保留导入实例原始启动配置。
 - 异步启动、停止、重启；分别显示进程状态与连接就绪状态。
 - 便携 JSON 配置、有效备份、损坏恢复和兼容旧版迁移。
-- 可在线维护的 [PostgreSQL ZIP 目录](docs/postgresql-catalog.md)，支持本地缓存及离线回退；当前仅提供元数据。
+- 可在线维护的 [PostgreSQL ZIP 目录与下载部署](docs/postgresql-catalog.md)，支持离线目录、安全续传、SHA-256、安全解压及自动注册。
 - 原生托盘、日志入口、HiDPI、简体中文 / English / 繁體中文及正式品牌图标。
 
 ## 选择发行模式
@@ -49,6 +49,6 @@ dotnet run --project src/PGTray
 pwsh -NoProfile -File scripts/Publish.ps1
 ```
 
-首次 GitHub 发布的四矩阵发行包由当前源码重新构建，包含多语言和界面修复。早期候选的验证范围见[发行矩阵记录](docs/releases/v0.2.0/release-matrix.md)；历史封版文件保持原样，后续发布一律使用新的独立候选目录。
+GitHub 现有 v0.2.0 Release 发布于 2026-10-21，包含多语言和界面修复。后续加入的在线目录及下载部署功能目前以最新源码和独立本地候选包为准，尚未替换正式 Release。早期候选的验证范围见[发行矩阵记录](docs/releases/v0.2.0/release-matrix.md)；历史封版文件保持原样，后续发布一律使用新的独立候选目录。
 
 内部工程名、命名空间和历史配置字段继续保留 PGTray，以维持兼容性。

@@ -69,8 +69,9 @@ internal static class LocalizationChecks
                 using var rename = new RenameForm("Fixture");
                 using var logs = new LogForm(instance, "raw diagnostic");
                 using var catalog = new CatalogForm(new ConfigStore(Path.Combine(output, "catalog-form-fixture")));
-                Form[] forms = [main, binaries, create, import, scan, settings, rename, logs, catalog];
-                check(main.Text == L10n.Get("PgHatchPostgreSQLInstanceManager") && catalog.Text == L10n.Get("CatalogTitle") && forms.All(f => !string.IsNullOrEmpty(f.Text)), $"{code}: all nine forms construct with localized titles");
+                using var download = new DownloadForm(manager, new ConfigStore(Path.Combine(output, "download-form-fixture")));
+                Form[] forms = [main, binaries, create, import, scan, settings, rename, logs, catalog, download];
+                check(main.Text == L10n.Get("PgHatchPostgreSQLInstanceManager") && catalog.Text == L10n.Get("CatalogTitle") && download.Text == L10n.Get("DownloadTitle") && forms.All(f => !string.IsNullOrEmpty(f.Text)), $"{code}: all ten forms construct with localized titles");
                 var tray = (NotifyIcon)typeof(MainForm).GetField("tray", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(main)!;
                 check(tray.ContextMenuStrip!.Items[0].Text == L10n.Get("OpenManager"), $"{code}: tray text uses the selected language");
                 var menus = (List<ContextMenuStrip>)typeof(MainForm).GetField("dropDownMenus", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(main)!;
@@ -82,6 +83,8 @@ internal static class LocalizationChecks
                 {
                     form.CreateControl(); form.PerformLayout();
                 }
+                check(Descendants(binaries).OfType<Button>().Where(b => b.Text == L10n.Get("CatalogTitle") || b.Text == L10n.Get("DownloadTitle")).All(b => b.Height <= b.Font.Height * 3),
+                    $"{code}: online catalog and download entries keep compact native button heights");
                 var welcome = Descendants(main).OfType<Label>().Single(c => c.Text == L10n.Get("CreateANewLocalInstanceOrRegister"));
                 check(welcome.Height >= TextRenderer.MeasureText(welcome.Text, welcome.Font, new(welcome.Width, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl).Height,
                     $"{code}: welcome label has room for its wrapped text");

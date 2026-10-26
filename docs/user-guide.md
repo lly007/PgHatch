@@ -117,9 +117,9 @@ dotnet publish src/PGTray -c Release -r win-x64 --self-contained true -p:Publish
 
 详细变更见 [CHANGELOG](../CHANGELOG.md)，本轮证据和待人工步骤见 [v0.2.0 验证记录](releases/v0.2.0/validation.md)。四档 DPI、跨屏拖动、托盘所有点击路径以及没有 Runtime 的 Windows 10/11 干净环境仍需逐项验证，不能以本机运行替代这些验收。当前完整真实版本测试为 PostgreSQL 18.6；17/18 主版本拒绝测试使用测试元数据，尚未安装第二套真实版本。
 
-PostgreSQL 程序管理窗口提供[软件包目录](postgresql-catalog.md)入口，可读取和刷新经过核验的 EDB Windows x64 ZIP 元数据。联网失败时回退有效缓存或发行 XML；目录读取不会下载、解压、注册或启动 PostgreSQL。
+PostgreSQL 程序管理窗口提供[软件包目录及下载部署](postgresql-catalog.md)入口。目录联网失败时回退有效缓存或发行 XML；“下载 PostgreSQL”允许选择版本和空目录，依次下载、核对整个 ZIP 的 SHA-256、安全解压、验证并注册程序。可取消并安全重试；成功后自行选择是否创建实例。下载部署不会自动初始化或启动数据库，也不会覆盖已有程序目录。
 
-不实现 SQL 编辑器、备份恢复、升级、实际自动下载或远程管理。
+不实现 SQL 编辑器、备份恢复、数据库升级或远程管理。
 
 v0.2.0 验证记录与人工步骤见 [验证记录](releases/v0.2.0/validation.md)。应用、窗口和托盘已接入正式 PgHatch 品牌图标；主窗口额外内嵌高分辨率透明 Logo。内部目录和命名空间沿用 PGTray，JSON 的 CreatedByPGTray 字段与旧版协调对象名称有意保留，以兼容历史配置和运行行为。
 

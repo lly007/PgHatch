@@ -7,6 +7,10 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+// A renamed test apphost provides --version only in isolated deployment fixtures.
+if (args is ["--version"] && Path.GetFileNameWithoutExtension(Environment.ProcessPath) == "postgres") { Console.WriteLine("postgres (PostgreSQL) 18.6"); return 0; }
+if (args is ["--download-tests", var downloadParent]) return await DownloadTests.RunAsync(downloadParent);
+if (args is ["--deploy-real", var officialArchive, var officialCatalog, var deployParent]) return await DownloadTests.RunRealAsync(officialArchive, officialCatalog, deployParent);
 if (args is ["--config-repro"]) { await ConfigTests.ReproduceAsync(); return 0; }
 if (args is ["--catalog-tests", var catalogFile, var catalogTestParent]) return await CatalogTests.RunAsync(catalogFile, catalogTestParent);
 if (args is ["--catalog-online", var onlineCatalogFile, var onlineTestParent]) return await CatalogTests.RunOnlineAsync(onlineCatalogFile, onlineTestParent);

@@ -110,7 +110,10 @@ internal sealed class BinaryForm : LayoutForm
         actions.Controls.AddRange([add, repair, remove, discover]); Row(L10n.Get("Registration"), actions);
         var catalog = new Button { Text = L10n.Get("CatalogTitle"), AutoSize = true };
         catalog.Click += (_, _) => { using var dialog = new CatalogForm(store ?? new ConfigStore(AppContext.BaseDirectory)); dialog.ShowDialog(this); };
-        Row(L10n.Get("CatalogMetadata"), catalog);
+        var download = new Button { Text = L10n.Get("DownloadTitle"), AutoSize = true };
+        download.Click += async (_, _) => { using var dialog = new DownloadForm(manager, store ?? new ConfigStore(AppContext.BaseDirectory)); dialog.ShowDialog(this); if (dialog.Installed) { await manager.RefreshAllAsync(); RefreshList(); } };
+        var online = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Fill };
+        online.Controls.AddRange([catalog, download]); Row(L10n.Get("CatalogMetadata"), online);
         RefreshList();
         Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy) e.Cancel = true; };

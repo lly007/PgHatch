@@ -120,7 +120,7 @@ ARM64 产物的构建/静态检查不代表真实 ARM64 运行已验证。VALIDA
 
 请保留随包 README、校验信息及许可文件。LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
 
-postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。进入 PostgreSQL 程序管理中的软件包目录时才按间隔检查在线目录，失败时使用有效缓存或发行 XML。目录中的 PostgreSQL 包目前仅含 Windows x64 ZIP；此版本不下载、解压或注册在线软件包。
+postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。进入程序管理中的目录或下载窗口时才按间隔检查在线目录，失败时使用有效缓存或发行 XML。下载窗口支持选择版本、下载、SHA-256 校验、安全解压并注册；目前仅含 Windows x64 PostgreSQL ZIP，不会自动创建或启动实例。ARM64 上运行这些 x64 PostgreSQL 程序依赖系统兼容能力，仍需实机验证。
 "@ | Set-Content -LiteralPath (Join-Path $publish 'README.md') -Encoding utf8
         $noticesPath = Join-Path $publish 'THIRD-PARTY-NOTICES.md'
         (Get-Content -Raw -LiteralPath $noticesPath).Replace('](src/PGTray/Assets/Ui/Lucide/LICENSE)','](LICENSE-LUCIDE.txt)') | Set-Content -LiteralPath $noticesPath -Encoding utf8
