@@ -44,12 +44,17 @@ internal static class WindowChecks
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
                 foreach (var dpi in new[] { 96, 120, 144, 192 })
                 {
-                    using var form = new BinaryForm(manager) { AutoScaleMode = AutoScaleMode.None };
-                    var scale = dpi / 96f; form.Scale(new SizeF(scale, scale)); form.Font = new Font(form.Font.FontFamily, 9 * scale);
-                    _ = form.Handle; form.FitToWorkArea(new(0, 0, 1920, 1080), dpi); form.PerformLayout();
+                    using var form = new BinaryForm(manager);
+                    _ = form.Handle; // Apply native DPI once before simulating another control/font scale.
+                    form.AutoScaleMode = AutoScaleMode.None;
+                    var scale = dpi / 96f; var relativeScale = dpi / (float)form.DeviceDpi;
+                    form.Scale(new SizeF(relativeScale, relativeScale)); form.Font = new Font(form.Font.FontFamily, 9 * scale);
+                    form.FitToWorkArea(new(0, 0, 1920, 1080), dpi); form.PerformLayout();
                     var table = form.Controls.OfType<TableLayoutPanel>().Single();
                     check(table.Bottom <= form.ClientSize.Height && !form.VerticalScroll.Visible && form.Right <= 1920 && form.Bottom <= 1080,
                         $"{language}/{dpi}: scaled native binaries layout fits 1920×1080 without initial vertical scrolling (content={table.Bottom}, client={form.ClientSize.Height})");
+                    check(form.ClientSize.Width <= (int)Math.Round(740 * scale) && form.ClientSize.Height - table.Bottom <= (int)Math.Ceiling(12 * scale),
+                        $"{language}/{dpi}: binaries window uses compact width and content height without a blank minimum-height floor");
                     form.FitToWorkArea(new(0, 0, 900, 600), dpi);
                     check(form.Width <= 900 && form.Height <= 600 && form.AutoScroll, $"{language}/{dpi}: small working area retains bounded scrolling fallback");
                 }

@@ -62,10 +62,10 @@ internal class LayoutForm : Form
 internal sealed class BinaryForm : LayoutForm
 {
     private sealed record Choice(BinaryInstallation Binary, string Label) { public override string ToString() => Label; }
-    private readonly ListBox list = new() { Height = 160, IntegralHeight = false, HorizontalScrollbar = true };
+    private readonly ListBox list = new() { Height = 112, IntegralHeight = false, HorizontalScrollbar = true };
     public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
     {
-        ClientSize = new(860, 600); MinimumSize = new(740, 480);
+        ClientSize = new(740, 400); MinimumSize = new(640, 300);
         var path = new TextBox(); var busy = false;
         void RefreshList()
         {
@@ -125,12 +125,12 @@ internal sealed class BinaryForm : LayoutForm
     {
         int Px(int value) => (int)Math.Round(value * dpi / 96d);
         var frame = SizeFromClientSize(Size.Empty); var maximum = new Size(work.Width - Px(16), work.Height - Px(16));
-        MinimumSize = new(Math.Min(Px(740), maximum.Width), Math.Min(Px(420), maximum.Height));
-        var width = Math.Min(Px(860), maximum.Width - frame.Width); var height = maximum.Height - frame.Height;
-        ClientSize = new(width, Math.Min(Px(600), height)); list.Height = Px(160); Table.PerformLayout();
-        var overflow = Table.PreferredSize.Height + Px(8) - height;
+        MinimumSize = new(Math.Min(Px(640), maximum.Width), Math.Min(Px(300), maximum.Height));
+        var width = Math.Min(Px(740), maximum.Width - frame.Width); var height = maximum.Height - frame.Height;
+        ClientSize = new(width, Math.Min(Px(400), height)); list.Height = Px(112); Table.PerformLayout();
+        var overflow = Table.Height + Px(8) - height;
         if (overflow > 0) { list.Height = Math.Max(Px(70), list.Height - overflow); Table.PerformLayout(); }
-        ClientSize = new(width, Math.Min(height, Math.Max(Px(520), Table.PreferredSize.Height + Px(8))));
+        ClientSize = new(width, Math.Min(height, Table.Height + Px(8)));
         AutoScrollPosition = Point.Empty; PerformLayout();
         Location = new(Math.Clamp(Left, work.Left, Math.Max(work.Left, work.Right - Width)), Math.Clamp(Top, work.Top, Math.Max(work.Top, work.Bottom - Height)));
     }
