@@ -14,7 +14,7 @@ public sealed record PackageProgress(PackageStage Stage, long Bytes = 0, long? T
 public sealed class PackageDownloader : IDisposable
 {
     public const long MaxArchiveBytes = 2L * 1024 * 1024 * 1024;
-    private sealed record Identity(string Url, string SHA256, long Length, string? ETag, DateTimeOffset? Modified, long? Total);
+    private sealed record Identity(string Url, string SHA256, long Length, string? ETag, DateTimeOffset? Modified, long? Total, bool Verified = false);
     private readonly HttpClient client;
     private readonly TimeSpan inactivity;
     public PackageDownloader(HttpMessageHandler? handler = null, TimeSpan? inactivityTimeout = null)
@@ -56,9 +56,13 @@ public sealed class PackageDownloader : IDisposable
                 && identity.Length == length && length <= MaxArchiveBytes && (identity.Total is null || identity.Total >= length && identity.Total <= MaxArchiveBytes);
             if (!validIdentity) identity = null;
             // A previous attempt may have completed the body just before cancellation/hash verification.
-            if (identity?.Total == length && length > 0)
+            if (identity is not null && length > 0 && (identity.Verified || identity.Total == length))
             {
-                try { await VerifyAsync(package, part, progress, duration.Token).ConfigureAwait(false); return part; }
+                try
+                {
+                    await VerifyAsync(package, part, progress, duration.Token).ConfigureAwait(false);
+                    await SaveIdentityAsync(identityPath, identity with { Verified = true, Total = length }).ConfigureAwait(false); return part;
+                }
                 catch (InvalidDataException) { File.Delete(identityPath); File.Delete(part); throw; }
             }
             var resumable = identity is not null && length > 0 && (StrongTag(identity.ETag) is not null || identity.Modified is not null);
@@ -125,7 +129,8 @@ public sealed class PackageDownloader : IDisposable
                         await SaveIdentityAsync(identityPath, current with { Length = file.Length }).ConfigureAwait(false);
                     }
                 }
-                await VerifyAsync(package, part, progress, duration.Token).ConfigureAwait(false); return part;
+                await VerifyAsync(package, part, progress, duration.Token).ConfigureAwait(false);
+                await SaveIdentityAsync(identityPath, current with { Length = length, Total = length, Verified = true }).ConfigureAwait(false); return part;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
             catch (Exception ex) when (ex is IOException or HttpRequestException or OperationCanceledException)

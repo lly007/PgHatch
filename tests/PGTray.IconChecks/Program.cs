@@ -8,6 +8,13 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if (args is ["--pipe-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
+        if (args is ["--delay-helper"]) { Thread.Sleep(10000); return 0; }
+        if (args is ["--creation-check", var binaries, var testParent])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            return CreationChecks.Run(binaries, testParent);
+        }
         if (args.Length != 1) { Console.Error.WriteLine("Usage: <owned output directory>"); return 2; }
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles();
@@ -103,6 +110,7 @@ internal static class Program
             catch (ObjectDisposedException) { Check(true, "Image cache releases ownership and rejects access after disposal"); }
             BrandChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
+            WindowChecks.Run(args[0], Check);
             Console.WriteLine($"{results.Count} PASS. Offscreen DPI raster and native PE resource checks; real desktop scaling remains a separate GUI check.");
             return 0;
         }

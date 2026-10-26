@@ -8,7 +8,7 @@ internal class LayoutForm : Form
 {
     protected readonly CancellationTokenSource Lifetime = new();
     private bool lifetimeDisposed;
-    protected readonly TableLayoutPanel Table = new() { Dock = DockStyle.Top, AutoSize = true, Padding = new(16), ColumnCount = 3 };
+    protected readonly TableLayoutPanel Table = new() { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new(16), ColumnCount = 3 };
     protected LayoutForm(string title)
     {
         Text = title; Font = new Font("Microsoft YaHei UI", 9F); AutoScaleMode = AutoScaleMode.Dpi;
@@ -62,10 +62,10 @@ internal class LayoutForm : Form
 internal sealed class BinaryForm : LayoutForm
 {
     private sealed record Choice(BinaryInstallation Binary, string Label) { public override string ToString() => Label; }
+    private readonly ListBox list = new() { Height = 160, IntegralHeight = false, HorizontalScrollbar = true };
     public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
     {
-        ClientSize = new(820, 510); MinimumSize = new(720, 470);
-        var list = new ListBox { Height = 170, HorizontalScrollbar = true };
+        ClientSize = new(860, 600); MinimumSize = new(740, 480);
         var path = new TextBox(); var busy = false;
         void RefreshList()
         {
@@ -117,6 +117,22 @@ internal sealed class BinaryForm : LayoutForm
         RefreshList();
         Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy) e.Cancel = true; };
+        Shown += (_, _) => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
+        DpiChanged += (_, _) => BeginInvoke(() => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
+    }
+
+    internal void FitToWorkArea(Rectangle work, int dpi)
+    {
+        int Px(int value) => (int)Math.Round(value * dpi / 96d);
+        var frame = SizeFromClientSize(Size.Empty); var maximum = new Size(work.Width - Px(16), work.Height - Px(16));
+        MinimumSize = new(Math.Min(Px(740), maximum.Width), Math.Min(Px(420), maximum.Height));
+        var width = Math.Min(Px(860), maximum.Width - frame.Width); var height = maximum.Height - frame.Height;
+        ClientSize = new(width, Math.Min(Px(600), height)); list.Height = Px(160); Table.PerformLayout();
+        var overflow = Table.PreferredSize.Height + Px(8) - height;
+        if (overflow > 0) { list.Height = Math.Max(Px(70), list.Height - overflow); Table.PerformLayout(); }
+        ClientSize = new(width, Math.Min(height, Math.Max(Px(520), Table.PreferredSize.Height + Px(8))));
+        AutoScrollPosition = Point.Empty; PerformLayout();
+        Location = new(Math.Clamp(Left, work.Left, Math.Max(work.Left, work.Right - Width)), Math.Clamp(Top, work.Top, Math.Max(work.Top, work.Bottom - Height)));
     }
 }
 internal sealed class InstanceForm : LayoutForm
@@ -138,6 +154,18 @@ internal sealed class InstanceForm : LayoutForm
         foreach (var b in installations) binaries.Items.Add(new { Label = $"{b.Version} — {b.BinDirectory}" });
         binaries.SelectedIndex = 0;
         Row(L10n.Get("InstanceName"), name); Row(L10n.Get("PostgreSQLBinaries2"), binaries); Row(L10n.Get("PGDATADirectory"), data, Browse(data, !create));
+        if (create)
+        {
+            var settingDefault = false; var manualPath = false;
+            void UpdateDefault()
+            {
+                if (manualPath) return;
+                settingDefault = true; data.Text = DefaultDataDirectory(name.Text); settingDefault = false;
+            }
+            data.TextChanged += (_, _) => { if (!settingDefault) manualPath = true; };
+            name.TextChanged += (_, _) => UpdateDefault();
+            name.Text = "development"; UpdateDefault();
+        }
         if (!create)
         {
             var read = new Button { Text = L10n.Get("ReadPort"), AutoSize = true };
@@ -149,9 +177,19 @@ internal sealed class InstanceForm : LayoutForm
             L10n.Get("ImportChecksTheClusterVersionAndConfigured"), async () => {
                 if (string.IsNullOrWhiteSpace(name.Text) || string.IsNullOrWhiteSpace(data.Text)) throw new ArgumentException(L10n.Get("EnterAnInstanceNameAndDataDirectory"));
                 if (create && (string.IsNullOrWhiteSpace(username.Text) || password.Text.Length == 0)) throw new ArgumentException(L10n.Get("EnterASuperuserNameAndInitialPassword"));
+                if (create) { var selectedData = data.Text; await Task.Run(() => PathSafety.ValidateInitializationTarget(selectedData)); }
                 if (!create) port.Value = (await tools.ReadSettingsAsync(Binary, data.Text, Lifetime.Token)).Port;
             });
         if (!create) port.ReadOnly = true;
+    }
+    internal static string DefaultDataDirectory(string instanceName, string? applicationDirectory = null)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var folder = new string(instanceName.Trim().Select(c => invalid.Contains(c) || char.IsControl(c) ? '_' : c).ToArray()).TrimEnd(' ', '.');
+        if (folder.Length == 0) folder = "instance";
+        if (folder.Length > 80) folder = folder[..80].TrimEnd(' ', '.');
+        if (System.Text.RegularExpressions.Regex.IsMatch(folder, @"^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant)) folder = "_" + folder;
+        return Path.Combine(Path.GetFullPath(applicationDirectory ?? AppContext.BaseDirectory), "data", folder);
     }
     protected override void Dispose(bool disposing) { if (disposing && !password.IsDisposed) password.Clear(); base.Dispose(disposing); }
 }

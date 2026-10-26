@@ -17,7 +17,9 @@ public sealed class ProcessRunner
             info.Environment.Remove(key);
         using var process = new Process { StartInfo = info };
         cancellationToken.ThrowIfCancellationRequested();
-        process.Start();
+        // Windows CreateProcess (including antivirus/DLL inspection) is synchronous.
+        // Offload that call, while keeping process waiting and both pipe reads truly async.
+        await Task.Run(() => process.Start(), cancellationToken).ConfigureAwait(false);
         using var drain = new CancellationTokenSource();
         using var output = new MemoryStream();
         using var error = new MemoryStream();
@@ -26,18 +28,18 @@ public sealed class ProcessRunner
         var timedOut = false;
         using var deadline = new CancellationTokenSource(timeout);
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, cancellationToken);
-        try { await process.WaitForExitAsync(stop.Token); }
+        try { await process.WaitForExitAsync(stop.Token).ConfigureAwait(false); }
         catch (OperationCanceledException)
         {
             timedOut = deadline.IsCancellationRequested;
             // pg_ctl is only a controller: killing its tree could kill a live database.
             try { process.Kill(killChildrenOnTimeout); } catch (InvalidOperationException) { }
-            await process.WaitForExitAsync();
+            await process.WaitForExitAsync().ConfigureAwait(false);
         }
         // On Windows postgres can inherit pipe handles even when pg_ctl used -l.
         // Controller exit is authoritative for completion; never wait indefinitely for EOF.
-        try { await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(1)); }
-        catch (TimeoutException) { drain.Cancel(); await Task.WhenAll(stdout, stderr); }
+        try { await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+        catch (TimeoutException) { drain.Cancel(); await Task.WhenAll(stdout, stderr).ConfigureAwait(false); }
         cancellationToken.ThrowIfCancellationRequested();
         return new(process.ExitCode, TextDecoding.Decode(output.ToArray()), TextDecoding.Decode(error.ToArray()), timedOut);
     }
@@ -48,7 +50,7 @@ public sealed class ProcessRunner
         try
         {
             int count;
-            while ((count = await reader.ReadAsync(buffer.AsMemory(), token)) > 0)
+            while ((count = await reader.ReadAsync(buffer.AsMemory(), token).ConfigureAwait(false)) > 0)
                 if (destination.Length < 1024 * 1024) destination.Write(buffer, 0, count);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }

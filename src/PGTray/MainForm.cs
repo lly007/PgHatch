@@ -392,7 +392,10 @@ public sealed class MainForm : Form
         }
         using var dialog = new InstanceForm(manager.Config.Binaries, tools, create);
         if (dialog.ShowDialog(this) == DialogResult.OK)
+        {
+            status.Text = create ? L10n.Get("InitializingDataDirectory") : L10n.Get("Working");
             await manager.AddInstanceAsync(dialog.InstanceName, dialog.Binary, dialog.DataDirectory, dialog.Port, create ? dialog.Username : null, create ? dialog.Password : null);
+        }
     }
     private async Task SettingsAsync()
     {

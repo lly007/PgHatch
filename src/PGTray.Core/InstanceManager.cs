@@ -155,11 +155,15 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         EnsureConfiguration();
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(L10n.Get("TheInstanceNameCannotBeEmpty"));
         var create = username is not null;
-        var requested = PathSafety.Normalize(data);
-        // Validate raw ancestry BEFORE canonicalization can erase a junction from the requested path.
-        if (create) PathSafety.ValidateInitializationTarget(requested);
-        data = ConfigStore.Identity(requested);
-        await configurationGate.WaitAsync();
+        // Path metadata may involve a slow disk. Only the filesystem preflight is offloaded.
+        var prepared = await Task.Run(() => {
+            var raw = PathSafety.Normalize(data);
+            // Validate BEFORE canonicalization can erase a junction from the requested path.
+            if (create) PathSafety.ValidateInitializationTarget(raw);
+            return (Requested: raw, Canonical: ConfigStore.Identity(raw));
+        }).ConfigureAwait(false);
+        var requested = prepared.Requested; data = prepared.Canonical;
+        await configurationGate.WaitAsync().ConfigureAwait(false);
         InstanceConfig instance;
         try
         {
@@ -170,17 +174,17 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
                 throw new IOException(L10n.Get("CannotInitializeAnInstanceInsideARegistered"));
             if (create && Config.Instances.Any(i => i.Port == port)) throw new InvalidOperationException(L10n.Format("PortIsAssignedToAnotherInstanceChoose", port));
             if (create && port is < 1 or > 65535) throw new ArgumentException(L10n.Get("ThePortMustBeBetweenAnd"));
-            if (!create) port = (await tools.ReadSettingsAsync(binary, data)).Port;
-            await store.SaveAsync(Config); // Check writability before creating any database files.
-            if (create) await tools.InitializeAsync(binary, requested, port, username!, password ?? "");
-            await tools.ValidateClusterAsync(binary, data);
+            if (!create) port = (await tools.ReadSettingsAsync(binary, data).ConfigureAwait(false)).Port;
+            await store.SaveAsync(Config).ConfigureAwait(false); // Check writability before creating any database files.
+            if (create) await tools.InitializeAsync(binary, requested, port, username!, password ?? "").ConfigureAwait(false);
+            await tools.ValidateClusterAsync(binary, data).ConfigureAwait(false);
             var id = Guid.NewGuid();
             instance = new(id, name.Trim(), binary.Id, data, port, Path.Combine(store.Root, "logs", id + ".log"), CreatedByPGTray: create);
             var next = Config with { Instances = [.. Config.Instances, instance] };
-            await store.SaveAsync(next); Config = next;
+            await store.SaveAsync(next).ConfigureAwait(false); Config = next;
         }
         finally { configurationGate.Release(); }
-        await RefreshCoreAsync(instance);
+        await RefreshCoreAsync(instance).ConfigureAwait(false);
         Changed?.Invoke(); return instance;
     });
 

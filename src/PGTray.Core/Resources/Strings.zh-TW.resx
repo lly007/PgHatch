@@ -1002,4 +1002,19 @@ PID 檔案不完整或叢集身分不一致，連線狀態未知。</value>
   <data name="DeployCleanupWarning" xml:space="preserve">
     <value>部分暫存資源未能清理，請檢查 {0} 與 {1}。上方的部署結果不受影響。{2}</value>
   </data>
+  <data name="InitializingDataDirectory" xml:space="preserve">
+    <value>正在初始化 PostgreSQL 資料目錄……</value>
+  </data>
+  <data name="DataDirectoryNotWritable" xml:space="preserve">
+    <value>無法寫入資料目錄 {0}，請選擇可寫入的位置。{1}</value>
+  </data>
+  <data name="CatalogOfflineHint" xml:space="preserve">
+    <value>線上目錄暫時無法使用，已使用可用的本機目錄；停留於此可查看詳細資訊。</value>
+  </data>
+  <data name="CatalogUnavailableShort" xml:space="preserve">
+    <value>無法讀取目錄，詳細資訊請見錯誤提示。</value>
+  </data>
+  <data name="DownloadFailedShort" xml:space="preserve">
+    <value>下載或部署失敗，詳細資訊請見錯誤提示；修正後可重試。</value>
+  </data>
 </root>

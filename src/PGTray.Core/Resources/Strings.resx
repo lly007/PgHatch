@@ -1002,4 +1002,19 @@ You can now create an instance from the main window. No instance was created or 
   <data name="DeployCleanupWarning" xml:space="preserve">
     <value>Some temporary resources were retained. Check {0} and {1}. The deployment result above is unchanged. {2}</value>
   </data>
+  <data name="InitializingDataDirectory" xml:space="preserve">
+    <value>Initializing the PostgreSQL data directory…</value>
+  </data>
+  <data name="DataDirectoryNotWritable" xml:space="preserve">
+    <value>Cannot write to the data directory {0}. Choose a writable location. {1}</value>
+  </data>
+  <data name="CatalogOfflineHint" xml:space="preserve">
+    <value>Online catalog unavailable. Using the available local catalog; hover here for details.</value>
+  </data>
+  <data name="CatalogUnavailableShort" xml:space="preserve">
+    <value>Could not load the catalog. See the error message for details.</value>
+  </data>
+  <data name="DownloadFailedShort" xml:space="preserve">
+    <value>Download or deployment failed. See the error message for details, then retry.</value>
+  </data>
 </root>

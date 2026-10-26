@@ -16,11 +16,14 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
 
     public async Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
     {
-        var bin = ConfigStore.Identity(directory);
-        if (!File.Exists(Path.Combine(bin, "postgres.exe"))) bin = Path.Combine(bin, "bin");
-        foreach (var tool in RequiredTools)
-            if (!File.Exists(Path.Combine(bin, tool))) throw new IOException(L10n.Format("MissingPostgreSQLTool", Path.Combine(bin, tool)));
-        var result = await runner.RunAsync(Path.Combine(bin, "postgres.exe"), ["--version"], TimeSpan.FromSeconds(10), cancellationToken: cancellationToken);
+        var bin = await Task.Run(() => {
+            var path = ConfigStore.Identity(directory);
+            if (!File.Exists(Path.Combine(path, "postgres.exe"))) path = Path.Combine(path, "bin");
+            foreach (var tool in RequiredTools)
+                if (!File.Exists(Path.Combine(path, tool))) throw new IOException(L10n.Format("MissingPostgreSQLTool", Path.Combine(path, tool)));
+            return path;
+        }, cancellationToken).ConfigureAwait(false);
+        var result = await runner.RunAsync(Path.Combine(bin, "postgres.exe"), ["--version"], TimeSpan.FromSeconds(10), cancellationToken: cancellationToken).ConfigureAwait(false);
         var match = Regex.Match(result.Output, @"PostgreSQL\)?\s+(\d+(?:\.\d+)+)");
         if (result.ExitCode != 0 || result.TimedOut || !match.Success) throw new IOException(L10n.Get("CouldNotIdentifyPostgreSQLVersion") + result.Diagnostic);
         var version = match.Groups[1].Value;
@@ -133,29 +136,41 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password) || password.Contains('\n') || password.Contains('\r'))
             throw new ArgumentException(L10n.Get("EnterASuperuserNameAndANon"));
-        var currentBinary = await InspectBinaryAsync(binary.BinDirectory);
+        var currentBinary = await InspectBinaryAsync(binary.BinDirectory).ConfigureAwait(false);
         if (currentBinary.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheBinaryMajorVersionHasChangedRegister"));
-        EnsurePortFree(port);
         data = PathSafety.Normalize(data);
-        PathSafety.ValidateInitializationTarget(data);
-        // Create an ACL-protected temporary password file before writing any secret bytes.
-        var secretDirectory = Path.Combine(Path.GetTempPath(), "PgHatch-" + Guid.NewGuid().ToString("N"));
-        var security = new DirectorySecurity();
-        security.SetAccessRuleProtection(true, false);
-        security.AddAccessRule(new FileSystemAccessRule(WindowsIdentity.GetCurrent().User!, FileSystemRights.FullControl,
-            InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-        FileSystemAclExtensions.CreateDirectory(security, secretDirectory);
+        var secretDirectory = await Task.Run(() => {
+            if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException();
+            EnsurePortFree(port); PathSafety.ValidateInitializationTarget(data);
+            // Probe only an existing, validated parent; never silently relocate PGDATA.
+            var parent = data;
+            while (!Directory.Exists(parent)) parent = Path.GetDirectoryName(parent)
+                ?? throw new IOException(L10n.Format("DataDirectoryNotWritable", data, L10n.Format("DirectoryMissing", data)));
+            try
+            {
+                using var probe = new FileStream(Path.Combine(parent, ".pghatch-write-" + Guid.NewGuid().ToString("N")), FileMode.CreateNew,
+                    FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { throw new IOException(L10n.Format("DataDirectoryNotWritable", data, ex.Message), ex); }
+            // Create an ACL-protected password directory before writing secret bytes.
+            var directory = Path.Combine(Path.GetTempPath(), "PgHatch-" + Guid.NewGuid().ToString("N"));
+            var security = new DirectorySecurity(); security.SetAccessRuleProtection(true, false);
+            using var identity = WindowsIdentity.GetCurrent();
+            security.AddAccessRule(new FileSystemAccessRule(identity.User!, FileSystemRights.FullControl,
+                InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+            FileSystemAclExtensions.CreateDirectory(security, directory); return directory;
+        }).ConfigureAwait(false);
         var secret = Path.Combine(secretDirectory, "password");
         try
         {
-            await File.WriteAllTextAsync(secret, password, new UTF8Encoding(false));
+            await File.WriteAllTextAsync(secret, password, new UTF8Encoding(false)).ConfigureAwait(false);
             PathSafety.ValidateInitializationTarget(data);
             var r = await runner.RunAsync(Path.Combine(binary.BinDirectory, "initdb.exe"),
                 ["-D", data, "-U", username, "--pwfile", secret, "--auth-local=scram-sha-256", "--auth-host=scram-sha-256", "--encoding=UTF8", "--no-clean"],
-                TimeSpan.FromMinutes(2), killChildrenOnTimeout: true);
+                TimeSpan.FromMinutes(2), killChildrenOnTimeout: true).ConfigureAwait(false);
             if (r.ExitCode != 0 || r.TimedOut) throw new IOException(L10n.Get("InitializationFailedTheTargetDirectoryIsKept") + r.Diagnostic);
             await File.AppendAllTextAsync(Path.Combine(data, "postgresql.conf"),
-                $"\r\n# Created by PgHatch\r\nlisten_addresses = '127.0.0.1'\r\nport = {port}\r\npassword_encryption = 'scram-sha-256'\r\n", new UTF8Encoding(false));
+                $"\r\n# Created by PgHatch\r\nlisten_addresses = '127.0.0.1'\r\nport = {port}\r\npassword_encryption = 'scram-sha-256'\r\n", new UTF8Encoding(false)).ConfigureAwait(false);
         }
         finally { if (File.Exists(secret)) File.Delete(secret); Directory.Delete(secretDirectory); }
     }

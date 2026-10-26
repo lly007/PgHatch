@@ -97,6 +97,17 @@ internal static class DownloadTests
             server.Behavior = "chunked";
             using (var downloader = new PackageDownloader(server.Transport())) downloaded = await downloader.DownloadAsync(package, Path.Combine(root, "chunked"));
             Check(File.ReadAllBytes(downloaded).SequenceEqual(bytes), "Unknown Content-Length streams safely and passes full SHA-256");
+            var requestsBeforeReuse = server.Requests;
+            using (var downloader = new PackageDownloader(server.Transport())) await downloader.DownloadAsync(package, Path.Combine(root, "chunked"));
+            Check(server.Requests == requestsBeforeReuse, "Verified chunked download is reused without a second HTTP transfer");
+            using (var altered = new FileStream(downloaded, FileMode.Open, FileAccess.Write, FileShare.None)) altered.WriteByte((byte)(bytes[0] ^ 1));
+            using (var downloader = new PackageDownloader(server.Transport()))
+                await Reject(() => downloader.DownloadAsync(package, Path.Combine(root, "chunked")), "Modified complete cache is rehashed and rejected");
+            using (var downloader = new PackageDownloader(server.Transport())) downloaded = await downloader.DownloadAsync(package, Path.Combine(root, "chunked"));
+            var completedMetadata = Directory.GetFiles(Path.Combine(root, "chunked"), "download.json", SearchOption.AllDirectories).Single();
+            File.WriteAllText(completedMetadata, "{broken"); requestsBeforeReuse = server.Requests;
+            using (var downloader = new PackageDownloader(server.Transport())) await downloader.DownloadAsync(package, Path.Combine(root, "chunked"));
+            Check(server.Requests > requestsBeforeReuse, "Corrupt completion metadata is never trusted for reuse");
             server.Behavior = "full";
             using (var downloader = new PackageDownloader(server.Transport()))
                 await Reject(() => downloader.DownloadAsync(package with { SHA256 = new string('0', 64) }, Path.Combine(root, "bad-hash")), "Wrong SHA-256 is rejected before extraction");
