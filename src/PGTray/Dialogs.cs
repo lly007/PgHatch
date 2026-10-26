@@ -31,7 +31,7 @@ internal class LayoutForm : Form
         input.Dock = DockStyle.Fill; input.Margin = new(0, 4, 8, 10); Table.Controls.Add(input, 1, row);
         if (trailing is not null) Table.Controls.Add(trailing, 2, row);
     }
-    protected void Footer(string note, Func<Task> accept)
+    protected Label Footer(string note, Func<Task> accept)
     {
         var row = Table.RowCount++;
         var label = new Label { Text = note, AutoSize = true, Dock = DockStyle.Fill, MaximumSize = new(620, 0), Margin = new(0, 12, 0, 16) };
@@ -50,6 +50,7 @@ internal class LayoutForm : Form
             catch (Exception ex) { if (!IsDisposed) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { accepting = false; if (!ok.IsDisposed) ok.Enabled = cancel.Enabled = true; }
         };
+        return label;
     }
     protected static Button Browse(TextBox field, bool existing)
     {
@@ -65,7 +66,7 @@ internal sealed class BinaryForm : LayoutForm
     private readonly ListBox list = new() { Height = 112, IntegralHeight = false, HorizontalScrollbar = true };
     public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
     {
-        ClientSize = new(740, 400); MinimumSize = new(640, 300);
+        ClientSize = new(640, 400); MinimumSize = new(580, 300);
         var path = new TextBox(); var busy = false;
         void RefreshList()
         {
@@ -80,6 +81,7 @@ internal sealed class BinaryForm : LayoutForm
         }
         list.SelectedIndexChanged += (_, _) => { if (list.SelectedItem is Choice c) path.Text = c.Binary.BinDirectory; };
         Row(L10n.Get("RegisteredBinaries"), list); Row(L10n.Get("RootDirectoryBin"), path, Browse(path, true));
+        Table.SetColumnSpan(list, 2);
         var actions = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill };
         async Task Run(Func<Task> action)
         {
@@ -108,14 +110,20 @@ internal sealed class BinaryForm : LayoutForm
             });
         };
         actions.Controls.AddRange([add, repair, remove, discover]); Row(L10n.Get("Registration"), actions);
+        Table.SetColumnSpan(actions, 2);
         var catalog = new Button { Text = L10n.Get("CatalogTitle"), AutoSize = true };
         catalog.Click += (_, _) => { using var dialog = new CatalogForm(store ?? new ConfigStore(AppContext.BaseDirectory)); dialog.ShowDialog(this); };
         var download = new Button { Text = L10n.Get("DownloadTitle"), AutoSize = true };
         download.Click += async (_, _) => { using var dialog = new DownloadForm(manager, store ?? new ConfigStore(AppContext.BaseDirectory)); dialog.ShowDialog(this); if (dialog.Installed) { await manager.RefreshAllAsync(); RefreshList(); } };
         var online = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Fill };
         online.Controls.AddRange([catalog, download]); Row(L10n.Get("CatalogMetadata"), online);
+        Table.SetColumnSpan(online, 2);
         RefreshList();
-        Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
+        var note = Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
+        // Use the full content width instead of the shared footer's fixed text-width cap.
+        void FitNote() => note.MaximumSize = new(Math.Max(1, Table.ClientSize.Width - Table.Padding.Horizontal - note.Margin.Horizontal), 0);
+        Table.SizeChanged += (_, _) => FitNote();
+        FitNote();
         FormClosing += (_, e) => { if (busy) e.Cancel = true; };
         Shown += (_, _) => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
         DpiChanged += (_, _) => BeginInvoke(() => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
@@ -125,13 +133,14 @@ internal sealed class BinaryForm : LayoutForm
     {
         int Px(int value) => (int)Math.Round(value * dpi / 96d);
         var frame = SizeFromClientSize(Size.Empty); var maximum = new Size(work.Width - Px(16), work.Height - Px(16));
-        MinimumSize = new(Math.Min(Px(640), maximum.Width), Math.Min(Px(300), maximum.Height));
-        var width = Math.Min(Px(740), maximum.Width - frame.Width); var height = maximum.Height - frame.Height;
+        MinimumSize = new(Math.Min(Px(580), maximum.Width), Math.Min(Px(300), maximum.Height));
+        var width = Math.Min(Px(640), maximum.Width - frame.Width); var height = maximum.Height - frame.Height;
+        AutoScroll = false; // Measure wrapping without a temporary scrollbar reducing the content width.
         ClientSize = new(width, Math.Min(Px(400), height)); list.Height = Px(112); Table.PerformLayout();
-        var overflow = Table.Height + Px(8) - height;
-        if (overflow > 0) { list.Height = Math.Max(Px(70), list.Height - overflow); Table.PerformLayout(); }
+        var overflow = Math.Max(Table.Height, Table.PreferredSize.Height) + Px(8) - height;
+        if (overflow > 0) { list.Height = Math.Max(Px(56), list.Height - overflow); Table.PerformLayout(); }
         ClientSize = new(width, Math.Min(height, Table.Height + Px(8)));
-        AutoScrollPosition = Point.Empty; PerformLayout();
+        AutoScroll = true; AutoScrollPosition = Point.Empty; PerformLayout();
         Location = new(Math.Clamp(Left, work.Left, Math.Max(work.Left, work.Right - Width)), Math.Clamp(Top, work.Top, Math.Max(work.Top, work.Bottom - Height)));
     }
 }

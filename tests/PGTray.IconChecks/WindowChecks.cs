@@ -53,8 +53,11 @@ internal static class WindowChecks
                     var table = form.Controls.OfType<TableLayoutPanel>().Single();
                     check(table.Bottom <= form.ClientSize.Height && !form.VerticalScroll.Visible && form.Right <= 1920 && form.Bottom <= 1080,
                         $"{language}/{dpi}: scaled native binaries layout fits 1920×1080 without initial vertical scrolling (content={table.Bottom}, client={form.ClientSize.Height})");
-                    check(form.ClientSize.Width <= (int)Math.Round(740 * scale) && form.ClientSize.Height - table.Bottom <= (int)Math.Ceiling(12 * scale),
+                    check(form.ClientSize.Width <= (int)Math.Round(640 * scale) && form.ClientSize.Height - table.Bottom <= (int)Math.Ceiling(12 * scale),
                         $"{language}/{dpi}: binaries window uses compact width and content height without a blank minimum-height floor");
+                    var note = table.Controls.OfType<Label>().Single(c => table.GetColumnSpan(c) == 3);
+                    check(note.Width == table.ClientSize.Width - table.Padding.Horizontal - note.Margin.Horizontal,
+                        $"{language}/{dpi}: footer text uses the full available content width");
                     form.FitToWorkArea(new(0, 0, 900, 600), dpi);
                     check(form.Width <= 900 && form.Height <= 600 && form.AutoScroll, $"{language}/{dpi}: small working area retains bounded scrolling fallback");
                 }
