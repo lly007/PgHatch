@@ -17,6 +17,7 @@ public sealed class MainForm : Form
     private readonly PictureBox brandLogo = new() { SizeMode = PictureBoxSizeMode.Zoom, TabStop = false, Anchor = AnchorStyles.Top | AnchorStyles.Right };
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 4000 };
     private readonly CancellationTokenSource lifetime = new();
+    private bool sessionEnding;
     private CancellationTokenSource? detailCancellation;
     private readonly HashSet<Task> actions = [];
     private readonly HashSet<Guid> operating = [];
@@ -225,7 +226,7 @@ public sealed class MainForm : Form
                 if (preferences.Language == code) return;
                 await preferences.SaveLanguageAsync(code);
                 foreach (ToolStripMenuItem option in menu.DropDownItems) option.Checked = (string?)option.Tag == code;
-                MessageBox.Show(this, L10n.Get("LanguageRestart"), "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!sessionEnding) MessageBox.Show(this, L10n.Get("LanguageRestart"), "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }, requiresConfiguration: false);
             menu.DropDownItems.Add(item);
         }
@@ -427,11 +428,61 @@ public sealed class MainForm : Form
         try
         {
             await Task.WhenAll(actions.ToArray());
+            if (sessionEnding) return;
             if (stopAll)
                 foreach (var instance in manager.Config.Instances.ToArray()) await manager.OperateAsync(instance, "stop");
-            lifetime.Cancel(); await manager.ShutdownAsync(); exiting = true; Close();
+            lifetime.Cancel(); await manager.ShutdownAsync();
+            if (sessionEnding) return;
+            exiting = true; Close();
         }
-        catch (Exception ex) { closing = false; status.Text = ex.Message; MessageBox.Show(this, ex.Message, L10n.Get("CouldNotExit"), MessageBoxButtons.OK, MessageBoxIcon.Error); timer.Start(); Render(); }
+        catch (Exception ex) { if (sessionEnding) return; closing = false; status.Text = ex.Message; MessageBox.Show(this, ex.Message, L10n.Get("CouldNotExit"), MessageBoxButtons.OK, MessageBoxIcon.Error); timer.Start(); Render(); }
+    }
+    protected override void WndProc(ref Message message)
+    {
+        if (message.Msg == WindowsSessionShutdown.QueryEndSession)
+        {
+            // Consent without closing or hiding. Another application may still cancel shutdown.
+            var logoff = (message.LParam.ToInt64() & WindowsSessionShutdown.Logoff) != 0;
+            WindowsSessionShutdown.RegisterReason(Handle, L10n.Get(logoff ? "WaitingForCurrentOperationsBeforeExiting" : "SystemShutdownStopping"));
+            message.Result = new IntPtr(1); return;
+        }
+        if (message.Msg == WindowsSessionShutdown.EndSession)
+        {
+            if (message.WParam == IntPtr.Zero)
+            {
+                WindowsSessionShutdown.ClearReason(Handle); message.Result = IntPtr.Zero; return;
+            }
+            if (sessionEnding) { message.Result = IntPtr.Zero; return; }
+            sessionEnding = WindowsSessionShutdown.IsEnding = true;
+            closing = true; timer.Stop(); detailCancellation?.Cancel();
+            foreach (Form window in Application.OpenForms.Cast<Form>().ToArray()) window.Enabled = false;
+            var stopInstances = (message.LParam.ToInt64() & WindowsSessionShutdown.Logoff) == 0;
+            status.Text = L10n.Get(stopInstances ? "SystemShutdownStopping" : "WaitingForCurrentOperationsBeforeExiting"); Render();
+            try
+            {
+                var cleanup = manager.ShutdownAsync(stopInstances);
+                var completed = WindowsSessionShutdown.CompleteWithin(cleanup, TimeSpan.FromSeconds(30));
+                var result = !completed ? "Session cleanup deadline exceeded; shutdown could not be confirmed."
+                    : cleanup.IsFaulted ? cleanup.Exception!.ToString()
+                    : cleanup.IsCanceled ? "Session cleanup was cancelled; shutdown could not be confirmed." : "Session cleanup completed.";
+                if (!completed) _ = cleanup.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+                WriteSessionShutdownLog(result + Environment.NewLine + string.Join(Environment.NewLine,
+                    manager.Config.Instances.Select(i => $"{i.Name}: {manager.Statuses.GetValueOrDefault(i.Id)}\n{manager.LastOperationDiagnostics.GetValueOrDefault(i.Id)}")));
+            }
+            catch (Exception ex) { WriteSessionShutdownLog(ex.ToString()); }
+            finally { WindowsSessionShutdown.ClearReason(Handle); exiting = true; }
+            // Let WinForms complete the confirmed session end; never route it through tray hiding.
+        }
+        base.WndProc(ref message);
+    }
+    private void WriteSessionShutdownLog(string text)
+    {
+        try
+        {
+            var directory = Path.Combine(store.Root, "logs"); Directory.CreateDirectory(directory);
+            File.AppendAllText(Path.Combine(directory, "pghatch-session-end.log"), $"{DateTimeOffset.Now:O}\n{text}\n");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Debug.WriteLine(ex); }
     }
     private void RestoreWindow() { if (IsDisposed) return; Show(); if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal; Activate(); }
     protected override void Dispose(bool disposing)

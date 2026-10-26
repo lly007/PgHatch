@@ -152,6 +152,29 @@ try
     await manager.OperateAsync(first, "start");
     Check((await tools.StatusAsync(binary, reimported)).Connection == ConnectionState.Ready && manager.Statuses[first.Id].Connection == ConnectionState.Ready && manager.Statuses[first.Id].ListenAddress == "127.0.0.2",
         "Two real postmasters on the same port and different addresses each probe their own PID-owned listener");
+    var ordinaryExit = new InstanceManager(store, tools); await ordinaryExit.LoadAsync(); await ordinaryExit.ShutdownAsync();
+    Check((await tools.StatusAsync(binary, first)).ServerRunning == true && (await tools.StatusAsync(binary, reimported)).ServerRunning == true,
+        "Ordinary manager shutdown keeps both registered test databases running");
+    var sessionStore = new ConfigStore(Path.Combine(root, "session-end"));
+    Directory.CreateDirectory(sessionStore.Root);
+    var orphan = first with { Id = Guid.NewGuid(), Name = "missing binary fixture", BinaryId = Guid.NewGuid(), DataDirectory = Path.Combine(root, "orphan-fixture"), Port = FreePort() };
+    await sessionStore.SaveAsync(new AppConfig(2, [binary], [orphan, first]));
+    var sessionManager = new InstanceManager(sessionStore, tools); await sessionManager.LoadAsync();
+    var sessionConfig = await File.ReadAllBytesAsync(sessionStore.FilePath);
+    await Reject(() => sessionManager.ShutdownAsync(stopInstances: true), "Session-end shutdown reports an invalid binary reference");
+    Check((await tools.StatusAsync(binary, first)).State == InstanceState.Stopped && sessionManager.LastOperationDiagnostics.ContainsKey(orphan.Id),
+        "An invalid registration does not prevent a healthy registered database receiving fast stop");
+    Check((await tools.StatusAsync(binary, reimported)).ServerRunning == true,
+        "Session-end shutdown does not touch a running database absent from its registrations");
+    Check(Enumerable.SequenceEqual(sessionConfig, await File.ReadAllBytesAsync(sessionStore.FilePath)),
+        "Session-end shutdown leaves persisted registrations unchanged");
+    await Reject(() => sessionManager.AddBinaryAsync(args[0]), "Session-end shutdown rejects new configuration work");
+    var finalSession = new InstanceManager(store, tools); await finalSession.LoadAsync();
+    var pendingStart = finalSession.OperateAsync(first, "start");
+    var finalShutdown = finalSession.ShutdownAsync(stopInstances: true);
+    await pendingStart; await finalShutdown;
+    Check((await tools.StatusAsync(binary, first)).State == InstanceState.Stopped && (await tools.StatusAsync(binary, reimported)).State == InstanceState.Stopped,
+        "Session-end shutdown waits for an active start and then stops both registered databases without cached status");
     await manager.OperateAsync(first, "stop"); await manager.OperateAsync(reimported, "stop");
     await File.WriteAllBytesAsync(configPath1, originalConfig1); await File.WriteAllTextAsync(configPath, original);
     var standbySignal = Path.Combine(second.DataDirectory, "standby.signal");

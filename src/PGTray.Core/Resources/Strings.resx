@@ -1017,4 +1017,7 @@ You can now create an instance from the main window. No instance was created or 
   <data name="DownloadFailedShort" xml:space="preserve">
     <value>Download or deployment failed. See the error message for details, then retry.</value>
   </data>
+  <data name="SystemShutdownStopping" xml:space="preserve">
+    <value>Windows is shutting down. Finishing current operations and safely stopping registered PostgreSQL instances…</value>
+  </data>
 </root>

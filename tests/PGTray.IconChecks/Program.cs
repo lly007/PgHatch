@@ -111,6 +111,7 @@ internal static class Program
             BrandChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
             WindowChecks.Run(args[0], Check);
+            SessionShutdownChecks.Run(args[0], Check);
             Console.WriteLine($"{results.Count} PASS. Offscreen DPI raster and native PE resource checks; real desktop scaling remains a separate GUI check.");
             return 0;
         }

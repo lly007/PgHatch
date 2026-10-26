@@ -54,7 +54,10 @@ internal sealed class DownloadForm : Form
         Shown += async (_, _) => { FitContent(); await LoadCatalogAsync(); };
         SizeChanged += (_, _) => FitContent(); source.SizeChanged += (_, _) => FitContent(); source.TextChanged += (_, _) => FitContent(); status.TextChanged += (_, _) => FitContent();
         DpiChanged += (_, _) => BeginInvoke(FitContent);
-        FormClosing += (_, e) => { if (busy) { e.Cancel = true; closingRequested = true; operation?.Cancel(); cancel.Enabled = false; } else lifetime.Cancel(); };
+        FormClosing += (_, e) => {
+            if (e.CloseReason == CloseReason.WindowsShutDown) return; // WM_QUERYENDSESSION is only a query; disposal cancels after confirmation.
+            if (busy) { e.Cancel = true; closingRequested = true; operation?.Cancel(); cancel.Enabled = false; } else lifetime.Cancel();
+        };
     }
 
     private async Task LoadCatalogAsync()
@@ -70,7 +73,7 @@ internal sealed class DownloadForm : Form
             detailsTip.SetToolTip(status, result.Warning); start.Enabled = versions.Items.Count > 0;
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
-        catch (Exception ex) { if (!lifetime.IsCancellationRequested) { status.Text = L10n.Get("CatalogUnavailableShort"); MessageBox.Show(this, L10n.Format("CatalogLoadFailed", ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error); } }
+        catch (Exception ex) { if (!lifetime.IsCancellationRequested && !WindowsSessionShutdown.IsEnding) { status.Text = L10n.Get("CatalogUnavailableShort"); MessageBox.Show(this, L10n.Format("CatalogLoadFailed", ex.Message), Text, MessageBoxButtons.OK, MessageBoxIcon.Error); } }
     }
     private async Task InstallAsync()
     {
@@ -86,10 +89,10 @@ internal sealed class DownloadForm : Form
             var result = await new PackageDeployment().DeployAsync(selected.Package, archive, destination, tools, manager, reporter, operation.Token);
             Installed = true; status.Text = L10n.Format("DownloadReady", result.Binary.BinDirectory);
             progressBar.Style = ProgressBarStyle.Blocks; progressBar.Value = 100;
-            if (result.CleanupWarning is not null) MessageBox.Show(this, result.CleanupWarning, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            if (result.CleanupWarning is not null && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, result.CleanupWarning, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        catch (OperationCanceledException ex) { status.Text = L10n.Get("DownloadCanceled"); if (CleanupNotice(ex) is { Length: > 0 } warning) MessageBox.Show(this, warning, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); }
-        catch (Exception ex) { status.Text = L10n.Get("DownloadFailedShort"); MessageBox.Show(this, L10n.Format("DownloadFailed", ex.Message) + CleanupNotice(ex), Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        catch (OperationCanceledException ex) { status.Text = L10n.Get("DownloadCanceled"); if (!WindowsSessionShutdown.IsEnding && CleanupNotice(ex) is { Length: > 0 } warning) MessageBox.Show(this, warning, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+        catch (Exception ex) { status.Text = L10n.Get("DownloadFailedShort"); if (!WindowsSessionShutdown.IsEnding) MessageBox.Show(this, L10n.Format("DownloadFailed", ex.Message) + CleanupNotice(ex), Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         finally
         {
             busy = false; operation.Dispose(); operation = null;

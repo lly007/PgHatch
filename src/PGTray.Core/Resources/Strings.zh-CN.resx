@@ -1017,4 +1017,7 @@ PID 文件不完整或集群身份不一致，连接状态未知。</value>
   <data name="DownloadFailedShort" xml:space="preserve">
     <value>下载或部署失败，详情见错误提示；修正后可重试。</value>
   </data>
+  <data name="SystemShutdownStopping" xml:space="preserve">
+    <value>Windows 正在关机。正在完成当前操作并安全停止已注册的 PostgreSQL 实例……</value>
+  </data>
 </root>

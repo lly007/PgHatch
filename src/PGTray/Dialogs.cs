@@ -42,12 +42,12 @@ internal class LayoutForm : Form
         buttons.Controls.Add(ok); buttons.Controls.Add(cancel); Table.RowStyles.Add(new(SizeType.AutoSize)); Table.Controls.Add(buttons, 0, Table.RowCount++); Table.SetColumnSpan(buttons, 3);
         AcceptButton = ok; CancelButton = cancel;
         var accepting = false;
-        FormClosing += (_, e) => { if (accepting) e.Cancel = true; };
+        FormClosing += (_, e) => { if (accepting && e.CloseReason != CloseReason.WindowsShutDown) e.Cancel = true; };
         ok.Click += async (_, _) => {
             accepting = true; ok.Enabled = cancel.Enabled = false;
             try { await accept(); accepting = false; if (!IsDisposed) { DialogResult = DialogResult.OK; Close(); } }
             catch (OperationCanceledException) when (Lifetime.IsCancellationRequested) { }
-            catch (Exception ex) { if (!IsDisposed) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { accepting = false; if (!ok.IsDisposed) ok.Enabled = cancel.Enabled = true; }
         };
         return label;
@@ -87,7 +87,7 @@ internal sealed class BinaryForm : LayoutForm
         {
             if (busy) return; busy = true; actions.Enabled = list.Enabled = path.Enabled = false;
             try { await action(); await manager.RefreshAllAsync(); RefreshList(); }
-            catch (Exception ex) { MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { busy = false; actions.Enabled = list.Enabled = path.Enabled = true; }
         }
         var add = new Button { Text = L10n.Get("RegisterBinaries"), AutoSize = true }; add.Click += async (_, _) => await Run(async () => { await manager.AddBinaryAsync(path.Text); });
@@ -103,6 +103,7 @@ internal sealed class BinaryForm : LayoutForm
         var discover = new Button { Text = L10n.Get("FindNearbyBinaries"), AutoSize = true }; discover.Click += async (_, _) => {
             await Run(async () => {
                 var candidates = await Task.Run(() => InstanceManager.DiscoverCandidates(AppContext.BaseDirectory).ToArray());
+                if (WindowsSessionShutdown.IsEnding) return;
                 if (candidates.Length == 0) { MessageBox.Show(this, L10n.Get("NoBinariesFoundNearbyBrowseToA"), "PgHatch"); return; }
                 var menu = new ContextMenuStrip(); menu.Closed += (_, _) => menu.Dispose();
                 foreach (var candidate in candidates) menu.Items.Add(candidate, null, (_, _) => path.Text = candidate);
@@ -124,7 +125,7 @@ internal sealed class BinaryForm : LayoutForm
         void FitNote() => note.MaximumSize = new(Math.Max(1, Table.ClientSize.Width - Table.Padding.Horizontal - note.Margin.Horizontal), 0);
         Table.SizeChanged += (_, _) => FitNote();
         FitNote();
-        FormClosing += (_, e) => { if (busy) e.Cancel = true; };
+        FormClosing += (_, e) => { if (busy && e.CloseReason != CloseReason.WindowsShutDown) e.Cancel = true; };
         Shown += (_, _) => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
         DpiChanged += (_, _) => BeginInvoke(() => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
     }
@@ -178,7 +179,7 @@ internal sealed class InstanceForm : LayoutForm
         if (!create)
         {
             var read = new Button { Text = L10n.Get("ReadPort"), AutoSize = true };
-            read.Click += async (_, _) => { read.Enabled = false; try { var result = await tools.ReadSettingsAsync(Binary, data.Text, Lifetime.Token); if (!IsDisposed) port.Value = result.Port; } catch (OperationCanceledException) { } catch (Exception ex) { if (!IsDisposed) MessageBox.Show(this, ex.Message, L10n.Get("CouldNotReadConfiguration")); } finally { if (!read.IsDisposed) read.Enabled = true; } };
+            read.Click += async (_, _) => { read.Enabled = false; try { var result = await tools.ReadSettingsAsync(Binary, data.Text, Lifetime.Token); if (!IsDisposed) port.Value = result.Port; } catch (OperationCanceledException) { } catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, L10n.Get("CouldNotReadConfiguration")); } finally { if (!read.IsDisposed) read.Enabled = true; } };
             Row(L10n.Get("Port"), port, read);
         }
         else { Row(L10n.Get("Port"), port); Row(L10n.Get("Superuser"), username); Row(L10n.Get("InitialPassword"), password); }

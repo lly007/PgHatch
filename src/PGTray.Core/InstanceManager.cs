@@ -33,12 +33,21 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         finally { completion.SetResult(); lock (workSync) pendingWork.Remove(completion.Task); }
     }
     private Task TrackAsync(Func<Task> work) => TrackAsync(async () => { await work(); return true; });
-    public async Task ShutdownAsync()
+    public async Task ShutdownAsync(bool stopInstances = false)
     {
         Task[] work;
         lock (workSync) { closing = true; work = pendingWork.ToArray(); }
         monitoring.Cancel(); // Cancel read-only polling; in-flight lifecycle work finishes normally.
         await Task.WhenAll(work);
+        if (stopInstances && configurationLoaded)
+        {
+            // Close registration first, then stop independent clusters concurrently within the OS deadline.
+            // A bad registration must not prevent the other clusters receiving a normal stop request.
+            await Task.WhenAll(Config.Instances.ToArray().Select(async instance => {
+                try { await OperateCoreAsync(instance, "stop"); }
+                catch (Exception ex) { LastOperationDiagnostics[instance.Id] = ex.Message + "\r\n" + LastOperationDiagnostics.GetValueOrDefault(instance.Id); throw; }
+            }));
+        }
     }
     private void EnsureConfiguration()
     {
@@ -253,7 +262,9 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             lock (coordination.Sync) { coordination.Querying = false; coordination.QueryCancellation = null; cancellation.Dispose(); }
         }
     }
-    public Task OperateAsync(InstanceConfig selected, string operation) => TrackAsync(async () => {
+    public Task OperateAsync(InstanceConfig selected, string operation) => TrackAsync(() => OperateCoreAsync(selected, operation));
+    private async Task OperateCoreAsync(InstanceConfig selected, string operation)
+    {
         if (operation is not ("start" or "stop" or "restart")) throw new ArgumentException(L10n.Get("UnknownOperation"));
         InstanceConfig instance;
         Coordination coordination;
@@ -287,7 +298,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             throw;
         }
         finally { EndOperation(coordination); }
-    });
+    }
     private async Task StartAsync(BinaryInstallation binary, InstanceConfig instance)
     {
         var before = await tools.StatusAsync(binary, instance);
