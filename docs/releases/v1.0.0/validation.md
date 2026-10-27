@@ -9,7 +9,9 @@
 - 四模式分别通过 277 项静态检查，内部 ProductVersion 均为 1.0.0。x64 两模式由实际解压目录启动，主窗显示 1.0.0，正常退出码 0；独立冒烟证据在 `artifacts/dev/v1-release-smoke/run-20261027-021049-289e305f/`。
 - ARM64 仅交叉构建和静态检查，无真实设备实机验收；正式 Release Notes 明确披露。
 - 正式 SHA256SUMS.txt 仅列四个 ZIP；候选目录原有完整 EXE/ZIP 清单另行保留。文件名、实际字节数和哈希见 [正式 Release Notes](release.md)。
-- 计划标签 / Release：v1.0.0，https://github.com/lly007/PgHatch/releases/tag/v1.0.0 。发布前核验草稿资产服务端大小及 SHA-256，发布后再次核对。
+- 已正式发布 [v1.0.0](https://github.com/lly007/PgHatch/releases/tag/v1.0.0)，Release ID `424968938`，非草稿、非预发布，已设为最新版本。正式标签指向 `e46be1d8fc68694bf20bc2209d547584c8914e38`；相对构建输入仅追加发行说明和验收记录，没有再改变二进制输入。
+- 发布前、发布后均核对五个资产（四个 ZIP 与 SHA256SUMS.txt）的服务端字节数和 SHA-256，与本地正式上传目录一致。发布后实际下载 SHA256SUMS.txt，内容与本地逐字节一致；Release Notes 与仓库中的 release.md 一致，包含四包校验值及 ARM64 实机验证限制。
+- 历史 GitHub v0.2.0 的 Release ID、发布时间及六个资产的 ID、名称、大小和 SHA-256 与发布前快照一致。本地封版 EXE / ZIP 哈希未变；发布脚本核验的 31 个历史文件亦未变。没有覆盖或删除历史发行制品。
 
 以下候选和历史记录保留当时事实，不能用旧 RC 哈希代替正式发行包。
 
