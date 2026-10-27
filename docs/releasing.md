@@ -1,6 +1,6 @@
 # PgHatch 发布与验证
 
-发行工程只发布 `src/PGTray/PGTray.csproj`，不会发布解决方案或混入测试程序。应用版本直接取自项目，当前为 0.2.0。
+发行工程只发布 `src/PGTray/PGTray.csproj`，不会发布解决方案或混入测试程序。应用版本统一维护在根目录 `Directory.Build.props`，由 MSBuild 求值读取，当前源码候选为 1.0.0-rc.1。
 
 ## 一次生成四种候选包
 
@@ -24,7 +24,7 @@ pwsh -NoProfile -File scripts/Publish.ps1 -OutputRoot 'D:\候选发布 [测试]&
 
 四种包都保留 EXE 旁的外部 `postgresql-catalog.xml`，由唯一母版 `catalog/postgresql-catalog.xml` 复制并比对 SHA-256；项目直接构建/发布同样复制该文件，不将其打入单文件 EXE。该 XML 进入包内校验清单及 ZIP 回验。目录机制和维护要求见 [PostgreSQL 目录说明](postgresql-catalog.md)。历史 Release 不因更新目录而自动替换。
 
-发布显式设置 `IncludeSourceRevisionInInformationalVersion=false`，避免初始化 Git 后 SDK 自动把提交哈希追加到 EXE ProductVersion，确保仍为项目指定的 0.2.0，并继续通过现有精确版本检查。
+发布显式设置 `IncludeSourceRevisionInInformationalVersion=false`，避免 SDK 把提交哈希追加到 EXE ProductVersion。检查器分别核对完整语义版本（含候选后缀）和程序集数字版本；界面与 HTTP User-Agent 使用相同的构建版本。
 
 ## 输出与成功标准
 
@@ -60,6 +60,7 @@ ZIP 根目录可直接解压运行，保留干净 GUI publish 的全部文件，
 - VALIDATION.json：PE、bundle、运行时配置与图标资源静态检查。
 - SHA256SUMS.txt：包内文件哈希。外层 SHA256SUMS.txt 同时列四 ZIP 和四 EXE；CSV/JSON 记录实际字节大小。
 - LICENSE-LUCIDE.txt：完整 Lucide ISC / Feather MIT 版权许可。
+- LICENSE：项目自身的 MIT 许可证，按维护者确认选择。
 - THIRD-PARTY-NOTICES.md、CHANGELOG.md；standalone 另含实际 Microsoft 运行库的 `licenses/` 许可和版权声明。
 
 不包含 PostgreSQL 二进制包、真实 PGDATA、用户配置、日志或测试程序。单文件不意味着可以删除发行所需的许可说明。
@@ -96,6 +97,6 @@ Start 在独立终端等待程序结束；从实际解压目录检查主窗口�
 
 ARM64 两种包都必须在真实 ARM64 Windows 上补测。x64 交叉构建成功、静态检查通过、真实 ARM64 运行通过是三项不同结论。Windows 图标缓存可能保留旧外观，可使用本轮全新解压路径检查，避免误判。
 
-本轮实际结果和人工待验项目见 [发行验证报告](releases/v0.2.0/release-matrix.md)。
+历史四配置验证见 [v0.2.0 发行矩阵](releases/v0.2.0/release-matrix.md)，当前候选实际结果和人工待验项目见 [V1.0 验证](releases/v1.0.0/validation.md)。COMPLETE.json 仅证明所选构建及静态/压缩包检查成功，不代表正式发布获准或全部实机验收完成。
 
 配置回归支持可选的第三个输出目录参数，便于将全部测试写入保留在仓库内。

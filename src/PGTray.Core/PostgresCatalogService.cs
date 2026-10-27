@@ -26,7 +26,7 @@ public sealed class PostgresCatalogService : IDisposable
         // Manual redirects ensure HTTP downgrades are rejected before a request is made.
         client = new(handler ?? new HttpClientHandler { AllowAutoRedirect = false, AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate });
         client.Timeout = Timeout.InfiniteTimeSpan;
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("PgHatch/0.2.0");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("PgHatch/" + AppVersion.Current);
     }
 
     public async Task<CatalogResult> GetAsync(bool forceRefresh = false, bool allowOnline = true, CancellationToken cancellationToken = default)

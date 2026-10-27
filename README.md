@@ -17,7 +17,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，管理用户自行提供的 Post
 
 ## 选择发行模式
 
-当前版本为 **v0.2.0**。四种发行包管理功能相同，均为 Release 单文件应用：
+当前源码候选为 **1.0.0-rc.1**，正式 GitHub Release 仍为 **v0.2.0**。V1.0 尚未正式发布。四种发行包管理功能相同，均为 Release 单文件应用：
 
 | 架构 | Standalone | Framework-dependent |
 | --- | --- | --- |
@@ -36,12 +36,15 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，管理用户自行提供的 Post
 
 关闭主窗口会隐藏至托盘；普通退出只关闭管理器，数据库继续运行。“停止全部并退出”是另一个需要确认的操作。
 
+最新源码也支持从 Catalog 下载并安全部署 PostgreSQL 程序；下载、注册和导入不会自动创建或启动实例。同主版本维护更新必须先停止实例，再明确切换到独立新程序目录；不进行跨主版本数据迁移。Windows 确认关机或重启时会尽力正常停止已注册实例，强制关机和断电仍无法保证收尾完成。
+
 ## 文档与开发
 
 - [用户指南](docs/user-guide.md)：使用、安全边界、配置、升级和状态语义。
 - [发行流程](docs/releasing.md)：一套 PowerShell 脚本生成 x64 / ARM64 四种候选包。
 - [文档与版本验证记录](docs/README.md)：历史版本验证、发行矩阵和人工验收边界。
 - [版本历史](CHANGELOG.md) · [第三方声明](THIRD-PARTY-NOTICES.md)。
+- [V1.0 候选验收](docs/releases/v1.0.0/validation.md) · [MIT 许可证](LICENSE)。
 
 ```powershell
 dotnet build PGTray.sln -c Release

@@ -12,7 +12,8 @@ $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $project = Join-Path $repoRoot 'src/PGTray/PGTray.csproj'
 [xml]$projectXml = Get-Content -Raw -LiteralPath $project
 $framework = $projectXml.SelectSingleNode('/Project/PropertyGroup/TargetFramework').InnerText
-$version = $projectXml.SelectSingleNode('/Project/PropertyGroup/Version').InnerText
+$version = (& dotnet msbuild $project -getProperty:Version | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or $version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$') { throw 'Cannot read the evaluated project version.' }
 if ($framework -ne 'net10.0-windows') { throw "Unexpected target framework: $framework" }
 $sdk = (& dotnet --version | Out-String).Trim()
 if ($LASTEXITCODE -ne 0 -or $sdk -notmatch '^10\.') { throw '.NET SDK 10.x is required.' }
@@ -81,7 +82,7 @@ try {
         $license = Join-Path $publish 'LICENSE-LUCIDE.txt'
         $licenseSource = Join-Path $repoRoot 'src/PGTray/Assets/Ui/Lucide/LICENSE'
         if (-not (Test-Path -LiteralPath $license) -or (Get-FileHash -LiteralPath $license).Hash -ne (Get-FileHash -LiteralPath $licenseSource).Hash) { throw 'Lucide/Feather license missing or changed.' }
-        foreach ($doc in @('CHANGELOG.md','THIRD-PARTY-NOTICES.md')) { Copy-Item -LiteralPath (Join-Path $repoRoot $doc) -Destination $publish }
+        foreach ($doc in @('LICENSE','CHANGELOG.md','THIRD-PARTY-NOTICES.md')) { Copy-Item -LiteralPath (Join-Path $repoRoot $doc) -Destination $publish }
         if ($selfContained) {
             $assetFiles = @(Get-ChildItem -LiteralPath $build -Filter project.assets.json -Recurse -File | Where-Object { $_.Directory.Name -eq 'PGTray' })
             if ($assetFiles.Count -ne 1) { throw 'Could not locate isolated GUI restore assets.' }
@@ -110,7 +111,9 @@ $runtimeText
 
 所有版本管理功能相同。解压到当前用户可写目录后运行 PgHatch.exe，无传统安装向导，无需注册 Windows Service、管理员权限或修改全局 PATH。
 
-PgHatch 不内置 PostgreSQL；请在程序中添加自己提供的 PostgreSQL 程序目录。支持创建、导入及管理本地实例。关闭主窗口默认隐藏到系统托盘；双击托盘恢复。退出 PgHatch 不会自动停止数据库，除非明确选择停止操作。
+PgHatch 不内置 PostgreSQL；可以下载、校验并部署 Catalog 中的程序，也可添加自己提供的程序目录。只有明确选择创建实例才会执行 initdb；下载和注册不会自动初始化或启动数据库。关闭主窗口默认隐藏到系统托盘；双击托盘恢复。普通退出不停止数据库；确认 Windows 关机/重启时会尽力正常停止已注册实例，收尾最多等待 30 秒，不能保证强制关机或断电时完成。
+
+同一主版本维护更新使用独立新程序目录，先停止实例再在实例设置中明确切换；原 PGDATA 和旧程序保留。手动替换同路径程序后点击刷新以重新检测全部工具版本，混装或主版本不兼容会拒绝。请自行确认已安装的扩展与新程序兼容；PgHatch 不执行 pg_upgrade 或主版本数据迁移。
 
 配置 pghatch.json 保存在 EXE 旁，升级时保留原配置和数据目录。本包不含任何预置数据库或用户配置。
 
@@ -118,7 +121,7 @@ Windows x64 使用 x64 发行包；Windows ARM64 优先使用 ARM64 发行包。
 
 ARM64 产物的构建/静态检查不代表真实 ARM64 运行已验证。VALIDATION.json 记录静态结果；RELEASE.json 标明发行属性，不将静态结果冒充 GUI 验证。
 
-请保留随包 README、校验信息及许可文件。LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
+这是待验收的候选构建，不等于正式发布。请保留随包 README、校验信息及许可文件。LICENSE 是 PgHatch 的 MIT 许可；LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
 
 postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。进入程序管理中的目录或下载窗口时才按间隔检查在线目录，失败时使用有效缓存或发行 XML。下载窗口支持选择版本、下载、SHA-256 校验、安全解压并注册；目前仅含 Windows x64 PostgreSQL ZIP，不会自动创建或启动实例。ARM64 上运行这些 x64 PostgreSQL 程序依赖系统兼容能力，仍需实机验证。
 "@ | Set-Content -LiteralPath (Join-Path $publish 'README.md') -Encoding utf8
@@ -149,7 +152,7 @@ postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。�
     $after = Get-HistoryHashes
     Write-Json $after (Join-Path $candidate 'history-after.json')
     if (@($before).Count -ne @($after).Count -or (Compare-Object ($before | ConvertTo-Json -Compress) ($after | ConvertTo-Json -Compress))) { throw 'Historical release files changed.' }
-    Write-Json ([ordered]@{ Status='COMPLETE'; Version=$version; SelectedBuilds=$summaries.Count; RuntimeExecution='See separate GUI verification; ARM64 execution not implied' }) (Join-Path $candidate 'COMPLETE.json')
+    Write-Json ([ordered]@{ Status='COMPLETE'; Version=$version; SelectedBuilds=$summaries.Count; ReleaseReadiness='Candidate build only; manual acceptance required'; RuntimeExecution='See separate GUI verification; ARM64 execution not implied' }) (Join-Path $candidate 'COMPLETE.json')
     Remove-Item -LiteralPath $incomplete
     $complete = $true
     $summaries | Format-Table Rid,Mode,ExeBytes,ZipBytes,StaticChecks

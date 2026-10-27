@@ -22,7 +22,7 @@ public sealed class PackageDownloader : IDisposable
         inactivity = inactivityTimeout ?? TimeSpan.FromSeconds(30);
         client = new(handler ?? new SocketsHttpHandler { AllowAutoRedirect = false, ConnectTimeout = TimeSpan.FromSeconds(15), AutomaticDecompression = DecompressionMethods.None });
         client.Timeout = Timeout.InfiniteTimeSpan;
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("PgHatch/0.2.0");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("PgHatch/" + AppVersion.Current);
         client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("identity");
     }
 

@@ -1,5 +1,7 @@
 # Third-party notices
 
+PgHatch itself is distributed under the [MIT License](LICENSE), copyright (c) 2026 lly007. Third-party components retain their own terms below.
+
 PgHatch's functional UI icons use selected [Lucide Icons](https://github.com/lucide-icons/lucide), revision `1ef60af944de207e0d5176905a0759ba12e6ee8d`.
 
 Copyright (c) 2026 Lucide Icons and Contributors. ISC License.

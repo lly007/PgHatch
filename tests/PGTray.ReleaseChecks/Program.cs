@@ -48,7 +48,9 @@ try
     }
     using var managed = new PEReader(new MemoryStream(Get("PgHatch.dll")));
     var metadata = managed.GetMetadataReader();
-    Check(metadata.GetAssemblyDefinition().Version.ToString() == version + ".0", "Managed assembly version unchanged");
+    Check(metadata.GetAssemblyDefinition().Version.ToString() == version.Split('-')[0] + ".0", "Managed assembly version matches the semantic version's numeric core");
+    using var corePe = new PEReader(new MemoryStream(Get("PgHatch.Core.dll")));
+    Check(corePe.GetMetadataReader().GetAssemblyDefinition().Version == metadata.GetAssemblyDefinition().Version, "Core and GUI share the same assembly version");
     Check(managed.PEHeaders.CorHeader!.ManagedNativeHeaderDirectory.Size == 0, "Application has no ReadyToRun native header");
     var resourceData = managed.GetSectionData(managed.PEHeaders.CorHeader.ResourcesDirectory.RelativeVirtualAddress).GetContent().ToArray();
     var resources = metadata.ManifestResources.ToDictionary(h => metadata.GetString(metadata.GetManifestResource(h).Name), h => metadata.GetManifestResource(h));
@@ -60,8 +62,16 @@ try
     }
     ResourceMatches("PgHatch.Brand.Application.ico", Path.Combine(assets, "Brand/PgHatch.ico"));
     ResourceMatches("PgHatch.Brand.Tray.ico", Path.Combine(assets, "Brand/PgHatch.Tray.ico"));
+    ResourceMatches("PgHatch.Brand.Header.png", Path.Combine(assets, "Brand/Masters/PgHatch.transparent.png"));
     ResourceMatches("PgHatch.Ui.LICENSE", Path.Combine(assets, "Ui/Lucide/LICENSE"));
     foreach (var png in Directory.GetFiles(Path.Combine(assets, "Ui/Png"), "*.png")) ResourceMatches("PgHatch.Ui." + Path.GetFileName(png), png);
+    foreach (var culture in new[] { "zh-CN", "zh-TW" })
+    {
+        using var satellite = new PEReader(new MemoryStream(Get(culture + "/PgHatch.Core.resources.dll")));
+        var localized = satellite.GetMetadataReader();
+        Check(localized.GetString(localized.GetAssemblyDefinition().Culture) == culture && localized.ManifestResources.Count > 0,
+            "Bundled localized satellite resources: " + culture);
+    }
     // Parse PE resources without LoadLibrary: also works for ARM64 on an x64 host.
     var nativeResources = NativeResources.Read(pe);
     Check(nativeResources.ContainsKey((24, 1)), "Windows application manifest present");

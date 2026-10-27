@@ -10,6 +10,7 @@
 
 | 版本 | 说明 | 验证 |
 | --- | --- | --- |
+| 1.0.0-rc.1（未正式发布） | [V1.0 候选](../CHANGELOG.md) | [审计、验证与人工待验](releases/v1.0.0/validation.md) |
 | v0.1.0 | [历史 README](releases/v0.1.0/README.md) | [验证记录](releases/v0.1.0/validation.md) |
 | v0.1.1 | [历史 README](releases/v0.1.1/README.md) | [验证记录](releases/v0.1.1/validation.md) |
 | v0.2.0 | [CHANGELOG](../CHANGELOG.md) | [封版及后续源码验证](releases/v0.2.0/validation.md)、[四配置发行矩阵](releases/v0.2.0/release-matrix.md)、[本地化验证](releases/v0.2.0/localization.md) |

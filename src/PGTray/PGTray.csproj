@@ -12,7 +12,6 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
-    <Version>0.2.0</Version>
     <AssemblyName>PgHatch</AssemblyName>
     <Product>PgHatch</Product>
     <Title>PgHatch</Title>

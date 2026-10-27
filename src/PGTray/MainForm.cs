@@ -90,7 +90,7 @@ public sealed class MainForm : Form
         }
         headerHost.SizeChanged += (_, _) => FitLogo();
         header.Controls.Add(new Label { Text = "PgHatch", AutoSize = true, Font = new Font(Font.FontFamily, 22F, FontStyle.Bold), ForeColor = Ink, Margin = new(0, 0, 0, 2) });
-        summary.Text = L10n.Get("LocalPostgreSQLInstancesV"); summary.Margin = new(0, 0, 0, 14); header.Controls.Add(summary);
+        summary.Text = L10n.Format("LocalPostgreSQLInstancesV", AppVersion.Current); summary.Margin = new(0, 0, 0, 14); header.Controls.Add(summary);
         var toolbar = Flow();
         // Allow the toolbar to shrink again after wrapping at a narrower width.
         toolbar.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -108,7 +108,7 @@ public sealed class MainForm : Form
         toolbar.Controls.Add(DropDownButton(L10n.Get("More"), UiGlyph.Ellipsis,
             MenuItem(L10n.Get("OpenConfigurationFolder"), () => { OpenFolder(store.Root); return Task.CompletedTask; }, requiresConfiguration: false, glyph: UiGlyph.FolderOpen),
             MenuItem(L10n.Get("ReloadConfiguration"), LoadAsync, requiresConfiguration: false, glyph: UiGlyph.Refresh), LanguageMenu(), new ToolStripSeparator(),
-            MenuItem(L10n.Get("AboutPgHatch"), () => { MessageBox.Show(this, L10n.Get("PgHatchVNPostgreSQLReadyWhenYouAre"), L10n.Get("AboutPgHatch"), MessageBoxButtons.OK, MessageBoxIcon.Information); return Task.CompletedTask; }, requiresConfiguration: false),
+            MenuItem(L10n.Get("AboutPgHatch"), () => { MessageBox.Show(this, L10n.Format("PgHatchVNPostgreSQLReadyWhenYouAre", AppVersion.Current), L10n.Get("AboutPgHatch"), MessageBoxButtons.OK, MessageBoxIcon.Information); return Task.CompletedTask; }, requiresConfiguration: false),
             new ToolStripSeparator(), quit));
         header.Controls.Add(toolbar); layout.Controls.Add(headerHost, 0, 0);
         recovery.Controls.Add(recoveryText);
@@ -311,7 +311,7 @@ public sealed class MainForm : Form
         }
         if (grid.SelectedRows.Count == 0 && grid.Rows.Count > 0) grid.Rows[0].Selected = true;
         var count = manager.Statuses.Values.Count(s => s.ServerRunning == true);
-        summary.Text = L10n.Format("RunningV", L10n.Instances(manager.Config.Instances.Count), L10n.Running(count));
+        summary.Text = L10n.Format("RunningV", L10n.Instances(manager.Config.Instances.Count), L10n.Running(count), AppVersion.Current);
         if (tray is not null) tray.Text = L10n.Format("PgHatchRunning", L10n.Instances(count));
         UpdateCommandState();
         UpdateDetails();

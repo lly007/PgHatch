@@ -250,7 +250,7 @@ If you edit port/listen_addresses, changes apply on the next start or restart. N
     <value>PgHatch — PostgreSQL Instance Manager</value>
   </data>
   <data name="LocalPostgreSQLInstancesV" xml:space="preserve">
-    <value>Local PostgreSQL instances · v0.2.0</value>
+    <value>Local PostgreSQL instances · v{0}</value>
   </data>
   <data name="AddInstance" xml:space="preserve">
     <value>Add Instance</value>
@@ -283,8 +283,8 @@ If you edit port/listen_addresses, changes apply on the next start or restart. N
     <value>About PgHatch</value>
   </data>
   <data name="PgHatchVNPostgreSQLReadyWhenYouAre" xml:space="preserve">
-    <value>PgHatch v0.2.0&#13;
-PostgreSQL, ready when you are.&#13;
+    <value>PgHatch v{0}&#13;
+PostgreSQL, the App Way.&#13;
 A portable PostgreSQL instance manager for Windows.&#13;
 &#13;
 Formerly PGTray. An independent community tool, not affiliated with PostgreSQL.&#13;
@@ -400,7 +400,7 @@ Scanning and importing won't start the database.</value>
     <value>! Binaries unavailable</value>
   </data>
   <data name="RunningV" xml:space="preserve">
-    <value>{0} / {1} running · v0.2.0</value>
+    <value>{0} / {1} running · v{2}</value>
   </data>
   <data name="PgHatchRunning" xml:space="preserve">
     <value>PgHatch — {0} running</value>
@@ -1020,7 +1020,7 @@ You can now create an instance from the main window. No instance was created or 
   <data name="SystemShutdownStopping" xml:space="preserve">
     <value>Windows is shutting down. Finishing current operations and safely stopping registered PostgreSQL instances…</value>
   </data>
-<data name="BinaryToolsInconsistent" xml:space="preserve"><value>The PostgreSQL tools have inconsistent versions or executable architectures. Replace the complete binary distribution, then check it again.</value></data>
-<data name="BinaryVersionChanged" xml:space="preserve"><value>Registered version: {0}; detected version: {1}. Stop linked instances, then click Refresh or repair the selected path to update the registration.</value></data>
-<data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>Stop this instance before changing its PostgreSQL binaries. If PgHatch cannot verify that it is stopped, use the original pg_ctl to check and stop it first. PGDATA will not be moved or initialized.</value></data>
+  <data name="BinaryToolsInconsistent" xml:space="preserve"><value>The PostgreSQL tools have inconsistent versions or executable architectures. Replace the complete binary distribution, then check it again.</value></data>
+  <data name="BinaryVersionChanged" xml:space="preserve"><value>Registered version: {0}; detected version: {1}. Stop linked instances, then click Refresh or repair the selected path to update the registration.</value></data>
+  <data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>Stop this instance before changing its PostgreSQL binaries. If PgHatch cannot verify that it is stopped, use the original pg_ctl to check and stop it first. PGDATA will not be moved or initialized.</value></data>
 </root>
