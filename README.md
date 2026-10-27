@@ -17,7 +17,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 
 ## 选择发行模式
 
-当前源码候选为 **1.0.0-rc.1**，正式 GitHub Release 仍为 **v0.2.0**。V1.0 尚未正式发布。四种发行包管理功能相同，均为 Release 单文件应用：
+本次发布版本为 **1.0.0**，由已验收的 **1.0.0-rc.1** 晋升，业务逻辑不变。发行状态以 [v1.0.0 Release](https://github.com/lly007/PgHatch/releases/tag/v1.0.0) 为准。四种发行包管理功能相同，均为 Release 单文件应用：
 
 | 架构 | Standalone | Framework-dependent |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 
 ## 开始使用
 
-正式 **v0.2.0** 可从 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 下载；当前 **1.0.0-rc.1** 仍为独立候选包，路径和校验值见 [RC 候选清单](docs/releases/v1.0.0/validation.md)。两者不能混用验证结论。
+从 [v1.0.0 Release](https://github.com/lly007/PgHatch/releases/tag/v1.0.0) 选择适合自己架构和运行时环境的包，并核对随附 SHA256SUMS.txt。功能和验收依据见 [验证记录](docs/releases/v1.0.0/validation.md)，历史 v0.2.0 仍可在 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 获取。
 
 1. 将发行包解压到可写目录，运行 `PgHatch.exe`，保留随包许可证。
 2. 在“PostgreSQL 程序”中下载并部署程序，或注册已有程序根目录 / `bin`。
@@ -44,7 +44,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 - [发行流程](docs/releasing.md)：一套 PowerShell 脚本生成 x64 / ARM64 四种候选包。
 - [文档与版本验证记录](docs/README.md)：历史版本验证、发行矩阵和人工验收边界。
 - [版本历史](CHANGELOG.md) · [第三方声明](THIRD-PARTY-NOTICES.md)。
-- [V1.0 候选验收](docs/releases/v1.0.0/validation.md) · [MIT 许可证](LICENSE)。
+- [V1.0 验收与发行记录](docs/releases/v1.0.0/validation.md) · [MIT 许可证](LICENSE)。
 
 ```powershell
 dotnet build PGTray.sln -c Release
@@ -52,6 +52,6 @@ dotnet run --project src/PGTray
 pwsh -NoProfile -File scripts/Publish.ps1
 ```
 
-GitHub 现有 v0.2.0 Release 发布于 2026-10-21，包含多语言和界面修复。后续加入的在线目录及下载部署功能目前以最新源码和独立本地候选包为准，尚未替换正式 Release。早期候选的验证范围见[发行矩阵记录](docs/releases/v0.2.0/release-matrix.md)；历史封版文件保持原样，后续发布一律使用新的独立候选目录。
+历史 v0.2.0 Release 发布于 2026-10-21，保留当时的功能和制品，不包含后续全部改动。在线目录、下载部署及维护更新等功能纳入 1.0.0；早期候选的验证范围见[历史发行矩阵](docs/releases/v0.2.0/release-matrix.md)。历史封版文件保持原样，新发行使用独立构建目录。
 
 内部工程名、命名空间和历史配置字段继续保留 PGTray，以维持兼容性。

@@ -1,6 +1,6 @@
 # PgHatch UI localization
 
-The current source and candidate version is **1.0.0-rc.1**; the published GitHub release remains **v0.2.0**. This document describes the current shared UI resources and preferences. Historical localization checks remain under `releases/v0.2.0/`; current candidate status is recorded in [V1.0 validation](releases/v1.0.0/validation.md).
+The current source and release version is **1.0.0**, promoted from the accepted **1.0.0-rc.1** without business-logic changes. This document describes the current shared UI resources and preferences. Historical localization checks remain under `releases/v0.2.0/`; validation and publication status are recorded in [V1.0 validation](releases/v1.0.0/validation.md).
 
 ## Resources
 
