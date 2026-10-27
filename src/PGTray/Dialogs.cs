@@ -31,6 +31,16 @@ internal class LayoutForm : Form
         input.Dock = DockStyle.Fill; input.Margin = new(0, 4, 8, 10); Table.Controls.Add(input, 1, row);
         if (trailing is not null) Table.Controls.Add(trailing, 2, row);
     }
+    internal void FitContentHeightToWorkArea(Rectangle work, int dpi)
+    {
+        var padding = (int)Math.Ceiling(8 * dpi / 96d); var frame = SizeFromClientSize(Size.Empty);
+        MinimumSize = new(Math.Min(MinimumSize.Width, work.Width - padding * 2), Math.Min(MinimumSize.Height, work.Height - padding * 2));
+        Width = Math.Min(Width, work.Width - padding * 2);
+        AutoScroll = false; Table.PerformLayout();
+        ClientSize = new(ClientSize.Width, Math.Min(work.Height - frame.Height - padding * 2, Table.Height + padding));
+        AutoScroll = true; AutoScrollPosition = Point.Empty; PerformLayout();
+        Location = new(Math.Clamp(Left, work.Left, Math.Max(work.Left, work.Right - Width)), Math.Clamp(Top, work.Top, Math.Max(work.Top, work.Bottom - Height)));
+    }
     protected Label Footer(string note, Func<Task> accept)
     {
         var row = Table.RowCount++;
@@ -161,6 +171,8 @@ internal sealed class InstanceForm : LayoutForm
     {
         this.installations = installations;
         ClientSize = new(720, create ? 460 : 390); MinimumSize = new(640, create ? 470 : 400);
+        Shown += (_, _) => FitContentHeightToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
+        DpiChanged += (_, _) => BeginInvoke(() => FitContentHeightToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
         foreach (var b in installations) binaries.Items.Add(new { Label = $"{b.Version} — {b.BinDirectory}" });
         binaries.SelectedIndex = 0;
         Row(L10n.Get("InstanceName"), name); Row(L10n.Get("PostgreSQLBinaries2"), binaries); Row(L10n.Get("PGDATADirectory"), data, Browse(data, !create));

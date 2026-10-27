@@ -42,6 +42,14 @@ internal static class WindowChecks
             foreach (var language in new[] { "en-US", "zh-CN", "zh-TW" })
             {
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
+                foreach (var creating in new[] { true, false })
+                {
+                    using var dialog = new InstanceForm([binary], tools, creating); _ = dialog.Handle;
+                    dialog.FitContentHeightToWorkArea(new(0, 0, 1920, 1080), dialog.DeviceDpi);
+                    var content = dialog.Controls.OfType<TableLayoutPanel>().Single();
+                    check(content.Bottom <= dialog.ClientSize.Height && !dialog.VerticalScroll.Visible,
+                        $"{language}/{creating}: native instance dialog fits its measured content without an initial scrollbar");
+                }
                 foreach (var dpi in new[] { 96, 120, 144, 192 })
                 {
                     using var form = new BinaryForm(manager);
