@@ -4,6 +4,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Reflection.PortableExecutable;
 
 namespace PGTray.Core;
 
@@ -14,19 +15,37 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
     public Task<CommandResult> RunAsync(BinaryInstallation binary, string tool, string[] args, int seconds = 15, CancellationToken cancellationToken = default) =>
         runner.RunAsync(Path.Combine(binary.BinDirectory, tool + ".exe"), args, TimeSpan.FromSeconds(seconds), cancellationToken: cancellationToken);
 
-    public async Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
+    public Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
+        => InspectBinaryCoreAsync(directory, true, cancellationToken);
+    private async Task<BinaryInstallation> InspectBinaryCoreAsync(string directory, bool allTools, CancellationToken cancellationToken)
     {
         var bin = await Task.Run(() => {
             var path = ConfigStore.Identity(directory);
             if (!File.Exists(Path.Combine(path, "postgres.exe"))) path = Path.Combine(path, "bin");
             foreach (var tool in RequiredTools)
                 if (!File.Exists(Path.Combine(path, tool))) throw new IOException(L10n.Format("MissingPostgreSQLTool", Path.Combine(path, tool)));
+            if (allTools)
+            {
+                Machine? machine = null;
+                foreach (var tool in RequiredTools)
+                {
+                    using var file = File.OpenRead(Path.Combine(path, tool)); using var pe = new PEReader(file);
+                    var actual = pe.PEHeaders.CoffHeader.Machine;
+                    if (!pe.PEHeaders.IsExe || actual is not (Machine.Amd64 or Machine.Arm64 or Machine.I386) || (machine is not null && machine != actual))
+                        throw new IOException(L10n.Get("BinaryToolsInconsistent"));
+                    machine = actual;
+                }
+            }
             return path;
         }, cancellationToken).ConfigureAwait(false);
-        var result = await runner.RunAsync(Path.Combine(bin, "postgres.exe"), ["--version"], TimeSpan.FromSeconds(10), cancellationToken: cancellationToken).ConfigureAwait(false);
-        var match = Regex.Match(result.Output, @"PostgreSQL\)?\s+(\d+(?:\.\d+)+)");
-        if (result.ExitCode != 0 || result.TimedOut || !match.Success) throw new IOException(L10n.Get("CouldNotIdentifyPostgreSQLVersion") + result.Diagnostic);
-        var version = match.Groups[1].Value;
+        var versions = await Task.WhenAll((allTools ? RequiredTools : ["postgres.exe"]).Select(async tool => {
+            var result = await runner.RunAsync(Path.Combine(bin, tool), ["--version"], TimeSpan.FromSeconds(10), cancellationToken: cancellationToken).ConfigureAwait(false);
+            var match = Regex.Match(result.Output, @"PostgreSQL\)?\s+(\d+(?:\.\d+)+)(?:\s|$)");
+            if (result.ExitCode != 0 || result.TimedOut || !match.Success) throw new IOException(L10n.Get("CouldNotIdentifyPostgreSQLVersion") + result.Diagnostic);
+            return match.Groups[1].Value;
+        })).ConfigureAwait(false);
+        if (versions.Distinct(StringComparer.Ordinal).Count() != 1) throw new IOException(L10n.Get("BinaryToolsInconsistent"));
+        var version = versions[0];
         var parts = version.Split('.');
         var major = int.Parse(parts[0]) >= 10 ? parts[0] : string.Join('.', parts.Take(2));
         return new(Guid.NewGuid(), ConfigStore.Identity(bin), version, major);
@@ -36,7 +55,7 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
     {
         if (!File.Exists(Path.Combine(data, "global", "pg_control"))) throw new IOException(L10n.Get("IncompletePostgreSQLDataDirectoryMissingGlobalPg"));
         var version = (await File.ReadAllTextAsync(Path.Combine(data, "PG_VERSION"), cancellationToken)).Trim();
-        var actualBinary = await InspectBinaryAsync(binary.BinDirectory, cancellationToken);
+        var actualBinary = await InspectBinaryCoreAsync(binary.BinDirectory, false, cancellationToken);
         if (version != actualBinary.Major || binary.Major != actualBinary.Major)
             throw new InvalidOperationException(L10n.Format("MajorVersionMismatchDataBinariesRegisteredUse", version, actualBinary.Major, binary.Major));
     }

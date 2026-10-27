@@ -209,7 +209,7 @@ internal static class DownloadTests
         Console.WriteLine("PASS: Only the owned real-deployment test resources were removed; source ZIP was read-only."); return 0;
     }
 
-    private static byte[] FixtureZip()
+    internal static byte[] FixtureZip(string version = "18.6")
     {
         using var bytes = new MemoryStream();
         using (var zip = new ZipArchive(bytes, ZipArchiveMode.Create, true))
@@ -218,6 +218,8 @@ internal static class DownloadTests
             foreach (var file in Directory.GetFiles(AppContext.BaseDirectory, "*", SearchOption.AllDirectories).Where(f => !f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && !f.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase)))
                 zip.CreateEntryFromFile(file, "pgsql/bin/" + Path.GetRelativePath(AppContext.BaseDirectory, file).Replace('\\', '/'));
             foreach (var tool in PostgresTools.RequiredTools) zip.CreateEntryFromFile(Path.Combine(AppContext.BaseDirectory, "PGTray.IntegrationTests.exe"), "pgsql/bin/" + tool);
+            foreach (var tool in PostgresTools.RequiredTools)
+            { using var writer = new StreamWriter(zip.CreateEntry("pgsql/bin/" + tool + ".fixture-version").Open()); writer.Write(version); }
             using (var data = zip.CreateEntry("pgsql/share/random.bin", CompressionLevel.NoCompression).Open()) data.Write(RandomNumberGenerator.GetBytes(2 * 1024 * 1024));
             using var sentinel = zip.CreateEntry("pgsql/README.txt", CompressionLevel.NoCompression).Open(); sentinel.Write(Encoding.ASCII.GetBytes("CRC validation sentinel"));
         }

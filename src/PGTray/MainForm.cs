@@ -101,7 +101,7 @@ public sealed class MainForm : Form
             new ToolStripSeparator(), MenuItem(L10n.Get("ScanLocalInstances"), ScanAsync, configure: true));
         toolbar.Controls.Add(add); configurationButtons.Add(add);
         AddConfigurationButton(toolbar, L10n.Get("PostgreSQLBinaries3"), BinariesAsync, UiGlyph.Database);
-        var refresh = Button(L10n.Get("Refresh"), async () => { settings.Clear(); await manager.RefreshAllAsync(); await LoadSelectedSettingsAsync(); }, glyph: UiGlyph.Refresh); toolbar.Controls.Add(refresh); configurationButtons.Add(refresh);
+        var refresh = Button(L10n.Get("Refresh"), async () => { settings.Clear(); await manager.RefreshAllAsync(refreshVersions: true); await LoadSelectedSettingsAsync(); }, glyph: UiGlyph.Refresh); toolbar.Controls.Add(refresh); configurationButtons.Add(refresh);
         var quit = new ToolStripMenuItem(L10n.Get("ExitPgHatchKeepDatabasesRunning"));
         // Exit must not run inside RunAsync: the unified exit path waits for its tracked actions.
         quit.Click += async (_, _) => await RequestExitAsync(false);

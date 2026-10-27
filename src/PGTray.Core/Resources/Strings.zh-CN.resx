@@ -1020,4 +1020,7 @@ PID 文件不完整或集群身份不一致，连接状态未知。</value>
   <data name="SystemShutdownStopping" xml:space="preserve">
     <value>Windows 正在关机。正在完成当前操作并安全停止已注册的 PostgreSQL 实例……</value>
   </data>
+<data name="BinaryToolsInconsistent" xml:space="preserve"><value>PostgreSQL 工具的版本或可执行文件架构不一致。请完整替换程序发行包后重新检查。</value></data>
+<data name="BinaryVersionChanged" xml:space="preserve"><value>登记版本为 {0}，实际检测为 {1}。请停止关联实例，再点击刷新或修复所选路径以更新登记信息。</value></data>
+<data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>更换 PostgreSQL 程序前请先停止实例。若 PgHatch 无法确认已停止，请先使用原程序的 pg_ctl 检查并停止实例。此操作不会移动或初始化 PGDATA。</value></data>
 </root>

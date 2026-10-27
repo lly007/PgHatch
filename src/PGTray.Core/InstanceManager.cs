@@ -14,6 +14,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
     }
     private readonly SemaphoreSlim configurationGate = new(1, 1);
     private readonly ConcurrentDictionary<Guid, Coordination> coordinators = new();
+    private readonly ConcurrentDictionary<Guid, string> binaryFingerprints = new();
     private readonly CancellationTokenSource monitoring = new();
     private readonly object workSync = new();
     private readonly HashSet<Task> pendingWork = [];
@@ -82,9 +83,21 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
     public BinaryInstallation Binary(InstanceConfig instance) => FindBinary(instance) ?? throw new InvalidOperationException(BinaryProblem(instance));
     private async Task RefreshBinaryAsync(BinaryInstallation binary)
     {
-        var missing = await Task.Run(() => new[] { "pg_ctl", "postgres", "initdb", "pg_isready" }.Where(n => !File.Exists(Path.Combine(binary.BinDirectory, n + ".exe"))).ToArray());
-        if (missing.Length == 0) BinaryProblems.TryRemove(binary.Id, out _);
-        else BinaryProblems[binary.Id] = L10n.Format("BinaryFilesMissing", string.Join(L10n.Get("ListSeparator"), missing));
+        try
+        {
+            var fingerprint = binary.Version + ":" + binary.Major + "|" + await Task.Run(() => string.Join("|", PostgresTools.RequiredTools.Select(tool => {
+                var file = new FileInfo(Path.Combine(binary.BinDirectory, tool));
+                if (!file.Exists) throw new IOException(L10n.Format("MissingPostgreSQLTool", file.FullName));
+                return $"{file.FullName}:{file.Length}:{file.LastWriteTimeUtc.Ticks}";
+            })));
+            if (binaryFingerprints.GetValueOrDefault(binary.Id) == fingerprint) return;
+            var actual = await tools.InspectBinaryAsync(binary.BinDirectory);
+            if (actual.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheReplacementPathMustUseTheSame"));
+            if (actual.Version != binary.Version) throw new InvalidOperationException(L10n.Format("BinaryVersionChanged", binary.Version, actual.Version));
+            BinaryProblems.TryRemove(binary.Id, out _); binaryFingerprints[binary.Id] = fingerprint;
+        }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException or UnauthorizedAccessException or BadImageFormatException or System.ComponentModel.Win32Exception)
+        { binaryFingerprints.TryRemove(binary.Id, out _); BinaryProblems[binary.Id] = ex.Message; }
     }
     private void SetStatus(Guid id, InstanceStatus status) { Statuses[id] = status; Changed?.Invoke(); }
     private async Task CommitAsync(Func<AppConfig, AppConfig> update)
@@ -112,7 +125,9 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         return c with { Binaries = c.Binaries.Where(b => b.Id != binaryId).ToList() };
     }));
 
-    public Task RepairBinaryAsync(Guid binaryId, string path) => TrackAsync(async () => {
+    public Task RepairBinaryAsync(Guid binaryId, string path) => TrackAsync(() => RepairBinaryCoreAsync(binaryId, path));
+    private async Task RepairBinaryCoreAsync(Guid binaryId, string path)
+    {
         var replacement = await tools.InspectBinaryAsync(path);
         await configurationGate.WaitAsync();
         var locked = new List<Coordination>();
@@ -129,14 +144,18 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
                 if (!await c.Lifecycle.WaitAsync(0)) throw new InvalidOperationException(L10n.Get("ALinkedInstanceIsStartingOrStopping"));
                 BeginOperation(c); locked.Add(c);
                 await tools.ValidateClusterAsync(replacement, instance.DataDirectory);
+                if (old.Version != replacement.Version || !string.Equals(old.BinDirectory, replacement.BinDirectory, StringComparison.OrdinalIgnoreCase))
+                    await RequireStoppedAsync(replacement, instance);
             }
+            if (old.Version == replacement.Version && string.Equals(old.BinDirectory, replacement.BinDirectory, StringComparison.OrdinalIgnoreCase))
+            { BinaryProblems.TryRemove(binaryId, out _); return; }
             var next = Config with { Binaries = Config.Binaries.Select(b => b.Id == binaryId ? replacement with { Id = b.Id, Extra = b.Extra } : b).ToList() };
             await store.SaveAsync(next); Config = next; BinaryProblems.TryRemove(binaryId, out _);
             foreach (var i in Config.Instances.Where(i => i.BinaryId == binaryId)) Statuses.TryRemove(i.Id, out _);
         }
         finally { foreach (var c in locked) EndOperation(c); configurationGate.Release(); }
         Changed?.Invoke();
-    });
+    }
 
     public Task ReassociateAsync(InstanceConfig selected, Guid binaryId, string name) => TrackAsync(async () => {
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException(L10n.Get("TheInstanceNameCannotBeEmpty"));
@@ -152,12 +171,21 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             var inspected = await tools.InspectBinaryAsync(binary.BinDirectory);
             if (inspected.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheBinaryVersionHasChangedRepairIts"));
             await tools.ValidateClusterAsync(inspected, instance.DataDirectory);
+            if (instance.BinaryId != binaryId) await RequireStoppedAsync(FindBinary(instance) ?? inspected, instance, inspected);
             var next = Config with { Instances = Config.Instances.Select(i => i.Id == instance.Id ? i with { BinaryId = binaryId, Name = name.Trim() } : i).ToList() };
             await store.SaveAsync(next); Config = next; Statuses.TryRemove(instance.Id, out _);
         }
         finally { configurationGate.Release(); EndOperation(c); }
         Changed?.Invoke();
     });
+
+    private async Task RequireStoppedAsync(BinaryInstallation binary, InstanceConfig instance, BinaryInstallation? fallback = null)
+    {
+        var state = await tools.StatusAsync(binary, instance);
+        if (state.ServerRunning != true && state.State != InstanceState.Stopped && fallback is not null)
+            state = await tools.StatusAsync(fallback, instance);
+        if (state.State != InstanceState.Stopped) throw new InvalidOperationException(L10n.Get("StopBeforeSwitchingBinaries"));
+    }
 
     public Task<InstanceConfig> AddInstanceAsync(string name, BinaryInstallation binary, string data, int port,
         string? username = null, string? password = null) => TrackAsync(async () => {
@@ -176,7 +204,9 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         InstanceConfig instance;
         try
         {
-            if (!Config.Binaries.Any(b => b.Id == binary.Id)) throw new InvalidOperationException(L10n.Get("RegisterAPostgreSQLBinaryDirectoryFirst"));
+            binary = Config.Binaries.Find(b => b.Id == binary.Id) ?? throw new InvalidOperationException(L10n.Get("RegisterAPostgreSQLBinaryDirectoryFirst"));
+            var inspected = await tools.InspectBinaryAsync(binary.BinDirectory).ConfigureAwait(false);
+            if (inspected.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheReplacementPathMustUseTheSame"));
             if (Config.Instances.Any(i => string.Equals(ConfigStore.Identity(i.DataDirectory), data, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException(L10n.Get("ThisDataDirectoryIsAlreadyRegisteredIt"));
             if (create && Config.Instances.Any(i => data.StartsWith(ConfigStore.Identity(i.DataDirectory) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)))
@@ -228,7 +258,11 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         finally { EndOperation(coordination); }
         Changed?.Invoke();
     });
-    public Task RefreshAllAsync() => TrackAsync(async () => {
+    public Task RefreshAllAsync(bool refreshVersions = false) => TrackAsync(async () => {
+        if (refreshVersions)
+            foreach (var binary in Config.Binaries.ToArray())
+                try { await RepairBinaryCoreAsync(binary.Id, binary.BinDirectory); }
+                catch (Exception ex) { BinaryProblems[binary.Id] = ex.Message; binaryFingerprints.TryRemove(binary.Id, out _); }
         await Task.WhenAll(Config.Binaries.ToArray().Select(RefreshBinaryAsync));
         await Task.WhenAll(Config.Instances.ToArray().Select(RefreshCoreAsync));
     });
@@ -286,6 +320,8 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             if (!string.Equals(ConfigStore.Identity(instance.DataDirectory), PathSafety.Normalize(instance.DataDirectory), StringComparison.OrdinalIgnoreCase))
                 throw new IOException(L10n.Get("TheDataDirectoryNowPointsElsewhereOr"));
             var binary = Binary(instance);
+            var inspected = await tools.InspectBinaryAsync(binary.BinDirectory);
+            if (inspected.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheReplacementPathMustUseTheSame"));
             await tools.ValidateClusterAsync(binary, instance.DataDirectory);
             if (operation is "stop" or "restart") await StopAsync(binary, instance);
             if (operation is "start" or "restart") await StartAsync(binary, instance);

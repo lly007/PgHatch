@@ -8,7 +8,16 @@ using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
 // A renamed test apphost provides --version only in isolated deployment fixtures.
-if (args is ["--version"] && Path.GetFileNameWithoutExtension(Environment.ProcessPath) == "postgres") { Console.WriteLine("postgres (PostgreSQL) 18.6"); return 0; }
+if (args is ["--version"] && PostgresTools.RequiredTools.Contains(Path.GetFileName(Environment.ProcessPath)))
+{
+    var marker = Path.Combine(AppContext.BaseDirectory, Path.GetFileName(Environment.ProcessPath) + ".fixture-version");
+    Console.WriteLine($"{Path.GetFileNameWithoutExtension(Environment.ProcessPath)} (PostgreSQL) {(File.Exists(marker) ? File.ReadAllText(marker).Trim() : "18.6")}"); return 0;
+}
+if (Path.GetFileName(Environment.ProcessPath) == "pg_ctl.exe" && File.Exists(Path.Combine(AppContext.BaseDirectory, "postgres.exe.fixture-version")) && args is ["status", "-D", var fixtureData])
+    return File.Exists(Path.Combine(fixtureData, ".fixture-running")) ? 0 : 3;
+if (args is ["--maintenance-tests", var maintenanceRoot]) return await MaintenanceTests.RunAsync(maintenanceRoot);
+if (args is ["--maintenance-real", var maintenanceZip, var maintenanceCatalog, var maintenanceBinary, var maintenanceParent])
+    return await MaintenanceTests.RunRealAsync(maintenanceZip, maintenanceCatalog, maintenanceBinary, maintenanceParent);
 if (args is ["--download-tests", var downloadParent]) return await DownloadTests.RunAsync(downloadParent);
 if (args is ["--deploy-real", var officialArchive, var officialCatalog, var deployParent]) return await DownloadTests.RunRealAsync(officialArchive, officialCatalog, deployParent);
 if (args is ["--config-repro"]) { await ConfigTests.ReproduceAsync(); return 0; }
@@ -139,13 +148,19 @@ try
     Check(repairManager.Config.Instances.Count == 1 && repairManager.Statuses[reimported.Id].State == InstanceState.Unknown, "Live cluster registration survives a missing binary reference without guessing process state");
     await Reject(() => repairManager.OperateAsync(reimported, "stop"), "Missing binary reference blocks lifecycle without stopping real test cluster");
     var replacement = await repairManager.AddBinaryAsync(args[0]);
-    await repairManager.ReassociateAsync(reimported, replacement.Id, "修复后的运行实例"); await repairManager.RefreshAllAsync();
-    Check(repairManager.Statuses[reimported.Id].Connection == ConnectionState.Ready && await Sql(second, "select 45") == "45", "Reassociate actual running PG18 cluster without restart or data changes");
+    await Reject(() => repairManager.ReassociateAsync(reimported, replacement.Id, "running"), "Running instance refuses reassociation until explicitly stopped");
+    await manager.OperateAsync(reimported, "stop");
+    await repairManager.ReassociateAsync(reimported, replacement.Id, "修复后的运行实例");
+    await repairManager.OperateAsync(repairManager.Config.Instances[0], "start"); await repairManager.RefreshAllAsync();
+    Check(repairManager.Statuses[reimported.Id].Connection == ConnectionState.Ready && await Sql(second, "select 45") == "45", "Stopped PG18 reassociation preserves data and supports an explicit subsequent start");
     await Reject(() => repairManager.UnregisterBinaryAsync(replacement.Id), "Referenced binary cannot unregister during real cluster operation");
     await repairStore.SaveAsync(repairManager.Config with { Binaries = [replacement with { BinDirectory = Path.Combine(root, "missing-bin") }] });
     await repairManager.LoadAsync(); await repairManager.RefreshAllAsync();
     Check(repairManager.BinaryProblem(repairManager.Config.Instances[0]) is not null && await Sql(second, "select 46") == "46", "Unavailable program registration leaves running server untouched");
-    await repairManager.RepairBinaryAsync(replacement.Id, args[0]); await repairManager.RefreshAllAsync();
+    await Reject(() => repairManager.RepairBinaryAsync(replacement.Id, args[0]), "Running instance refuses a changed binary registration path");
+    await manager.OperateAsync(reimported, "stop");
+    await repairManager.RepairBinaryAsync(replacement.Id, args[0]);
+    await repairManager.OperateAsync(repairManager.Config.Instances[0], "start"); await repairManager.RefreshAllAsync();
     Check(repairManager.Statuses[reimported.Id].Connection == ConnectionState.Ready, "Repair path restores real cluster monitoring without lifecycle operation");
     await repairManager.ShutdownAsync();
     await File.AppendAllTextAsync(configPath1, $"\nport = {port2}\n");

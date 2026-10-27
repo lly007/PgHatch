@@ -1020,4 +1020,7 @@ PID 檔案不完整或叢集身分不一致，連線狀態未知。</value>
   <data name="SystemShutdownStopping" xml:space="preserve">
     <value>Windows 正在關機。正在完成目前作業並安全停止已註冊的 PostgreSQL 執行個體……</value>
   </data>
+<data name="BinaryToolsInconsistent" xml:space="preserve"><value>PostgreSQL 工具的版本或執行檔架構不一致。請完整替換程式發行套件後重新檢查。</value></data>
+<data name="BinaryVersionChanged" xml:space="preserve"><value>登錄版本為 {0}，實際偵測為 {1}。請停止關聯的執行個體，再按重新整理或修復所選路徑以更新登錄資訊。</value></data>
+<data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>更換 PostgreSQL 程式前請先停止執行個體。若 PgHatch 無法確認已停止，請先使用原程式的 pg_ctl 檢查並停止。此操作不會移動或初始化 PGDATA。</value></data>
 </root>
