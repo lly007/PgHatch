@@ -7,6 +7,11 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--round2-tests", var round2Parent]) return await RecoveryRound2Tests.RunAsync(round2Parent);
+if (args is ["--round2-controller", var round2Source, var round2Replacement, var round2Root]) return await FinalReviewTests.ControllerCaptureAsync(round2Source, round2Replacement, round2Root);
+if (args is ["--round2-capture-helper", var round2Pid, var round2Gate, var round2Done]) return await RecoveryRound2Tests.HelperAsync(round2Pid, round2Gate, round2Done);
+if (args is ["--round2-owned-helper", var round2ParentPid, var round2ChildPid]) return await RecoveryRound2Tests.OwnedHelperAsync(round2ParentPid, round2ChildPid);
+if (args is ["--round2-owned-child", var round2Child]) return await RecoveryRound2Tests.OwnedChildAsync(round2Child);
 if (args is ["--review-output-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
 if (args is ["--review-paths", var pathSource, var pathParent]) return await FinalReviewTests.PathsAsync(pathSource, pathParent);
 if (args is ["--review-share-paths", var shareMatrix]) return await FinalReviewTests.SharePathsAsync(shareMatrix);

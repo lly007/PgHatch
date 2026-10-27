@@ -16,6 +16,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
     private readonly SemaphoreSlim configurationGate = new(1, 1);
     private readonly ConcurrentDictionary<Guid, Coordination> coordinators = new();
     private readonly ConcurrentDictionary<Guid, string> binaryFingerprints = new();
+    private readonly ConcurrentDictionary<Guid, (string Registered, string Resolved)> dataIdentities = new();
     private readonly CancellationTokenSource monitoring = new();
     private readonly object workSync = new();
     private readonly HashSet<Task> pendingWork = [];
@@ -72,6 +73,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             var next = await store.LoadAsync();
             foreach (var c in coordinators.Values) lock (c.Sync) { c.Epoch++; c.QueryCancellation?.Cancel(); }
             Config = next; Statuses.Clear(); BinaryProblems.Clear(); EmergencyCandidates.Clear(); binaryFingerprints.Clear();
+            await Task.Run(CaptureDataIdentities);
             await Task.WhenAll(Config.Binaries.Select(RefreshBinaryAsync));
             configurationLoaded = true; ConfigurationError = null;
         }
@@ -84,11 +86,30 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         {
             if (configurationLoaded) throw new InvalidOperationException(L10n.Get("TheCurrentConfigurationIsValidRecoveryIs"));
             Config = await store.RecoverAsync(fromBackup); configurationLoaded = true; ConfigurationError = null;
+            await Task.Run(CaptureDataIdentities);
         }
         finally { configurationGate.Release(); }
         Changed?.Invoke();
     });
     public BinaryInstallation? FindBinary(InstanceConfig instance) => Config.Binaries.Find(b => b.Id == instance.BinaryId);
+    private void CaptureDataIdentities()
+    {
+        foreach (var id in dataIdentities.Keys.Where(id => !Config.Instances.Any(i => i.Id == id))) dataIdentities.TryRemove(id, out _);
+        foreach (var instance in Config.Instances)
+        {
+            try
+            {
+                var registered = PathSafety.Normalize(instance.DataDirectory);
+                // Reloading the same record must not silently accept a changed drive mapping.
+                if (dataIdentities.TryGetValue(instance.Id, out var prior) && prior.Resolved.Length > 0 &&
+                    string.Equals(prior.Registered, registered, StringComparison.OrdinalIgnoreCase)) continue;
+                dataIdentities[instance.Id] = (registered, PathSafety.UnlinkedDataIdentity(registered));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { dataIdentities[instance.Id] = (instance.DataDirectory, ""); }
+        }
+    }
+    internal string EnsureDataPath(InstanceConfig instance)
+        => PathSafety.UnlinkedDataIdentity(instance.DataDirectory, dataIdentities.TryGetValue(instance.Id, out var pinned) ? pinned.Resolved : "");
     public string? BinaryProblem(InstanceConfig instance) => FindBinary(instance) is { } b ? BinaryProblems.GetValueOrDefault(b.Id) : L10n.Get("BinariesAreNotLinkedChooseCompatiblePostgreSQL");
     public BinaryInstallation Binary(InstanceConfig instance) => FindBinary(instance) ?? throw new InvalidOperationException(BinaryProblem(instance));
     private async Task RefreshBinaryAsync(BinaryInstallation binary)
@@ -153,13 +174,13 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
                 throw new InvalidOperationException(L10n.Get("ThisPathIsAlreadyRegisteredRelinkThe"));
             foreach (var instance in Config.Instances.Where(i => i.BinaryId == binaryId))
             {
-                EnsureUniqueData(instance);
+                var data = EnsureUniqueData(instance);
                 var c = coordinators.GetOrAdd(instance.Id, _ => new());
                 if (!await c.Lifecycle.WaitAsync(0)) throw new InvalidOperationException(L10n.Get("ALinkedInstanceIsStartingOrStopping"));
                 BeginOperation(c); locked.Add(c);
-                await tools.ValidateClusterAsync(replacement, instance.DataDirectory);
+                await tools.ValidateClusterAsync(replacement, data);
                 if (old.Version != replacement.Version || !ServerIdentity.SamePath(old.BinDirectory, replacement.BinDirectory) || BinaryProblems.ContainsKey(binaryId))
-                    await RequireStoppedAsync(replacement, instance);
+                    await RequireStoppedAsync(replacement, instance with { DataDirectory = data });
             }
             if (old.Version == replacement.Version && string.Equals(old.BinDirectory, replacement.BinDirectory, StringComparison.OrdinalIgnoreCase))
             { BinaryProblems.TryRemove(binaryId, out _); return; }
@@ -190,15 +211,15 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             }
             var inspected = await tools.InspectBinaryAsync(binary.BinDirectory);
             if (inspected.Major != binary.Major || inspected.Version != binary.Version) throw new InvalidOperationException(L10n.Get("TheBinaryVersionHasChangedRepairIts"));
-            await tools.ValidateClusterAsync(inspected, instance.DataDirectory);
+            await tools.ValidateClusterAsync(inspected, EnsureDataPath(instance));
             if (instance.BinaryId != binaryId)
                 foreach (var linked in Config.Instances.Where(i => i.BinaryId == instance.BinaryId || i.BinaryId == binaryId))
                 {
-                    EnsureUniqueData(linked);
+                    var data = EnsureUniqueData(linked);
                     BinaryInstallation probe;
                     try { probe = await tools.InspectBinaryAsync((FindBinary(linked) ?? inspected).BinDirectory); }
                     catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or BadImageFormatException) { probe = inspected; }
-                    await RequireStoppedAsync(probe, linked);
+                    await RequireStoppedAsync(probe, linked with { DataDirectory = data });
                 }
             var next = Config with { Instances = Config.Instances.Select(i => i.Id == instance.Id ? i with { BinaryId = binaryId, Name = name.Trim() } : i).ToList() };
             await store.SaveAsync(next); Config = next; Statuses.TryRemove(instance.Id, out _);
@@ -254,6 +275,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
                 instance = new(id, name.Trim(), binary.Id, data, port, Path.Combine(store.Root, "logs", id + ".log"), CreatedByPGTray: create);
                 var next = Config with { Instances = [.. Config.Instances, instance] };
                 await store.SaveAsync(next).ConfigureAwait(false); Config = next;
+                dataIdentities[instance.Id] = (data, data);
             }
             catch (Exception ex) when (create) { throw new InitializedClusterException(data, ex.Message); }
         }
@@ -289,6 +311,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         {
             await CommitAsync(c => c with { Instances = c.Instances.Where(i => i.Id != instance.Id).ToList() });
             Statuses.TryRemove(instance.Id, out _); LastOperationDiagnostics.TryRemove(instance.Id, out _);
+            dataIdentities.TryRemove(instance.Id, out _);
         }
         finally { EndOperation(coordination); }
         Changed?.Invoke();
@@ -319,8 +342,14 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         {
             IReadOnlyList<BinaryInstallation>? verifiedCandidates = null;
             EmergencyCandidates.TryRemove(instance.Id, out _);
-            var result = BinaryProblem(instance) is { } problem ? new InstanceStatus(InstanceState.Unknown, problem) : await tools.StatusAsync(Binary(instance), instance, cancellation.Token);
-            if (BinaryProblem(instance) is not null)
+            InstanceStatus result; var validPath = true;
+            try
+            {
+                instance = instance with { DataDirectory = EnsureDataPath(instance) };
+                result = BinaryProblem(instance) is { } problem ? new InstanceStatus(InstanceState.Unknown, problem) : await tools.StatusAsync(Binary(instance), instance, cancellation.Token);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { validPath = false; result = new(InstanceState.Unknown, ex.Message); }
+            if (validPath && BinaryProblem(instance) is not null)
             {
                 try
                 {
@@ -380,8 +409,8 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         try
         {
             LastOperationDiagnostics.TryRemove(instance.Id, out _);
-            if (!string.Equals(ConfigStore.Identity(instance.DataDirectory), PathSafety.Normalize(instance.DataDirectory), StringComparison.OrdinalIgnoreCase))
-                throw new IOException(L10n.Get("TheDataDirectoryNowPointsElsewhereOr"));
+            // Pin this operation to the verified target; never pass a mutable drive alias on.
+            instance = instance with { DataDirectory = EnsureDataPath(instance) };
             var binary = Binary(instance);
             var inspected = await tools.InspectBinaryAsync(binary.BinDirectory);
             if (inspected.Major != binary.Major) throw new InvalidOperationException(L10n.Get("TheReplacementPathMustUseTheSame"));
@@ -448,12 +477,12 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         return candidates;
     }
 
-    private void EnsureUniqueData(InstanceConfig instance)
+    private string EnsureUniqueData(InstanceConfig instance)
     {
-        if (!string.Equals(ConfigStore.Identity(instance.DataDirectory), PathSafety.Normalize(instance.DataDirectory), StringComparison.OrdinalIgnoreCase))
-            throw new IOException(L10n.Get("TheDataDirectoryNowPointsElsewhereOr"));
+        var data = EnsureDataPath(instance);
         if (Config.Instances.Any(i => i.Id != instance.Id && ServerIdentity.SamePath(i.DataDirectory, instance.DataDirectory)))
             throw new IOException(L10n.Get("EmergencyIdentityUnconfirmed"));
+        return data;
     }
 
     public Task EmergencyStopAsync(InstanceConfig selected, Guid selectedBinaryId) => TrackAsync(async () => {
@@ -470,6 +499,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             coordination = coordinators.GetOrAdd(instance.Id, _ => new());
             if (!await coordination.Lifecycle.WaitAsync(0)) { coordination = null; throw new InvalidOperationException(L10n.Get("ThisInstanceIsAlreadyStartingOrStopping")); }
             BeginOperation(coordination);
+            instance = instance with { DataDirectory = EnsureDataPath(instance) };
             await RefreshBinaryAsync(Binary(instance));
             var candidates = await EmergencyCandidatesCoreAsync(instance, CancellationToken.None);
             var binary = candidates.SingleOrDefault(b => b.Id == selectedBinaryId) ?? throw new InvalidOperationException(L10n.Get("EmergencyNoTools"));
@@ -506,7 +536,9 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         }
         finally
         {
-            if (coordination is not null && instance is not null && pendingController is not null && !pendingController.IsCompletedSuccessfully)
+            if (pendingController?.IsCompletedSuccessfully == true && pendingController.Result.ProcessExitConfirmed && instance is not null)
+                LastOperationDiagnostics[instance.Id] += "\r\n" + pendingController.Result.Diagnostic;
+            else if (coordination is not null && instance is not null && pendingController is not null)
             {
                 RetainPendingController(instance, coordination, pendingController, lease!);
                 coordination = null; lease = null;
@@ -529,8 +561,9 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
             var confirmedExit = false;
             try
             {
-                var final = await pending; confirmedExit = true;
+                var final = await pending; confirmedExit = final.ProcessExitConfirmed;
                 LastOperationDiagnostics[instance.Id] = LastOperationDiagnostics.GetValueOrDefault(instance.Id) + "\r\n" + final.Diagnostic;
+                if (!confirmedExit) SetStatus(instance.Id, new(InstanceState.Unknown, L10n.Get("EmergencyControllerPending")));
             }
             catch (Exception ex)
             {

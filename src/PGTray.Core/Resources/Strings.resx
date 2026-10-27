@@ -1048,4 +1048,5 @@ All affected instances listed below must be stopped; each will be checked again.
 {1}
 PGDATA and instance settings are preserved. No server starts automatically.</value></data>
   <data name="EmergencyControllerPending" xml:space="preserve"><value>The stop controller has not yet exited. Status probes continue, but conflicting lifecycle and program changes remain blocked. Wait for natural exit; do not force-terminate PostgreSQL.</value></data>
+  <data name="OutputCaptureIncomplete" xml:space="preserve"><value>Diagnostic output collection was incomplete: {0}</value></data>
 </root>

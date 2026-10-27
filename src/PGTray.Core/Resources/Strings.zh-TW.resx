@@ -1048,4 +1048,5 @@ PostgreSQL {2}
 {1}
 保留 PGDATA 及執行個體設定，不自動啟動伺服器。</value></data>
   <data name="EmergencyControllerPending" xml:space="preserve"><value>停止控制器尚未退出。狀態探測繼續，但衝突的生命週期及程式變更仍被阻止。請等待自然退出，不要強制終止 PostgreSQL。</value></data>
+  <data name="OutputCaptureIncomplete" xml:space="preserve"><value>診斷輸出收集不完整：{0}</value></data>
 </root>

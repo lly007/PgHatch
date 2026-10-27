@@ -50,6 +50,25 @@ public static class PathSafety
         return Path.Combine(remote.ToString(), path[root.Length..]);
     }
 
+    // Mapping expansion is a lexical alias, not permission to follow a reparse point.
+    // Optional delegates keep the same checks deterministic without requiring an SMB share.
+    internal static string UnlinkedDataIdentity(string path, string? expected = null,
+        Func<string, string>? mapping = null, Func<string, FileAttributes?>? attributes = null)
+    {
+        var full = Normalize(path); mapping ??= ExpandMappedDrive; attributes ??= Attributes;
+        var expanded = Normalize(mapping(full));
+        for (var current = expanded; current is not null; current = Directory.GetParent(current)?.FullName)
+        {
+            var actual = attributes(current);
+            if (actual?.HasFlag(FileAttributes.ReparsePoint) == true)
+                throw new IOException(L10n.Get("TheDataDirectoryNowPointsElsewhereOr"));
+        }
+        if (!string.Equals(expanded, Normalize(mapping(full)), StringComparison.OrdinalIgnoreCase) ||
+            (expected is not null && !string.Equals(expanded, expected, StringComparison.OrdinalIgnoreCase)))
+            throw new IOException(L10n.Get("TheDataDirectoryNowPointsElsewhereOr"));
+        return expanded;
+    }
+
     public static bool IsNetworkStorage(string path) => Normalize(path).StartsWith(@"\\") ||
         (OperatingSystem.IsWindows() && new DriveInfo(Path.GetPathRoot(Normalize(path))!).DriveType == DriveType.Network);
 

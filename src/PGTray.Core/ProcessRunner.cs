@@ -5,6 +5,8 @@ namespace PGTray.Core;
 
 public sealed class ProcessRunner
 {
+    internal Action<bool, int>? OutputReadCheckpoint { get; set; }
+    internal Func<Process, Task>? PendingExitWait { get; set; }
     public async Task<CommandResult> RunAsync(string exe, IEnumerable<string> arguments, TimeSpan timeout,
         bool killChildrenOnTimeout = false, CancellationToken cancellationToken = default, bool terminateOnTimeout = true)
     {
@@ -26,8 +28,8 @@ public sealed class ProcessRunner
             // Windows CreateProcess (including antivirus/DLL inspection) is synchronous.
             // Offload that call, while keeping process waiting and both pipe reads truly async.
             await Task.Run(() => process.Start(), cancellationToken).ConfigureAwait(false);
-            stdout = PumpAsync(process.StandardOutput.BaseStream, output, drain.Token);
-            stderr = PumpAsync(process.StandardError.BaseStream, error, drain.Token);
+            stdout = PumpAsync(process.StandardOutput.BaseStream, output, false, drain.Token);
+            stderr = PumpAsync(process.StandardError.BaseStream, error, true, drain.Token);
             var timedOut = false;
             using var deadline = new CancellationTokenSource(timeout);
             using var stop = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, cancellationToken);
@@ -52,40 +54,65 @@ public sealed class ProcessRunner
             }
             // On Windows postgres can inherit pipe handles even when pg_ctl used -l.
             // Controller exit is authoritative for completion; never wait indefinitely for EOF.
-            try { await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
-            catch (TimeoutException) { drain.Cancel(); await Task.WhenAll(stdout, stderr).ConfigureAwait(false); }
+            var outputError = await CollectOutputAsync().ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
-            return new(process.HasExited ? process.ExitCode : -1, Snapshot(output), Snapshot(error), timedOut);
+            return new(process.ExitCode, Snapshot(output), Snapshot(error), timedOut) { ProcessExitConfirmed = true, OutputReadError = outputError };
         }
         finally
         {
-            if (!transferred) Dispose();
+            if (!transferred) await DisposeAsync().ConfigureAwait(false);
         }
 
         async Task<CommandResult> ObserveAsync(bool wasTimedOut)
         {
             try
             {
-                await process.WaitForExitAsync().ConfigureAwait(false);
-                try { await Task.WhenAll(stdout, stderr).WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
-                catch (TimeoutException) { drain.Cancel(); await Task.WhenAll(stdout, stderr).ConfigureAwait(false); }
-                return new(process.ExitCode, Snapshot(output), Snapshot(error), wasTimedOut);
+                await (PendingExitWait?.Invoke(process) ?? process.WaitForExitAsync()).ConfigureAwait(false);
+                // Output capture has its own outcome; it cannot revoke an observed OS exit.
+                var outputError = await CollectOutputAsync().ConfigureAwait(false);
+                return new(process.ExitCode, Snapshot(output), Snapshot(error), wasTimedOut) { ProcessExitConfirmed = true, OutputReadError = outputError };
             }
-            finally { Dispose(); }
+            finally { await DisposeAsync().ConfigureAwait(false); }
         }
-        void Dispose() { drain.Cancel(); process.Dispose(); output.Dispose(); error.Dispose(); drain.Dispose(); }
+        async Task<string?> CollectOutputAsync()
+        {
+            var readers = Task.WhenAll(stdout, stderr);
+            var incomplete = false;
+            try { await readers.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+            catch (TimeoutException)
+            {
+                incomplete = true;
+                drain.Cancel();
+                try { await readers.ConfigureAwait(false); } catch (Exception) when (readers.IsFaulted || readers.IsCanceled) { }
+            }
+            catch (Exception) when (readers.IsFaulted || readers.IsCanceled) { }
+            return readers.Exception is { } failures
+                ? string.Join("\r\n", failures.Flatten().InnerExceptions.Select(ex => ex.Message))
+                : incomplete ? new TimeoutException().Message : null;
+        }
+        async Task DisposeAsync()
+        {
+            drain.Cancel();
+            // Observe both readers even when start, exit observation or capture failed.
+            try { await Task.WhenAll(stdout, stderr).ConfigureAwait(false); } catch (Exception) { }
+            process.Dispose(); output.Dispose(); error.Dispose(); drain.Dispose();
+        }
     }
 
     private static string Snapshot(MemoryStream stream) { lock (stream) return TextDecoding.Decode(stream.ToArray()); }
 
-    private static async Task PumpAsync(Stream reader, MemoryStream destination, CancellationToken token)
+    private async Task PumpAsync(Stream reader, MemoryStream destination, bool isError, CancellationToken token)
     {
         var buffer = new byte[4096];
         try
         {
             int count;
-            while ((count = await reader.ReadAsync(buffer.AsMemory(), token).ConfigureAwait(false)) > 0)
-                lock (destination) if (destination.Length < 1024 * 1024) destination.Write(buffer, 0, count);
+            do
+            {
+                count = await reader.ReadAsync(buffer.AsMemory(), token).ConfigureAwait(false);
+                if (count > 0) lock (destination) if (destination.Length < 1024 * 1024) destination.Write(buffer, 0, count);
+                OutputReadCheckpoint?.Invoke(isError, count);
+            } while (count > 0);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }

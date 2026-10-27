@@ -32,10 +32,33 @@ internal static class NetworkPathTests
             check(true, "Actual mapped network drive initialization is rejected before creating a directory");
             check(PathSafety.Identity(drive + @"\directory-target") == PathSafety.Identity(Path.Combine(remote, "directory-target")), "Actual mapped drive and its UNC representation have identical resolved identities");
             check(PathSafety.IsNetworkStorage(mapped), "Actual mapped drive import is recognized for a network-storage warning");
+            var configRoot = Path.Combine(root, "mapped-config"); Directory.CreateDirectory(configRoot);
+            var store = new ConfigStore(configRoot);
+            var binary = new BinaryInstallation(Guid.NewGuid(), Path.Combine(root, "not-executed-program"), "18.3", "18");
+            var legacy = new InstanceConfig(Guid.NewGuid(), "Old mapped registration", binary.Id, drive + @"\directory-target", 55499, Path.Combine(root, "log"));
+            store.SaveAsync(new AppConfig(AppConfig.CurrentSchema, [binary], [legacy])).GetAwaiter().GetResult();
+            var manager = new InstanceManager(store, new PostgresTools(new ProcessRunner())); manager.LoadAsync().GetAwaiter().GetResult();
+            var operationData = manager.EnsureDataPath(manager.Config.Instances.Single());
+            check(operationData == PathSafety.Identity(Path.Combine(remote, "directory-target")), "Operation receives the verified UNC identity while the stored drive-letter path is preserved");
+            check(manager.Config.Instances.Single().DataDirectory == legacy.DataDirectory, "Manager loads an old mapped-drive registration without changing or rejecting its stable path");
+            Directory.CreateDirectory(Path.Combine(root, "remapped", "directory-target"));
+            // Windows can cache metadata handles. This drive maps only the owned test root;
+            // disconnecting it never closes or terminates a PostgreSQL server.
+            if (WNetCancelConnection2(drive, 0, true) != 0) throw new IOException("Could not release the owned mapping for remap test");
+            resource.Remote = Path.Combine(remote, "remapped");
+            if (WNetAddConnection2(ref resource, null, null, 0) != 0) throw new IOException("Could not remap the owned test drive");
+            try { manager.EnsureDataPath(manager.Config.Instances.Single()); throw new Exception("Changed mapping accepted"); } catch (IOException) { }
+            check(true, "Manager rejects changed actual mapping against its loaded identity snapshot");
+            manager.LoadAsync().GetAwaiter().GetResult();
+            try { manager.EnsureDataPath(manager.Config.Instances.Single()); throw new Exception("Reload accepted changed mapping"); } catch (IOException) { }
+            check(true, "Reload of the same old registration does not reset its trusted mapping identity");
+            manager.RefreshAllAsync().GetAwaiter().GetResult();
+            check(manager.Statuses[legacy.Id].State == InstanceState.Unknown, "Read-only refresh cannot report another mapped target as the registered instance");
+            manager.ShutdownAsync().GetAwaiter().GetResult();
         }
         finally
         {
-            var removed = WNetCancelConnection2(drive, 0, false);
+            var removed = WNetCancelConnection2(drive, 0, true);
             if (removed != 0) throw new IOException("Could not remove test mapping " + drive + "; Windows error " + removed);
         }
     }

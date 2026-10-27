@@ -12,7 +12,9 @@ internal static class ServerIdentity
 
     internal static Snapshot ConfirmRunning(InstanceConfig instance, BinaryInstallation original)
     {
-        if (!SamePath(instance.DataDirectory, PathSafety.Normalize(instance.DataDirectory))) Fail();
+        // Unlike SamePath(path, Normalize(path)), this checks reparse points rather than
+        // resolving both sides to the same target. The manager also pins the loaded identity.
+        instance = instance with { DataDirectory = PathSafety.UnlinkedDataIdentity(instance.DataDirectory) };
         var lines = ReadPid(instance.DataDirectory);
         if (lines.Length < 4 || !int.TryParse(lines[0], out var pid) || pid <= 0 ||
             !long.TryParse(lines[2], out var started) || !SamePath(lines[1], instance.DataDirectory)) return Fail<Snapshot>();
@@ -25,10 +27,18 @@ internal static class ServerIdentity
         return new(pid, started, PathSafety.Identity(instance.DataDirectory), identity.Image);
     }
 
-    internal static void ConfirmStopped(string data)
+    internal static void ConfirmStopped(string data, Func<string, FileAttributes?>? attributes = null)
     {
+        attributes ??= PathSafety.Attributes;
+        var directory = attributes(data);
+        if (directory is null || !directory.Value.HasFlag(FileAttributes.Directory)) Fail();
+        data = PathSafety.UnlinkedDataIdentity(data, attributes: attributes);
+        var version = File.ReadAllText(Path.Combine(data, "PG_VERSION")).Trim();
+        if (!System.Text.RegularExpressions.Regex.IsMatch(version, @"^\d+(\.\d+)?$") ||
+            attributes(Path.Combine(data, "global", "pg_control")) is not { } control || control.HasFlag(FileAttributes.Directory)) Fail();
         // A remaining PID file is uncertainty, even when pg_ctl reports exit code 3.
-        if (File.Exists(Path.Combine(data, "postmaster.pid"))) Fail();
+        // Attribute lookup distinguishes a missing file from an inaccessible file.
+        if (attributes(Path.Combine(data, "postmaster.pid")) is not null) Fail();
         EnsureNoOtherServer(data, null);
     }
 
