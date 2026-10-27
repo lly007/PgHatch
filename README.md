@@ -4,7 +4,7 @@
 
 A portable PostgreSQL instance manager for Windows.
 
-PgHatch 使用 C# / .NET 10 / 原生 WinForms，管理用户自行提供的 PostgreSQL ZIP 程序和本地数据目录。解压即可使用，无需传统安装向导、Windows Service、Docker/WSL 或修改系统 PATH。
+PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载部署 PostgreSQL，也可管理用户提供的程序和本地数据目录。解压即可使用，无需传统安装向导、Windows Service、Docker/WSL 或修改系统 PATH。
 
 ## 核心功能
 
@@ -28,10 +28,10 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，管理用户自行提供的 Post
 
 ## 开始使用
 
-从 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 下载适合自己架构和运行时环境的发行包。
+正式 **v0.2.0** 可从 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 下载；当前 **1.0.0-rc.1** 仍为独立候选包，路径和校验值见 [RC 候选清单](docs/releases/v1.0.0/validation.md)。两者不能混用验证结论。
 
 1. 将发行包解压到可写目录，运行 `PgHatch.exe`，保留随包许可证。
-2. 在“PostgreSQL 程序”中注册程序根目录或 `bin`。
+2. 在“PostgreSQL 程序”中下载并部署程序，或注册已有程序根目录 / `bin`。
 3. 创建独立新实例，或扫描 / 导入已有 PGDATA。扫描和导入不会自动启动数据库。
 
 关闭主窗口会隐藏至托盘；普通退出只关闭管理器，数据库继续运行。“停止全部并退出”是另一个需要确认的操作。

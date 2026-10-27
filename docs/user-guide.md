@@ -4,7 +4,9 @@
 
 A portable PostgreSQL instance manager for Windows.
 
-**v0.2.0** · C# / .NET 10 / Windows Forms · Windows x64 / ARM64 候选发行 · PerMonitorV2。使用用户提供的 PostgreSQL ZIP 程序，不捆绑 PostgreSQL，不安装 Windows Service，不修改系统 PATH，不要求管理员权限。没有第三方 NuGet 依赖。ARM64 已交叉构建和静态检查，真实 ARM64 运行尚未验证。
+**当前源码与候选：1.0.0-rc.1；正式 GitHub Release：v0.2.0。** 本指南描述 RC 的当前功能，不能据此推断旧正式包已包含全部功能。
+
+C# / .NET 10 / Windows Forms · Windows x64 / ARM64 候选发行 · PerMonitorV2。可下载部署 PostgreSQL，也可使用用户提供的程序；不捆绑 PostgreSQL，不安装 Windows Service，不修改系统 PATH，不要求管理员权限。没有第三方 NuGet 依赖。ARM64 已交叉构建和静态检查，真实 ARM64 运行尚未验证。
 
 ## 运行与升级
 
@@ -12,13 +14,13 @@ A portable PostgreSQL instance manager for Windows.
 
 Standalone 无需预装 .NET；Framework-dependent 需要与包架构对应的 **.NET 10 Desktop Runtime**，仅普通 .NET Runtime 不足以运行 WinForms。解压到当前用户可写目录运行，保留随包许可文件。原生库提取取决于实际 .NET 宿主与 bundle 内容；本轮 .NET 10 宿主集成运行库，x64 实测没有 bundle 文件提取，不能一概假设首次运行必然解压。
 
-旧封版 `artifacts/PgHatch-v0.2.0-win-x64/` 及其 ZIP 保持原样，不作为本轮候选输出目录。当前版本仍为 0.2.0，没有覆盖历史发行。
+旧封版 `artifacts/PgHatch-v0.2.0-win-x64/` 及其 ZIP 保持原样，不作为 RC 候选输出目录。当前候选版本为 1.0.0-rc.1，没有覆盖历史发行；最新路径和哈希见 [候选验证记录](releases/v1.0.0/validation.md)。
 
 PGTray 正式更名为 PgHatch。升级时先退出旧管理器，把 `PgHatch.exe` 放到原目录，保留 `pgtray.json`、备份和日志。首次读取会验证旧配置，生成 schema 2 的 `pghatch.json`，原文件原样保留；不会启停数据库。新旧文件同时存在时只使用新文件，不合并、不反复迁移。新文件损坏时进入恢复界面，不自动回退到旧文件。旧版与新版共用原单实例 Mutex / 唤醒事件，避免同时操作；如旧版正在运行，请先退出再启动新版。
 
 ## 使用
 
-1. **程序管理**：注册 PostgreSQL 根目录或 `bin`，检测 pg_ctl、postgres、initdb、pg_isready 和版本。可注册多套程序。“发现附近程序”只提供候选路径，必须点击“注册程序”确认；启动时不再自动注册。
+1. **程序管理**：通过“下载 PostgreSQL”选择 Catalog 版本和空的独立目录，依次下载 ZIP、校验完整 SHA-256、安全解压、验证工具并自动注册；目前 Catalog 仅提供 Windows x64 PostgreSQL 包。也可手动注册程序根目录或 `bin`，检查 pg_ctl、postgres、initdb、pg_isready 的版本及可执行文件架构一致性。下载、部署和注册不创建或启动实例。可注册多套程序；“发现附近程序”只提供候选路径，必须点击“注册程序”确认，启动时不会自动注册。
 2. **扫描已有实例**：选择有限范围的根目录，执行只读扫描。查看路径、主版本、端口、监听地址、兼容程序和说明，勾选后导入。默认不勾选；有多套兼容程序时必须明确选择。已注册、不兼容、标识不完整或疑似备份的目录不会由向导直接导入。
 3. **导入实例**：手动选择完整 PGDATA，读取真实配置端口；登记值不会覆盖原始设置。导入不启动数据库。
 4. **新建实例**：默认 PGDATA 为 `AppContext.BaseDirectory/data/<实例名>`，初始名称为 `development`。目录名会处理非法字符和 Windows 保留名称；修改实例名会同步更新自动路径，手动选择或编辑过的路径不再被覆盖。现有非空目录或集群会被拒绝，不会覆盖；应用目录不可写时请明确改选可写位置。填写独立端口和初始超级用户凭据，默认 UTF-8、SCRAM-SHA-256、`127.0.0.1` 监听。初始化后默认停止。
@@ -59,7 +61,7 @@ dotnet run --project tests/PGTray.IconChecks -c Release --no-build -- --creation
 
 主窗口右上角使用内嵌的现有透明高分辨率 Logo，通常显示为 100 个逻辑像素；较窄窗口中缩小或隐藏。PostgreSQL 原始日志、工具输出、路径、命令参数和技术标识符保留原文。Windows 自带文件选择器及系统消息框按钮继续遵循 Windows 自身的语言设置。
 
-资源维护及验证方式见 [本地化说明](localization.md)；本轮执行结果与人工验收清单见 [验证报告](releases/v0.2.0/localization.md)。
+资源维护及验证方式见 [本地化说明](localization.md)；当前 RC 的验证与发布状态见 [候选验证记录](releases/v1.0.0/validation.md)。[v0.2.0 本地化验证](releases/v0.2.0/localization.md) 保留为历史记录。
 
 ## 启动配置和状态语义
 

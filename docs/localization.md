@@ -1,6 +1,6 @@
 # PgHatch UI localization
 
-Version remains **0.2.0**. This change adds UI localization and a header image; PostgreSQL lifecycle, data protection, registration schema and tray exit semantics are unchanged.
+The current source and candidate version is **1.0.0-rc.1**; the published GitHub release remains **v0.2.0**. This document describes the current shared UI resources and preferences. Historical localization checks remain under `releases/v0.2.0/`; current candidate status is recorded in [V1.0 validation](releases/v1.0.0/validation.md).
 
 ## Resources
 
@@ -10,7 +10,7 @@ The shared, dependency-free `PGTray.Core.L10n` helper uses the native `ResourceM
 - `Strings.zh-CN.resx`: Simplified Chinese.
 - `Strings.zh-TW.resx`: Traditional Chinese, using Taiwan desktop terminology.
 
-Resources cover the main window, eight form types, toolbars, menus, tray, confirmation dialogs, scanning, registration and configuration recovery, validation and application-authored diagnostic text. Core files only replace user-facing messages and diagnostic formatting; their control flow and PostgreSQL arguments are retained. Raw PostgreSQL output, logs, file paths, identifiers and configuration keys are not translated. Native Windows dialog chrome/buttons can remain in the Windows language.
+Resources cover the main window and dialogs, toolbars, menus, tray, scanning, configuration recovery, downloading/deployment, initialization, maintenance-version switching and shutdown messages. Application-authored messages use these resources. Raw PostgreSQL output, logs, file paths, identifiers and configuration keys are not translated. Native Windows dialog chrome/buttons can remain in the Windows language. Displayed versions and HTTP user agents use the build version from `Directory.Build.props` through `AppVersion`.
 
 Use semantic resource keys and `L10n.Format` for messages with arguments. Preserve placeholder indexes in every translation. English instance/process counts have explicit singular and plural resources. Language names deliberately use identical native names in all resource sets. Preserve CRLF as `&#13;` followed by a newline in multiline resources intended for native text controls.
 
@@ -30,7 +30,7 @@ More → Language saves the preference and explains that a restart is required. 
 
 `Assets/Brand/Masters/PgHatch.transparent.png` is embedded as `PgHatch.Brand.Header.png`. The original asset and ICOs are unchanged. A noninteractive PictureBox owns a cloned image and releases it after the form is disposed. It uses Zoom, a square 100-logical-pixel area, 80 pixels at intermediate widths, and hides below the available-width threshold. It has no border or keyboard stop. Existing EXE/window/tray ICO handling is unchanged.
 
-Existing DPI scaling stays PerMonitorV2. Long welcome text is measured against available width, headers can wrap and retain sufficient minimum width, and layout dialogs scroll when translations exceed the available height. No language-dependent business branches or new UI framework are introduced.
+DPI scaling stays PerMonitorV2. Long welcome text is measured against available width, headers can wrap and retain sufficient minimum width, and shared layout dialogs fit their measured content to the monitor work area. Scrolling remains available when the work area is too small. No language-dependent business branches or new UI framework are introduced.
 
 ## Checks
 
