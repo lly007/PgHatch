@@ -42,6 +42,13 @@ internal static class WindowChecks
             foreach (var language in new[] { "en-US", "zh-CN", "zh-TW" })
             {
                 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(language);
+                using (var dialog = new InstanceSettingsForm(new(Guid.NewGuid(), "Fixture", binary.Id, @"X:\fixture\data", 55439, @"X:\fixture\log"), manager))
+                {
+                    _ = dialog.Handle; dialog.FitContentHeightToWorkArea(new(0, 0, 1920, 1080), dialog.DeviceDpi);
+                    var content = dialog.Controls.OfType<TableLayoutPanel>().Single();
+                    check(content.Bottom <= dialog.ClientSize.Height && !dialog.VerticalScroll.Visible,
+                        $"{language}: native instance settings includes all help and buttons without an initial scrollbar");
+                }
                 foreach (var creating in new[] { true, false })
                 {
                     using var dialog = new InstanceForm([binary], tools, creating); _ = dialog.Handle;

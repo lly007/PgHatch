@@ -18,6 +18,8 @@ internal class LayoutForm : Form
         ClientSize = new(680, 360); MinimumSize = new(580, 300);
         Table.ColumnStyles.Add(new(SizeType.AutoSize)); Table.ColumnStyles.Add(new(SizeType.Percent, 100)); Table.ColumnStyles.Add(new(SizeType.AutoSize));
         Controls.Add(Table);
+        Shown += (_, _) => FitDialogToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
+        DpiChanged += (_, _) => BeginInvoke(() => FitDialogToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
     }
     protected override void Dispose(bool disposing)
     {
@@ -41,11 +43,15 @@ internal class LayoutForm : Form
         AutoScroll = true; AutoScrollPosition = Point.Empty; PerformLayout();
         Location = new(Math.Clamp(Left, work.Left, Math.Max(work.Left, work.Right - Width)), Math.Clamp(Top, work.Top, Math.Max(work.Top, work.Bottom - Height)));
     }
-    protected Label Footer(string note, Func<Task> accept)
+    protected virtual void FitDialogToWorkArea(Rectangle work, int dpi) => FitContentHeightToWorkArea(work, dpi);
+    protected void Footer(string note, Func<Task> accept)
     {
         var row = Table.RowCount++;
         var label = new Label { Text = note, AutoSize = true, Dock = DockStyle.Fill, MaximumSize = new(620, 0), Margin = new(0, 12, 0, 16) };
         Table.RowStyles.Add(new(SizeType.AutoSize)); Table.Controls.Add(label, 0, row); Table.SetColumnSpan(label, 3);
+        void FitNote() => label.MaximumSize = new(Math.Max(1, Table.ClientSize.Width - Table.Padding.Horizontal - label.Margin.Horizontal), 0);
+        Table.SizeChanged += (_, _) => FitNote();
+        FitNote();
         var buttons = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft };
         var ok = new Button { Text = L10n.Get("OK"), AutoSize = true, Padding = new(12, 4, 12, 4) };
         var cancel = new Button { Text = L10n.Get("Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true, Padding = new(12, 4, 12, 4) };
@@ -60,7 +66,6 @@ internal class LayoutForm : Form
             catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { accepting = false; if (!ok.IsDisposed) ok.Enabled = cancel.Enabled = true; }
         };
-        return label;
     }
     protected static Button Browse(TextBox field, bool existing)
     {
@@ -130,15 +135,11 @@ internal sealed class BinaryForm : LayoutForm
         online.Controls.AddRange([catalog, download]); Row(L10n.Get("CatalogMetadata"), online);
         Table.SetColumnSpan(online, 2);
         RefreshList();
-        var note = Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
-        // Use the full content width instead of the shared footer's fixed text-width cap.
-        void FitNote() => note.MaximumSize = new(Math.Max(1, Table.ClientSize.Width - Table.Padding.Horizontal - note.Margin.Horizontal), 0);
-        Table.SizeChanged += (_, _) => FitNote();
-        FitNote();
+        Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy && e.CloseReason != CloseReason.WindowsShutDown) e.Cancel = true; };
-        Shown += (_, _) => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
-        DpiChanged += (_, _) => BeginInvoke(() => FitToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
     }
+
+    protected override void FitDialogToWorkArea(Rectangle work, int dpi) => FitToWorkArea(work, dpi);
 
     internal void FitToWorkArea(Rectangle work, int dpi)
     {
@@ -171,8 +172,6 @@ internal sealed class InstanceForm : LayoutForm
     {
         this.installations = installations;
         ClientSize = new(720, create ? 460 : 390); MinimumSize = new(640, create ? 470 : 400);
-        Shown += (_, _) => FitContentHeightToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi);
-        DpiChanged += (_, _) => BeginInvoke(() => FitContentHeightToWorkArea(Screen.FromControl(this).WorkingArea, DeviceDpi));
         foreach (var b in installations) binaries.Items.Add(new { Label = $"{b.Version} — {b.BinDirectory}" });
         binaries.SelectedIndex = 0;
         Row(L10n.Get("InstanceName"), name); Row(L10n.Get("PostgreSQLBinaries2"), binaries); Row(L10n.Get("PGDATADirectory"), data, Browse(data, !create));

@@ -240,7 +240,7 @@
     <value>原始配置</value>
   </data>
   <data name="RelinkingChecksPGVERSIONAgainstTheBinary" xml:space="preserve">
-    <value>关联变更会检查 PG_VERSION 与程序主版本，不启停或改写数据。缺少程序？请先返回程序管理进行注册。&#13;
+    <value>更换程序前请先停止实例。关联变更会检查 PG_VERSION 与程序主版本，不初始化、移动或启动数据库；已安装扩展的兼容性需另行确认。缺少程序时请先返回程序管理进行注册。&#13;
 如主动编辑 port/listen_addresses，修改将在下次启动或重启生效；非本机监听可能扩大可连接范围，并受 pg_hba.conf 与防火墙限制。</value>
   </data>
   <data name="ChoosePostgreSQLBinaries" xml:space="preserve">

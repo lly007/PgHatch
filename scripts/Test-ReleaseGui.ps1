@@ -30,6 +30,7 @@ if ($Action -eq 'Prepare') {
 }
 if (-not (Test-Path -LiteralPath $marker) -or [IO.File]::ReadAllText($marker) -ne $exe) { throw 'Not an owned extracted test package.' }
 function Capture-Process($Process) {
+    $Process.Refresh() # Avoid reusing the module/title snapshot cached during early startup.
     $modules = @($Process.Modules | ForEach-Object FileName)
     [ordered]@{ Id=$Process.Id; Exe=$Process.Path; Title=$Process.MainWindowTitle; NativeModules=$modules;
         GlobalDotnetModules=@($modules | Where-Object {$_ -match '\\dotnet\\shared\\'});

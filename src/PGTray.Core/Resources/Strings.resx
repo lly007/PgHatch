@@ -240,7 +240,7 @@ Start and restart use the existing configuration without overriding the address 
     <value>Original configuration</value>
   </data>
   <data name="RelinkingChecksPGVERSIONAgainstTheBinary" xml:space="preserve">
-    <value>Relinking checks PG_VERSION against the binary major version. It does not start, stop or modify the database. Register missing binaries in PostgreSQL Binaries first.&#13;
+    <value>Stop the instance before switching binaries. Relinking checks PG_VERSION and the binary major version; it does not initialize, move or start the database. Check installed extensions for compatibility separately. Register missing binaries in PostgreSQL Binaries first.&#13;
 If you edit port/listen_addresses, changes apply on the next start or restart. Non-local listening may allow more clients, subject to pg_hba.conf and firewall rules.</value>
   </data>
   <data name="ChoosePostgreSQLBinaries" xml:space="preserve">
