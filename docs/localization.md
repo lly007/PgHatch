@@ -1,6 +1,6 @@
 # PgHatch UI localization
 
-The current source and release version is **1.0.0**, promoted from the accepted **1.0.0-rc.1** without business-logic changes. This document describes the current shared UI resources and preferences. Historical localization checks remain under `releases/v0.2.0/`; validation and publication status are recorded in [V1.0 validation](releases/v1.0.0/validation.md).
+The current source and release version is **1.0.1**, a window-layout maintenance update with no changes to shared UI resources, preferences or business logic. This document describes the current shared UI resources and preferences. The window-restore checks cover all three languages; see [1.0.1 release notes](releases/v1.0.1/release.md). Historical localization checks remain under `releases/v0.2.0/`, and baseline feature acceptance is recorded in [V1.0 validation](releases/v1.0.0/validation.md).
 
 ## Resources
 

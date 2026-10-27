@@ -15,10 +15,19 @@ internal static class Program
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
             return CreationChecks.Run(binaries, testParent);
         }
-        if (args.Length != 1) { Console.Error.WriteLine("Usage: <owned output directory>"); return 2; }
+        if (args.Length != 1 && args is not ["--main-layout-check", _]) { Console.Error.WriteLine("Usage: <owned output directory> | --main-layout-check <owned output directory>"); return 2; }
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
+        if (args is ["--main-layout-check", var layoutOutput])
+        {
+            Directory.CreateDirectory(layoutOutput);
+            MainWindowLayoutChecks.Run(layoutOutput, (valid, text) => {
+                Console.WriteLine($"{(valid ? "PASS" : "FAIL")}: {text}");
+                if (!valid) throw new Exception(text);
+            });
+            return 0;
+        }
         Directory.CreateDirectory(args[0]);
         var results = new List<string>();
         void Check(bool valid, string text) { if (!valid) throw new Exception("FAIL: " + text); results.Add("PASS: " + text); Console.WriteLine(results[^1]); }
@@ -111,6 +120,7 @@ internal static class Program
             BrandChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
             WindowChecks.Run(args[0], Check);
+            MainWindowLayoutChecks.Run(args[0], Check);
             SessionShutdownChecks.Run(args[0], Check);
             Console.WriteLine($"{results.Count} PASS. Offscreen DPI raster and native PE resource checks; real desktop scaling remains a separate GUI check.");
             return 0;

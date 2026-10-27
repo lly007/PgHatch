@@ -1,6 +1,6 @@
 # PgHatch 发布与验证
 
-发行工程只发布 `src/PGTray/PGTray.csproj`，不会发布解决方案或混入测试程序。应用版本统一维护在根目录 `Directory.Build.props`，由 MSBuild 求值读取，当前源码版本为 1.0.0，由已验收的 1.0.0-rc.1 晋升。脚本仍先生成独立候选目录；正式 Release 需另行核对标签、上传和服务端校验。
+发行工程只发布 `src/PGTray/PGTray.csproj`，不会发布解决方案或混入测试程序。应用版本统一维护在根目录 `Directory.Build.props`，由 MSBuild 求值读取，当前源码版本为 1.0.1（窗口恢复布局维护版本）。脚本仍先生成独立候选目录；正式 Release 需另行核对标签、上传和服务端校验。
 
 ## 一次生成四种候选包
 

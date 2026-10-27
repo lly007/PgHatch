@@ -65,18 +65,36 @@ public sealed class MainForm : Form
         using (var image = Image.FromStream(stream)) brandLogo.Image = new Bitmap(image);
         brandLogo.AccessibleName = L10n.Get("PgHatchLogo");
         headerHost.Controls.Add(header, 0, 0); headerHost.Controls.Add(brandLogo, 1, 0);
-        void FitHeaderHeight()
+        void ApplyHeaderHeight()
         {
+            // Minimized windows have a zero client area. Measuring the temporarily wrapped
+            // toolbar there can change this row while its parent is still restoring layout.
+            if (WindowState == FormWindowState.Minimized || header.Width <= 0) return;
             // Nested percent columns can measure a wrapped toolbar at the wrong width.
             // Use the actual left-column width and keep only the occupied content/logo height.
             var height = Math.Max(header.GetPreferredSize(new(header.Width, 0)).Height, headerHost.ColumnStyles[1].Width > 0 ? brandLogo.Height : 0);
             var rowHeight = height + headerHost.Margin.Vertical;
             if (layout.RowStyles[0].Height != rowHeight) layout.RowStyles[0].Height = rowHeight;
         }
+        var headerHeightPending = false;
+        void FitHeaderHeight()
+        {
+            if (IsDisposed || Disposing || WindowState == FormWindowState.Minimized) return;
+            if (!IsHandleCreated) { ApplyHeaderHeight(); return; }
+            if (headerHeightPending) return;
+            headerHeightPending = true;
+            // Child Layout/SizeChanged can run inside the outer table's layout pass.
+            // Measure after that pass so its cached row sizes cannot overwrite the result.
+            BeginInvoke(() => {
+                headerHeightPending = false;
+                if (!IsDisposed && !Disposing) ApplyHeaderHeight();
+            });
+        }
         header.Layout += (_, _) => FitHeaderHeight();
         header.SizeChanged += (_, _) => FitHeaderHeight();
         void FitLogo()
         {
+            if (WindowState == FormWindowState.Minimized || headerHost.ClientSize.Width <= 0) return;
             var scale = DeviceDpi / 96F;
             var logicalWidth = headerHost.ClientSize.Width / scale;
             var size = logicalWidth < 680 ? 80 : 100;
