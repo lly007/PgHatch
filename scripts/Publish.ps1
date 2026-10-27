@@ -121,7 +121,7 @@ Windows x64 使用 x64 发行包；Windows ARM64 优先使用 ARM64 发行包。
 
 ARM64 产物的构建/静态检查不代表真实 ARM64 运行已验证。VALIDATION.json 记录静态结果；RELEASE.json 标明发行属性，不将静态结果冒充 GUI 验证。
 
-这是待验收的候选构建，不等于正式发布。请保留随包 README、校验信息及许可文件。LICENSE 是 PgHatch 的 MIT 许可；LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
+正式发行状态以对应的 GitHub Release 为准；本地构建成功仅代表构建和静态检查完成。请保留随包 README、校验信息及许可文件。LICENSE 是 PgHatch 的 MIT 许可；LICENSE-LUCIDE.txt 包含 Lucide ISC 和 Feather MIT 版权许可；THIRD-PARTY-NOTICES.md 是资源来源说明。自包含版 licenses/ 中另有 Microsoft 运行库许可。这些文件需要随发行保留，单文件 EXE 不等于可以删除许可。
 
 postgresql-catalog.xml 是外部发行默认目录，请与 EXE 一起保留。进入程序管理中的目录或下载窗口时才按间隔检查在线目录，失败时使用有效缓存或发行 XML。下载窗口支持选择版本、下载、SHA-256 校验、安全解压并注册；目前仅含 Windows x64 PostgreSQL ZIP，不会自动创建或启动实例。ARM64 上运行这些 x64 PostgreSQL 程序依赖系统兼容能力，仍需实机验证。
 "@ | Set-Content -LiteralPath (Join-Path $publish 'README.md') -Encoding utf8
