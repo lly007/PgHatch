@@ -1,5 +1,53 @@
 # PgHatch 1.0.0-rc.1 候选审计与验收
 
+## 2026-10-27 最终源码重建（当前候选清单）
+
+本节为现行发布状态；下方前轮审计、测试数字及旧候选信息保留为历史记录，不能当作本轮重新执行的结果。
+
+- 版本：源码 / 本地候选 **1.0.0-rc.1**，正式 GitHub Release 仍为 **v0.2.0**。未创建或修改正式 Release。
+- 构建输入：提交 `40bacb15f4352889313ff1f5c751ad6ebc63e4f3`，发布开始时工作区干净，无未跟踪文件。空 CatalogForm.resx 已不存在、未跟踪，无显式构建引用，未重复修改或删除其他资源。现有脚本为四配置分别建立全新临时构建输出，不复用旧候选或源目录的 bin/obj。
+- 文档：统一 README、CHANGELOG、用户指南、本地化说明中的版本表述和当前入口，修正旧版残留说明。版本号和产品代码没有改变。
+- 维护者在本次任务中确认已人工验证下载部署、实例创建、同主版本更新、Windows 关机、DPI 和托盘等核心行为。此为维护者人工验收结论，与下列本轮代理执行的构建/冒烟分开记录；没有推定具体旧维护版本或未提供的设备组合。
+- 本轮不重跑完整功能回归、不下载 PostgreSQL ZIP、不创建或启停数据库实例。
+
+新候选目录：`artifacts/candidates/run-20261027-014816-3c355019/`。SDK **10.0.403**，应用版本不变。此前候选均保留，不再作为最新交付。
+
+重建后仅补记本报告和外部制品清单中的验证结果，没有再修改应用源码、版本或随包文档输入；事后追加的验收记录提交不影响上述构建对应关系。
+
+| 包 | EXE 字节 | ZIP 字节 | 静态 / ZIP 校验 | 本轮启动 |
+| --- | ---: | ---: | --- | --- |
+| PgHatch-win-x64-standalone.zip | 119,312,516 | 50,085,862 | 277 项 / 通过 | 通过，正常退出码 0 |
+| PgHatch-win-x64-framework.zip | 3,375,082 | 2,790,985 | 277 项 / 通过 | 通过，正常退出码 0 |
+| PgHatch-win-arm64-standalone.zip | 132,255,894 | 47,944,873 | 277 项 / 通过 | 未执行，无 ARM64 主机 |
+| PgHatch-win-arm64-framework.zip | 3,354,606 | 2,777,918 | 277 项 / 通过 | 未执行，无 ARM64 主机 |
+
+四包均为 Release 单文件，自包含 / 运行时依赖配置、原生 PE 架构、多语言与品牌资源均由现有发行检查器验证；ZIP 全文件解压回验通过。发行 XML 与源母版逐字节一致，MIT 项目许可、Lucide/Feather 许可及第三方声明齐全；自包含版含运行库许可证。发布日志无构建警告或错误。
+
+完整 SHA-256（同时保存在候选目录的 SHA256SUMS.txt、SIZES-AND-HASHES.csv；RELEASES.json 附源码提交和启动结果）：
+
+```text
+19B2CC591E0D282E193D99A7CD9D17988D9A5F28023AE7E5AC65C6BFDEFF7CB3  PgHatch-win-x64-standalone.zip
+A7A2643A85AF0BC4F09B9F8BBB1C9999F77C77A597968FAB53524D24E83AF133  packages/PgHatch-win-x64-standalone/PgHatch.exe
+CCF7814954B80A9ECA3A0ABAD3DAA853F8E762B2C6E6E4D3C7C63F43B0FD192A  PgHatch-win-x64-framework.zip
+9CFD78FBA359B5BCE4BD945DCFE0BE9245B13F8FFF387F92B274D26DACD2DD05  packages/PgHatch-win-x64-framework/PgHatch.exe
+A8369F60CF5EEF9DA9393D16EDD684CE9A5992CFF678EC13CF5973B0BCC09512  PgHatch-win-arm64-standalone.zip
+EB5378D595CAA1E12AE7B1445D40F17BF583081D86CF1D9B587D25B042FF4511  packages/PgHatch-win-arm64-standalone/PgHatch.exe
+FE1E7644F572D692D603F8A10630D7B445690EF859BA6B694772CE0D285F5B23  PgHatch-win-arm64-framework.zip
+0D927747B4A5369F554896E36901F13D2415E79D1A1579CC79033D81865DB9BC  packages/PgHatch-win-arm64-framework/PgHatch.exe
+```
+
+启动证据位于 `artifacts/dev/rc-final-smoke/run-20261027-014816-3c355019/`。两个 x64 ZIP 均在独立、有归属标记的解压目录运行，主窗显示 1.0.0-rc.1 和空实例列表；均经 Ctrl+Q 正常退出，退出码 0。Standalone 的子进程 DOTNET_ROOT 指向空位置，未加载全局 dotnet/shared 模块；Framework-dependent 实际加载本机 Microsoft.NETCore.App / Microsoft.WindowsDesktop.App 10.0.14。未改动系统运行时或全局环境。
+
+本机为 Windows x64，没有可用的真实 Windows ARM64 测试主机。ARM64 两包仅完成交叉构建、PE/资源/运行时声明和压缩包静态检查；不宣称 ARM64 实机验证通过，也不把管理器 ARM64 当作原生 ARM64 PostgreSQL 下载支持。
+
+**当前状态：未发现新的代码、文档或制品发布阻塞。空模板与源码不一致问题已消除，核心人工行为按维护者确认通过；ARM64 实机仍是已披露的验证缺口，正式声称其已实测前需要补齐。本轮只交付 RC，不自动创建正式 Release。**
+
+发布脚本前后核对的 31 个历史制品文件 SHA-256 一致。前轮文件与测试结果不改写，旧路径不再表示当前最新候选。
+
+---
+
+## 前轮审计与验收（历史记录，原样保留）
+
 验收日期：2026-10-27。目标是进入 V1.0 正式发布流程，尚未创建正式 Release。当前正式 GitHub Release 仍是 2026-10-21 的 v0.2.0。
 
 ## 审计结论
