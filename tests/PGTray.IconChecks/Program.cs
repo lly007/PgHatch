@@ -119,6 +119,7 @@ internal static class Program
             catch (ObjectDisposedException) { Check(true, "Image cache releases ownership and rejects access after disposal"); }
             BrandChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
+            EmergencyBindingChecks.Run(Check);
             WindowChecks.Run(args[0], Check);
             MainWindowLayoutChecks.Run(args[0], Check);
             SessionShutdownChecks.Run(args[0], Check);

@@ -7,6 +7,14 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--review-output-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
+if (args is ["--review-paths", var pathSource, var pathParent]) return await FinalReviewTests.PathsAsync(pathSource, pathParent);
+if (args is ["--review-share-paths", var shareMatrix]) return await FinalReviewTests.SharePathsAsync(shareMatrix);
+if (args is ["--review-timeout", var timeoutOld, var timeoutNew, var timeoutParent]) return await FinalReviewTests.TimeoutAsync(timeoutOld, timeoutNew, timeoutParent);
+if (args is ["--review-delayed-stop", var stopExe, var stopData, var stopGate, var stopPid, var stopDone]) return await FinalReviewTests.DelayedStopHelperAsync(stopExe, stopData, stopGate, stopPid, stopDone);
+if (args is ["--passive-timeout-helper", var helperPid]) { await File.WriteAllTextAsync(helperPid, Environment.ProcessId.ToString()); await Task.Delay(3000); return 0; }
+if (args is ["--reliability-real", var oldReal, var newReal, var reliabilityRoot]) return await ReliabilityTests.RunAsync(oldReal, newReal, reliabilityRoot);
+if (args is ["--cross-major-real", var major17, var major18, var crossRoot]) return await ReliabilityTests.RunCrossMajorAsync(major17, major18, crossRoot);
 // A renamed test apphost provides --version only in isolated deployment fixtures.
 if (args is ["--version"] && PostgresTools.RequiredTools.Contains(Path.GetFileName(Environment.ProcessPath)))
 {

@@ -62,7 +62,7 @@ internal class LayoutForm : Form
         ok.Click += async (_, _) => {
             accepting = true; ok.Enabled = cancel.Enabled = false;
             try { await accept(); accepting = false; if (!IsDisposed) { DialogResult = DialogResult.OK; Close(); } }
-            catch (OperationCanceledException) when (Lifetime.IsCancellationRequested) { }
+            catch (OperationCanceledException) { }
             catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
             finally { accepting = false; if (!ok.IsDisposed) ok.Enabled = cancel.Enabled = true; }
         };
@@ -72,6 +72,23 @@ internal class LayoutForm : Form
         var button = new Button { Text = L10n.Get("Browse"), AutoSize = true, Margin = new(0, 4, 0, 10) };
         button.Click += (_, _) => { using var picker = new FolderBrowserDialog { Description = existing ? L10n.Get("SelectAnExistingDirectory") : L10n.Get("SelectAnEmptyDataDirectoryOrChoose"), UseDescriptionForTitle = true, ShowNewFolderButton = !existing }; if (picker.ShowDialog() == DialogResult.OK) field.Text = picker.SelectedPath; };
         return button;
+    }
+}
+
+internal sealed class EmergencyToolForm : LayoutForm
+{
+    private sealed record Choice(BinaryInstallation Binary) { public override string ToString() => $"PostgreSQL {Binary.Version} — {Binary.BinDirectory}"; }
+    private readonly ComboBox choices = new() { DropDownStyle = ComboBoxStyle.DropDownList };
+    public Guid SelectedBinaryId => ((Choice)choices.SelectedItem!).Binary.Id;
+    public EmergencyToolForm(IReadOnlyList<BinaryInstallation> candidates) : base(L10n.Get("EmergencyStop"))
+    {
+        foreach (var binary in candidates) choices.Items.Add(new Choice(binary));
+        choices.SelectedIndex = -1;
+        Row(L10n.Get("Binaries"), choices);
+        Footer(L10n.Get("EmergencyChooseTools"), () => {
+            if (choices.SelectedItem is null) throw new InvalidOperationException(L10n.Get("EmergencyChooseTools"));
+            DialogResult = DialogResult.OK; Close(); return Task.CompletedTask;
+        });
     }
 }
 
@@ -108,6 +125,8 @@ internal sealed class BinaryForm : LayoutForm
         var add = new Button { Text = L10n.Get("RegisterBinaries"), AutoSize = true }; add.Click += async (_, _) => await Run(async () => { await manager.AddBinaryAsync(path.Text); });
         var repair = new Button { Text = L10n.Get("RepairSelectedPath"), AutoSize = true }; repair.Click += async (_, _) => await Run(async () => {
             var c = list.SelectedItem as Choice ?? throw new InvalidOperationException(L10n.Get("SelectRegisteredBinariesFirstThenEnterThe"));
+            var linked = manager.Config.Instances.Where(i => i.BinaryId == c.Binary.Id).Select(i => i.Name + " — " + i.DataDirectory);
+            if (MessageBox.Show(this, L10n.Format("BinaryRepairConfirm", path.Text, string.Join("\r\n", linked)), L10n.Get("RepairSelectedPath"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
             await manager.RepairBinaryAsync(c.Binary.Id, path.Text);
         });
         var remove = new Button { Text = L10n.Get("UnregisterBinaries"), AutoSize = true }; remove.Click += async (_, _) => {

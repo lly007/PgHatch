@@ -119,7 +119,7 @@ public sealed class MainForm : Form
             new ToolStripSeparator(), MenuItem(L10n.Get("ScanLocalInstances"), ScanAsync, configure: true));
         toolbar.Controls.Add(add); configurationButtons.Add(add);
         AddConfigurationButton(toolbar, L10n.Get("PostgreSQLBinaries3"), BinariesAsync, UiGlyph.Database);
-        var refresh = Button(L10n.Get("Refresh"), async () => { settings.Clear(); await manager.RefreshAllAsync(refreshVersions: true); await LoadSelectedSettingsAsync(); }, glyph: UiGlyph.Refresh); toolbar.Controls.Add(refresh); configurationButtons.Add(refresh);
+        var refresh = Button(L10n.Get("Refresh"), RefreshVersionsAsync, glyph: UiGlyph.Refresh); toolbar.Controls.Add(refresh); configurationButtons.Add(refresh);
         var quit = new ToolStripMenuItem(L10n.Get("ExitPgHatchKeepDatabasesRunning"));
         // Exit must not run inside RunAsync: the unified exit path waits for its tracked actions.
         quit.Click += async (_, _) => await RequestExitAsync(false);
@@ -367,6 +367,8 @@ public sealed class MainForm : Form
         var available = loaded && !closing && !operating.Contains(instance.Id) && problem is null;
         start.Enabled = available && (live?.State is InstanceState.Stopped or InstanceState.Error or InstanceState.Unknown);
         stop.Enabled = restart.Enabled = available && live?.ServerRunning == true;
+        stop.Text = L10n.Get(problem is null ? "Stop" : "EmergencyStop");
+        if (problem is not null) stop.Enabled = loaded && !closing && !operating.Contains(instance.Id) && manager.EmergencyCandidates.ContainsKey(instance.Id);
     }
     private void UpdateCommandState()
     {
@@ -393,8 +395,39 @@ public sealed class MainForm : Form
     {
         var instance = Selected; if (instance is null || operating.Contains(instance.Id)) return;
         operating.Add(instance.Id);
-        try { await RunAsync(() => manager.OperateAsync(instance, operation)); }
+        try
+        {
+            await RunAsync(async () => {
+                if (operation != "stop" || manager.BinaryProblem(instance) is null) { await manager.OperateAsync(instance, operation); return; }
+                var candidates = await manager.GetEmergencyCandidatesAsync(instance);
+                Guid chosen;
+                if (candidates.Count == 1 && candidates[0].Id == instance.BinaryId) chosen = candidates[0].Id;
+                else
+                {
+                    using var dialog = new EmergencyToolForm(candidates);
+                    if (dialog.ShowDialog(this) != DialogResult.OK) return;
+                    chosen = dialog.SelectedBinaryId;
+                }
+                var binary = candidates.Single(b => b.Id == chosen);
+                if (MessageBox.Show(this, L10n.Format("EmergencyStopConfirm", instance.Name, instance.DataDirectory, binary.Version, binary.BinDirectory),
+                    L10n.Get("EmergencyStop"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
+                await manager.EmergencyStopAsync(instance, chosen);
+                MessageBox.Show(this, L10n.Get("EmergencyStoppedRepairRequired"), "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
+        }
         finally { operating.Remove(instance.Id); if (!closing) Render(); }
+    }
+    private async Task RefreshVersionsAsync()
+    {
+        settings.Clear(); await manager.RefreshAllAsync();
+        var abnormal = manager.Config.Binaries.Where(b => manager.BinaryProblems.ContainsKey(b.Id)).ToArray();
+        if (abnormal.Length > 0)
+        {
+            var paths = string.Join("\r\n", abnormal.Select(b => b.BinDirectory));
+            var linked = manager.Config.Instances.Where(i => abnormal.Any(b => b.Id == i.BinaryId)).Select(i => i.Name + " — " + i.DataDirectory);
+            if (MessageBox.Show(this, L10n.Format("BinaryRepairConfirm", paths, string.Join("\r\n", linked)), L10n.Get("Refresh"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
+        }
+        await manager.RefreshAllAsync(refreshVersions: true); await LoadSelectedSettingsAsync();
     }
     private Task BinariesAsync() { using var dialog = new BinaryForm(manager, store); dialog.ShowDialog(this); return Task.CompletedTask; }
     private Task ScanAsync() { using var dialog = new DiscoveryForm(manager, tools); dialog.ShowDialog(this); return Task.CompletedTask; }
@@ -413,6 +446,7 @@ public sealed class MainForm : Form
         if (dialog.ShowDialog(this) == DialogResult.OK)
         {
             status.Text = create ? L10n.Get("InitializingDataDirectory") : L10n.Get("Working");
+            if (!create && PathSafety.IsNetworkStorage(dialog.DataDirectory) && MessageBox.Show(this, L10n.Get("NetworkImportWarning"), "PgHatch", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
             await manager.AddInstanceAsync(dialog.InstanceName, dialog.Binary, dialog.DataDirectory, dialog.Port, create ? dialog.Username : null, create ? dialog.Password : null);
         }
     }

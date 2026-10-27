@@ -65,6 +65,7 @@ public sealed class InstanceDiscovery(PostgresTools tools)
                     }
                     if (backup) note = L10n.Get("PossibleBackupOrCopyVerifyItsPurpose") + note;
                     else if (matches.Count > 1 && !already) note = L10n.Get("MultipleCompatibleBinaryInstallationsChooseOneExplicitly") + note;
+                    if (PathSafety.IsNetworkStorage(path)) note += "\r\n" + L10n.Get("NetworkImportWarning");
                     found.Add(new(path, major, matches, settings, already, valid && settings is not null && !already && !backup, note));
                     continue; // Never walk cluster internals.
                 }

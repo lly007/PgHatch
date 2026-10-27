@@ -10,10 +10,24 @@ namespace PGTray.Core;
 
 public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEndPoint>?>? endpointLookup = null)
 {
+    internal Action<string>? InitializationStage { get; set; }
+    internal Action<string>? DeleteSecretFile { get; set; }
+    internal Action<string>? DeleteSecretDirectory { get; set; }
     private readonly Func<int, int, List<IPEndPoint>?> endpointsForProcess = endpointLookup ?? LocalEndpoints.ForProcess;
     public static readonly string[] RequiredTools = ["pg_ctl.exe", "postgres.exe", "initdb.exe", "pg_isready.exe"];
-    public Task<CommandResult> RunAsync(BinaryInstallation binary, string tool, string[] args, int seconds = 15, CancellationToken cancellationToken = default) =>
-        runner.RunAsync(Path.Combine(binary.BinDirectory, tool + ".exe"), args, TimeSpan.FromSeconds(seconds), cancellationToken: cancellationToken);
+    internal IDisposable PinTools(BinaryInstallation binary) => new ToolLease(binary.BinDirectory);
+    private sealed class ToolLease : IDisposable
+    {
+        private readonly List<FileStream> files = [];
+        internal ToolLease(string directory)
+        {
+            try { foreach (var tool in RequiredTools) files.Add(new(Path.Combine(directory, tool), FileMode.Open, FileAccess.Read, FileShare.Read)); }
+            catch { Dispose(); throw; }
+        }
+        public void Dispose() { foreach (var file in files) file.Dispose(); }
+    }
+    public Task<CommandResult> RunAsync(BinaryInstallation binary, string tool, string[] args, int seconds = 15, CancellationToken cancellationToken = default, bool terminateOnTimeout = true) =>
+        runner.RunAsync(Path.Combine(binary.BinDirectory, tool + ".exe"), args, TimeSpan.FromSeconds(seconds), cancellationToken: cancellationToken, terminateOnTimeout: terminateOnTimeout);
 
     public Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
         => InspectBinaryCoreAsync(directory, true, cancellationToken);
@@ -180,18 +194,32 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
             FileSystemAclExtensions.CreateDirectory(security, directory); return directory;
         }).ConfigureAwait(false);
         var secret = Path.Combine(secretDirectory, "password");
+        Exception? failure = null;
+        var initialized = false;
         try
         {
             await File.WriteAllTextAsync(secret, password, new UTF8Encoding(false)).ConfigureAwait(false);
             PathSafety.ValidateInitializationTarget(data);
+            InitializationStage?.Invoke("before-initdb");
             var r = await runner.RunAsync(Path.Combine(binary.BinDirectory, "initdb.exe"),
                 ["-D", data, "-U", username, "--pwfile", secret, "--auth-local=scram-sha-256", "--auth-host=scram-sha-256", "--encoding=UTF8", "--no-clean"],
                 TimeSpan.FromMinutes(2), killChildrenOnTimeout: true).ConfigureAwait(false);
-            if (r.ExitCode != 0 || r.TimedOut) throw new IOException(L10n.Get("InitializationFailedTheTargetDirectoryIsKept") + r.Diagnostic);
+            if (r.ExitCode != 0 || r.TimedOut) throw new IOException(L10n.Get("InitializationFailedTheTargetDirectoryIsKept") + r.Diagnostic.Replace(password, "[redacted]", StringComparison.Ordinal));
+            initialized = true;
+            InitializationStage?.Invoke("initialized");
             await File.AppendAllTextAsync(Path.Combine(data, "postgresql.conf"),
                 $"\r\n# Created by PgHatch\r\nlisten_addresses = '127.0.0.1'\r\nport = {port}\r\npassword_encryption = 'scram-sha-256'\r\n", new UTF8Encoding(false)).ConfigureAwait(false);
         }
-        finally { if (File.Exists(secret)) File.Delete(secret); Directory.Delete(secretDirectory); }
+        catch (Exception ex) { failure = ex; }
+        var cleanup = SecretCleanup.Run(secret, secretDirectory, DeleteSecretFile, DeleteSecretDirectory);
+        if (failure is not null)
+        {
+            var message = failure.Message.Replace(password, "[redacted]", StringComparison.Ordinal);
+            if (cleanup is not null) message += "\r\n" + cleanup;
+            if (initialized) throw new InitializedClusterException(data, message);
+            throw new IOException(message); // Do not retain an exception containing secret text.
+        }
+        if (cleanup is not null) throw new InitializedClusterException(data, L10n.Get("ClusterCreatedCleanupFailed") + "\r\n" + cleanup);
     }
 }
 

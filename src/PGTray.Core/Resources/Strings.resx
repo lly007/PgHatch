@@ -1023,4 +1023,29 @@ You can now create an instance from the main window. No instance was created or 
   <data name="BinaryToolsInconsistent" xml:space="preserve"><value>The PostgreSQL tools have inconsistent versions or executable architectures. Replace the complete binary distribution, then check it again.</value></data>
   <data name="BinaryVersionChanged" xml:space="preserve"><value>Registered version: {0}; detected version: {1}. Stop linked instances, then click Refresh or repair the selected path to update the registration.</value></data>
   <data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>Stop this instance before changing its PostgreSQL binaries. If PgHatch cannot verify that it is stopped, use the original pg_ctl to check and stop it first. PGDATA will not be moved or initialized.</value></data>
+  <data name="EmergencyIdentityUnconfirmed" xml:space="preserve"><value>Cannot confirm the server identity or exclude another server using this PGDATA. No stop or repair was performed. Restore a complete compatible toolset and verify the PID, process command line and data path manually; never delete postmaster.pid or force termination.</value></data>
+  <data name="EmergencyOnlyAbnormal" xml:space="preserve"><value>Emergency stop is available only for an abnormal registered toolset and a verified running instance.</value></data>
+  <data name="EmergencyNoTools" xml:space="preserve"><value>No verified compatible registered toolset is available. Restore compatible programs before retrying; data and registrations are preserved.</value></data>
+  <data name="EmergencyStopAvailable" xml:space="preserve"><value>Verified running server; restricted fast stop is available. Program recovery remains a separate step.</value></data>
+  <data name="EmergencyStoppedRepairRequired" xml:space="preserve"><value>The server is confirmed stopped. Program registration has not been repaired. Stop every instance linked to this program, then use Refresh or Repair selected path to revalidate the original directory. For a different path, explicitly choose compatible registered programs in Instance settings. Recovery never starts a server; start explicitly and verify your data with SQL.</value></data>
+  <data name="EmergencyStop" xml:space="preserve"><value>Emergency stop</value></data>
+  <data name="EmergencyStopConfirm" xml:space="preserve"><value>Normally stop {0}?
+PGDATA: {1}
+PostgreSQL {2}
+Tools: {3}
+Identity and tools will be checked again. This does not repair registration or start the server.</value></data>
+  <data name="EmergencyChooseTools" xml:space="preserve"><value>Explicitly select a verified registered toolset for this stop only. Its full version and path are shown. No instance association will change.</value></data>
+  <data name="NetworkPathIdentityUnknown" xml:space="preserve"><value>Cannot resolve the mapped network drive identity. Operation refused.</value></data>
+  <data name="NetworkImportWarning" xml:space="preserve"><value>This PGDATA is on network storage. Verify PostgreSQL filesystem durability, locking and availability requirements before importing. Import does not move, modify or delete data.</value></data>
+  <data name="SecretCleanupIncomplete" xml:space="preserve"><value>Temporary credential cleanup is incomplete: {0}. Restrict access and manually remove this directory after the operation. Do not share its contents.</value></data>
+  <data name="ClusterCreatedCleanupFailed" xml:space="preserve"><value>initdb succeeded, but temporary credential cleanup failed.</value></data>
+  <data name="ClusterCreatedNotRegistered" xml:space="preserve"><value>initdb created a cluster, but acceptance or registration did not complete. PGDATA is preserved: {0}
+{1}
+Resolve the reported error, reload configuration if changed externally, then import this existing cluster. Do not initialize this path again.</value></data>
+  <data name="ClusterAcceptanceFailed" xml:space="preserve"><value>Cluster acceptance failed after initdb succeeded. This is not a complete database health check.</value></data>
+  <data name="BinaryRepairConfirm" xml:space="preserve"><value>Revalidate or explicitly switch programs to {0}?
+All affected instances listed below must be stopped; each will be checked again.
+{1}
+PGDATA and instance settings are preserved. No server starts automatically.</value></data>
+  <data name="EmergencyControllerPending" xml:space="preserve"><value>The stop controller has not yet exited. Status probes continue, but conflicting lifecycle and program changes remain blocked. Wait for natural exit; do not force-terminate PostgreSQL.</value></data>
 </root>
