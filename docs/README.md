@@ -10,7 +10,7 @@
 
 | 版本 | 说明 | 验证 |
 | --- | --- | --- |
-| v1.1.0（本地候选，未正式发布） | [可靠性恢复加固](../CHANGELOG.md) | [候选验收与待人工检查](releases/v1.1.0/validation.md) |
+| v1.1.0 | [正式发行说明](releases/v1.1.0/release.md) | [发行验收与保留限制](releases/v1.1.0/validation.md) |
 | v1.0.1 | [窗口恢复布局维护版本](releases/v1.0.1/release.md) | [本轮验证与边界](releases/v1.0.1/release.md#验证与边界) |
 | v1.0.0 | [正式 Release Notes](releases/v1.0.0/release.md) | [验收与发行核验](releases/v1.0.0/validation.md) |
 | 1.0.0-rc.1（未正式发布） | [V1.0 候选](../CHANGELOG.md) | [审计、验证与人工待验](releases/v1.0.0/validation.md) |

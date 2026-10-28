@@ -1,6 +1,6 @@
 # PgHatch UI localization
 
-The current source/candidate version is **1.1.0**; the published release remains **1.0.1**. Reliability recovery adds localized safety and recovery diagnostics in all three languages. Candidate checks and limitations are recorded in [1.1.0 validation](releases/v1.1.0/validation.md). The previous window-restore fixes are documented in [1.0.1 release notes](releases/v1.0.1/release.md); older localization results remain historical evidence.
+The current release version is **1.1.0**. Reliability recovery and the native About dialog provide localized diagnostics and a clickable GitHub link in all three languages. Release verification and retained limitations are recorded in [1.1.0 validation](releases/v1.1.0/validation.md). Previous window-restore fixes remain documented in [1.0.1 release notes](releases/v1.0.1/release.md).
 
 ## Resources
 
