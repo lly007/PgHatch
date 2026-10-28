@@ -2,9 +2,39 @@
 
 2026-10-28。维护者已完成人工 GUI 验收、实际点击 About GitHub 链接确认默认浏览器打开项目主页，并批准正式发布。About 补丁 `8f8475cc956fa8e2705214dec7e155d6252fb597` 已通过独立 Code Review。
 
-正式发行将从普通 Merge Commit 合并后的干净 main 重建四包；准确构建提交、最终包哈希、实际启动和服务器端五资产结果在发布后追加到本页。此段为封版批准记录，不把下方旧候选当作正式资产。
+正式发行已于 2026-10-28T22:01:57+08:00 创建：[v1.1.0](https://github.com/lly007/PgHatch/releases/tag/v1.1.0)，Release ID `426739602`，非草稿、非预发布，已确认是 GitHub 最新版。下方新增正式核验与准确构建输入；历史候选仍按当时事实保留。
 
 本轮只调整发行文档，不修改业务源码；此前 969 PASS / 2 SKIP 完整回归与 About 84 项、完整 UI/资源 527 项检查继续作为各自准确源码范围的证据。保留 ARM64 未实机验证、符号链接权限不足及 PostgreSQL 18.3 中文 share 路径问题，不将测试替身视为真实浏览器验证。
+
+## 最终正式构建、运行与服务器核验
+
+- 发行合并：[PR #2](https://github.com/lly007/PgHatch/pull/2)，普通 Merge Commit / 唯一发行构建输入 **`0f412a1680b3340ad1262880ad3c1feca67d9c16`**；两个父提交分别为 `aed6945b56d462cfe01a60bd8ccc1432d171b7b8` 和文档收尾提交 `3fe3aa66ddf9485655cce36e548377b38fc2505b`。版本准备、About 与审查历史完整保留。
+- 开始构建时 main 和工作区干净。与独立审查通过的 `8f8475cc956fa8e2705214dec7e155d6252fb597` 比较，src、tests、scripts、Catalog 及版本属性无差异；本轮新增的封版与发布后提交都只改文档。既有业务回归与 About 检查按原验证范围保留，没有把旧测试描述为本轮重新执行。
+- 使用未修改的 `pwsh -NoProfile -File scripts/Publish.ps1` 全新构建，目录 `artifacts/candidates/run-20261028-134924-38e99df6`；COMPLETE.json 为 COMPLETE、Version=1.1.0、SelectedBuilds=4。四包每包 277 项静态检查通过，发布日志无编译警告或错误。正式上传目录 `artifacts/releases/v1.1.0` 首次新建，只包含四 ZIP 和 SHA256SUMS.txt，没有覆盖旧候选或正式包。
+- 独立读取四 ZIP，核对 CRC、包内每一文件的 SHA-256、EXE 摘要、版本/架构、许可证与唯一 Catalog 母版。无测试程序、PGDATA、用户配置、凭据、日志或 PDB。Catalog 与母版逐字节相同，SHA-256 为 `63CEFC8DCB3A6D2C9C8EDFBFF3056E9F8054D9BDC9806A64E7F104D49F1A67C8`。
+- 直接从四个实际 EXE 的 bundle 读取程序集元数据与方法体，分别核验 AboutForm、MainForm 到 About 的构造绑定、原生 LinkLabel、项目 URL、UseShellExecute 与 Process.Start；全部通过。ARM64 仅静态读取，未执行 ARM64 代码。
+- x64 standalone/framework 均使用实际解压目录启动，通过所属 PID/HWND 的窄范围窗口消息打开实际 About：主窗版本 1.1.0、空实例、About 版本/完整许可文本和 GitHub URL 均通过，关闭 About 后主窗恢复，最终正常退出码均为 0。Framework 加载 Microsoft.WindowsDesktop.App 10.0.14；Standalone 的子进程运行时根指向隔离无运行时目录，未加载全局 .NET shared 模块。没有 Computer Use、视觉自动化或用户数据库操作。
+- 首次 Framework 探针在模态关闭返回后立即读取 owner.Enabled 发生时序误报；随后只读确认主窗已恢复，并正常退出该测试程序。探针改为最多五秒等待原条件满足，产品源码和条件未放宽；两模式在全新目录重新执行通过，原始日志保留。
+- 标签 `v1.1.0` 为新建 annotated tag；本地和 GitHub tag object 均确认指向 **`0f412a1680b3340ad1262880ad3c1feca67d9c16`**。标签和发行输入不随后续文档记录移动，没有修改已有标签或重写历史。
+- 发布先上传到草稿，五个资产的名称、字节数与 GitHub 服务端 `sha256:` digest 全部核对一致后，才以 Release ID 转为正式并设置 make_latest。再次核对正式 Release 为非草稿、非预发布，`releases/latest` 指向 v1.1.0。草稿的按 tag 查询曾返回 404，按其 ID 获取成功；没有因此重传或覆盖资产。
+
+| 正式资产 | 字节数 | GitHub 服务端 SHA-256（与本地一致） |
+| --- | ---: | --- |
+| PgHatch-win-x64-standalone.zip | 50116375 | `87513345E597BC07B13CCD984CB093AB06AB25F0874CA5C5B9B52EAA888C2A9D` |
+| PgHatch-win-x64-framework.zip | 2818126 | `95A7056386A4BBD6927876F2CD3D886BBC6CE251E6EB99EBAC4910927B3E4051` |
+| PgHatch-win-arm64-standalone.zip | 47970662 | `EED7172A94226D30FECC3B4AE633F725D40EC46CE696EEF2B8BBFC672338D431` |
+| PgHatch-win-arm64-framework.zip | 2806183 | `6D058080530B83D8D6758639D0E856218D86230404AD00479E94E0DCDBA64189` |
+| SHA256SUMS.txt | 394 | `5C074EE6136166339339D29CE648189E495CBE500A97FA0CFC40D95D8C454776` |
+
+实际启动证据：
+
+- standalone：`E:\Project\PGTray开发\artifacts\dev\v1.1.0-final-20261028\smoke-standalone-52aeb79e`；exit-result.json 为退出码 0，smoke-summary.json 保存实际 About 的版本、许可和 URL 文本。
+- framework：`E:\Project\PGTray开发\artifacts\dev\v1.1.0-final-20261028\smoke-framework-d98324c7`；exit-result.json 为退出码 0，smoke-summary.json 保存实际 About 的版本、许可和 URL 文本。
+
+- 本轮开始和结束，114 个历史 ZIP/EXE 的既有 SHA-256 均不变；GitHub 原 v1.0.1/v1.0.0/v0.2.0 的 Release ID、标题、正文、发布时间、草稿/预发布状态及旧资产 ID、名称、字节数、digest 等内容元数据均未变化。下载计数不作为不可变字段。未删除旧 Release、覆盖资产或强推。
+- **补充下载验证未完成**：正式发布后，本机通过 GitHub CLI 下载公开 SHA256SUMS.txt 的 CDN 连接返回 EOF，未取得有效内容；没有将此描述为实际下载或端到端下载通过，也没有重传、更改已核验资产或重试。五个服务端计算的 SHA-256、字节数及名称已全部通过，不存在已观测到的摘要不匹配。维护者可另行检查公网下载连通性。
+- 正式发布和服务端资产校验已确认；上述下载连通性是仍未完成的补充验证。ARM64 实机、两次符号链接特权 SKIP、18.3 中文 share 路径及原有兼容性限制继续保留。维护者对 GUI 与真实浏览器点击的确认来自本任务明确答复，未将程序化替身或窗口文本当作真实浏览器打开证据。
+- 本页与 release.md 的发布后文档记录为独立提交，不改变 tag 指向的构建输入、任何二进制或已发布正文。原始构建/发布/API 元数据、五资产清单和探针日志位于本地忽略目录 `artifacts/dev/v1.1.0-final-20261028/`；补充下载失败只记录主机 EOF，不提交签名下载 URL、凭据或实验输出。
 
 ## 以下为正式封版前的历史候选与 About 检查记录
 
