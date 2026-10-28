@@ -126,7 +126,7 @@ public sealed class MainForm : Form
         toolbar.Controls.Add(DropDownButton(L10n.Get("More"), UiGlyph.Ellipsis,
             MenuItem(L10n.Get("OpenConfigurationFolder"), () => { OpenFolder(store.Root); return Task.CompletedTask; }, requiresConfiguration: false, glyph: UiGlyph.FolderOpen),
             MenuItem(L10n.Get("ReloadConfiguration"), LoadAsync, requiresConfiguration: false, glyph: UiGlyph.Refresh), LanguageMenu(), new ToolStripSeparator(),
-            MenuItem(L10n.Get("AboutPgHatch"), () => { MessageBox.Show(this, L10n.Format("PgHatchVNPostgreSQLReadyWhenYouAre", AppVersion.Current), L10n.Get("AboutPgHatch"), MessageBoxButtons.OK, MessageBoxIcon.Information); return Task.CompletedTask; }, requiresConfiguration: false),
+            MenuItem(L10n.Get("AboutPgHatch"), () => { using var dialog = new AboutForm(); dialog.ShowDialog(this); return Task.CompletedTask; }, requiresConfiguration: false),
             new ToolStripSeparator(), quit));
         header.Controls.Add(toolbar); layout.Controls.Add(headerHost, 0, 0);
         recovery.Controls.Add(recoveryText);

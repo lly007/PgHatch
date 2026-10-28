@@ -4,9 +4,9 @@
 
 A portable PostgreSQL instance manager for Windows.
 
-**当前版本号 / 正式发布版本：1.0.1。** 发行状态见 [v1.0.1 Release](https://github.com/lly007/PgHatch/releases/tag/v1.0.1)。工作区的可靠性加固尚未发布，未修改正式制品或版本号；旧 v0.2.0 不包含后续全部功能。
+**当前正式版本：1.1.0。** 包含可靠性恢复加固及 About GitHub 链接。发行状态见 [v1.1.0 Release](https://github.com/lly007/PgHatch/releases/tag/v1.1.0)，核验结果和限制见 [v1.1.0 验收](releases/v1.1.0/validation.md)。
 
-C# / .NET 10 / Windows Forms · Windows x64 / ARM64 候选发行 · PerMonitorV2。可下载部署 PostgreSQL，也可使用用户提供的程序；不捆绑 PostgreSQL，不安装 Windows Service，不修改系统 PATH，不要求管理员权限。没有第三方 NuGet 依赖。ARM64 已交叉构建和静态检查，真实 ARM64 运行尚未验证。
+C# / .NET 10 / Windows Forms · Windows x64 / ARM64 发行 · PerMonitorV2。可下载部署 PostgreSQL，也可使用用户提供的程序；不捆绑 PostgreSQL，不安装 Windows Service，不修改系统 PATH，不要求管理员权限。没有第三方 NuGet 依赖。ARM64 已交叉构建和静态检查，真实 ARM64 运行尚未验证。
 
 ## 运行与升级
 
@@ -14,7 +14,7 @@ C# / .NET 10 / Windows Forms · Windows x64 / ARM64 候选发行 · PerMonitorV2
 
 Standalone 无需预装 .NET；Framework-dependent 需要与包架构对应的 **.NET 10 Desktop Runtime**，仅普通 .NET Runtime 不足以运行 WinForms。解压到当前用户可写目录运行，保留随包许可文件。原生库提取取决于实际 .NET 宿主与 bundle 内容；本轮 .NET 10 宿主集成运行库，x64 实测没有 bundle 文件提取，不能一概假设首次运行必然解压。
 
-旧封版 `artifacts/PgHatch-v0.2.0-win-x64/`、v1.0.0 及其 ZIP 保持原样，不作为 1.0.1 输出目录。正式包在独立目录重新构建，下载和校验信息见 [本轮发行说明](releases/v1.0.1/release.md)。
+历史 v0.2.0、v1.0.0、v1.0.1 封版包保持原样；1.1.0 正式包从干净 main 在全新目录构建，路径和校验信息见 [本轮发行验收](releases/v1.1.0/validation.md)。
 
 PGTray 正式更名为 PgHatch。升级时先退出旧管理器，把 `PgHatch.exe` 放到原目录，保留 `pgtray.json`、备份和日志。首次读取会验证旧配置，生成 schema 2 的 `pghatch.json`，原文件原样保留；不会启停数据库。新旧文件同时存在时只使用新文件，不合并、不反复迁移。新文件损坏时进入恢复界面，不自动回退到旧文件。旧版与新版共用原单实例 Mutex / 唤醒事件，避免同时操作；如旧版正在运行，请先退出再启动新版。
 
@@ -61,7 +61,7 @@ dotnet run --project tests/PGTray.IconChecks -c Release --no-build -- --creation
 
 主窗口右上角使用内嵌的现有透明高分辨率 Logo，通常显示为 100 个逻辑像素；较窄窗口中缩小或隐藏。PostgreSQL 原始日志、工具输出、路径、命令参数和技术标识符保留原文。Windows 自带文件选择器及系统消息框按钮继续遵循 Windows 自身的语言设置。
 
-资源维护及验证方式见 [本地化说明](localization.md)；本轮三语言布局验证见 [1.0.1 发行说明](releases/v1.0.1/release.md)，基础功能验收见 [1.0.0 验收记录](releases/v1.0.0/validation.md)。[v0.2.0 本地化验证](releases/v0.2.0/localization.md) 保留为历史记录。
+资源维护及验证方式见 [本地化说明](localization.md)；当前发行资源及自动化结果见 [1.1.0 验收](releases/v1.1.0/validation.md)，历史三语言布局修复见 [1.0.1 发行说明](releases/v1.0.1/release.md)，基础功能验收见 [1.0.0 验收记录](releases/v1.0.0/validation.md)。[v0.2.0 本地化验证](releases/v0.2.0/localization.md) 保留为历史记录。
 
 ## 启动配置和状态语义
 

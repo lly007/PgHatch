@@ -1051,4 +1051,8 @@ PostgreSQL {2}
   <data name="OutputCaptureIncomplete" xml:space="preserve"><value>诊断输出收集不完整：{0}</value></data>
   <data name="ReloadDataIdentityConflict" xml:space="preserve"><value>拒绝重读配置：已有实例被删除、PGDATA 目标改变或无法确认身份。旧配置仅保留供查看，保存和生命周期操作已阻止。请恢复原配置及映射后重读，再通过受控登记操作处理变更。</value></data>
   <data name="OutputCleanupDeferred" xml:space="preserve"><value>有限等待后输出清理尚未完成。已保留现有诊断；剩余读取任务结束后将回收其缓冲区和句柄。</value></data>
+  <data name="GitHubProjectHomepage" xml:space="preserve"><value>GitHub 项目主页</value></data>
+  <data name="CouldNotOpenGitHubProject" xml:space="preserve"><value>无法打开 GitHub 项目主页：{0}
+{1}
+可以将网址复制到浏览器中打开。</value></data>
 </root>

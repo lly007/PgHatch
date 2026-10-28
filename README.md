@@ -8,7 +8,8 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 
 ## 核心功能
 
-- 注册多套 PostgreSQL 程序，共享程序目录、独立管理多个实例。
+- 独立注册多套 PostgreSQL 程序，显式选择关联，管理多个实例。
+- 同主版本维护更新后显式核验恢复，异常程序下受限应急停止；不提供跨主版本数据迁移。
 - 新建、只读扫描和导入已有集群，保留导入实例原始启动配置。
 - 异步启动、停止、重启；分别显示进程状态与连接就绪状态。
 - 便携 JSON 配置、有效备份、损坏恢复和兼容旧版迁移。
@@ -17,7 +18,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 
 ## 选择发行模式
 
-本次发布版本为 **1.0.1**，修复主窗口最小化恢复后的布局异常，数据库与配置逻辑不变。发行状态以 [v1.0.1 Release](https://github.com/lly007/PgHatch/releases/tag/v1.0.1) 为准。四种发行包管理功能相同，均为 Release 单文件应用：
+本次正式发行版本为 **1.1.0**，包含同主版本维护恢复、经过身份核验的应急停止、配置/路径保护及 About GitHub 链接。下载与正式资产以 [v1.1.0 Release](https://github.com/lly007/PgHatch/releases/tag/v1.1.0) 为准；实际回归、构建与已知限制见 [发行验收](docs/releases/v1.1.0/validation.md)。四种发行包管理功能相同，均为 Release 单文件应用：
 
 | 架构 | Standalone | Framework-dependent |
 | --- | --- | --- |
@@ -28,7 +29,7 @@ PgHatch 使用 C# / .NET 10 / 原生 WinForms，可从核验过的目录下载�
 
 ## 开始使用
 
-从 [v1.0.1 Release](https://github.com/lly007/PgHatch/releases/tag/v1.0.1) 选择适合自己架构和运行时环境的包，并核对随附 SHA256SUMS.txt。本轮修复与验证见 [v1.0.1 发行说明](docs/releases/v1.0.1/release.md)，基础功能验收见 [V1.0 验证记录](docs/releases/v1.0.0/validation.md)；历史版本仍可在 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 获取。
+从 [v1.1.0 Release](https://github.com/lly007/PgHatch/releases/tag/v1.1.0) 选择对应架构和运行时环境的包，核对随附 SHA256SUMS.txt。功能与限制见 [正式发行说明](docs/releases/v1.1.0/release.md)；历史版本仍可在 [GitHub Releases](https://github.com/lly007/PgHatch/releases) 获取。
 
 1. 将发行包解压到可写目录，运行 `PgHatch.exe`，保留随包许可证。
 2. 在“PostgreSQL 程序”中下载并部署程序，或注册已有程序根目录 / `bin`。
