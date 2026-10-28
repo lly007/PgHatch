@@ -1023,4 +1023,32 @@ PID 檔案不完整或叢集身分不一致，連線狀態未知。</value>
   <data name="BinaryToolsInconsistent" xml:space="preserve"><value>PostgreSQL 工具的版本或執行檔架構不一致。請完整替換程式發行套件後重新檢查。</value></data>
   <data name="BinaryVersionChanged" xml:space="preserve"><value>登錄版本為 {0}，實際偵測為 {1}。請停止關聯的執行個體，再按重新整理或修復所選路徑以更新登錄資訊。</value></data>
   <data name="StopBeforeSwitchingBinaries" xml:space="preserve"><value>更換 PostgreSQL 程式前請先停止執行個體。若 PgHatch 無法確認已停止，請先使用原程式的 pg_ctl 檢查並停止。此操作不會移動或初始化 PGDATA。</value></data>
+  <data name="EmergencyIdentityUnconfirmed" xml:space="preserve"><value>無法確認伺服器身分，或無法排除其他伺服器使用此 PGDATA。未執行停止或修復。請恢復完整相容的程式，人工核對 PID、處理程序命令列及資料路徑；不要刪除 postmaster.pid 或強制終止處理程序。</value></data>
+  <data name="EmergencyOnlyAbnormal" xml:space="preserve"><value>僅程式登記異常且執行個體已核實執行時才可應急停止。</value></data>
+  <data name="EmergencyNoTools" xml:space="preserve"><value>沒有已核驗且相容的已登記工具。請恢復相容程式後重試；資料及登記保持不變。</value></data>
+  <data name="EmergencyStopAvailable" xml:space="preserve"><value>已核驗伺服器執行，可嘗試受限快速停止；程式恢復仍需單獨執行。</value></data>
+  <data name="EmergencyStoppedRepairRequired" xml:space="preserve"><value>已確認伺服器停止，程式登記尚未修復。請停止該程式關聯的全部執行個體，再用「重新整理」或「修復所選路徑」重新核驗原目錄；其他路徑需在執行個體設定中明確選擇相容的已登記程式。恢復不會啟動伺服器，請自行啟動並用 SQL 核對原有資料。</value></data>
+  <data name="EmergencyStop" xml:space="preserve"><value>應急停止</value></data>
+  <data name="EmergencyStopConfirm" xml:space="preserve"><value>正常停止 {0}？
+PGDATA：{1}
+PostgreSQL {2}
+工具：{3}
+執行前將再次核驗身分與工具。此操作不修復登記、不啟動伺服器。</value></data>
+  <data name="EmergencyChooseTools" xml:space="preserve"><value>請明確選擇僅用於本次停止的已核驗登記工具，完整版本及路徑如上。不會變更執行個體關聯。</value></data>
+  <data name="NetworkPathIdentityUnknown" xml:space="preserve"><value>無法解析對應網路磁碟機的真實路徑，已拒絕操作。</value></data>
+  <data name="NetworkImportWarning" xml:space="preserve"><value>此 PGDATA 位於網路儲存。匯入前請確認檔案系統符合 PostgreSQL 持久性、鎖定和可用性要求。匯入不會移動、修改或刪除資料。</value></data>
+  <data name="SecretCleanupIncomplete" xml:space="preserve"><value>暫存憑證清理未完成：{0}。請限制存取並在操作結束後手動刪除此目錄，不要分享其中內容。</value></data>
+  <data name="ClusterCreatedCleanupFailed" xml:space="preserve"><value>initdb 已成功，但暫存憑證清理失敗。</value></data>
+  <data name="ClusterCreatedNotRegistered" xml:space="preserve"><value>initdb 已建立叢集，但驗收或登記尚未完成。已保留 PGDATA：{0}
+{1}
+請處理上述錯誤，若設定被外部修改請先重讀設定，再匯入此現有叢集。不要重新初始化此路徑。</value></data>
+  <data name="ClusterAcceptanceFailed" xml:space="preserve"><value>initdb 成功後叢集驗收失敗。此驗收不代表完整資料庫健康檢查。</value></data>
+  <data name="BinaryRepairConfirm" xml:space="preserve"><value>重新核驗或明確切換程式至 {0}？
+以下受影響執行個體必須全部停止，執行前會逐一複核。
+{1}
+保留 PGDATA 及執行個體設定，不自動啟動伺服器。</value></data>
+  <data name="EmergencyControllerPending" xml:space="preserve"><value>停止控制器尚未退出。狀態探測繼續，但衝突的生命週期及程式變更仍被阻止。請等待自然退出，不要強制終止 PostgreSQL。</value></data>
+  <data name="OutputCaptureIncomplete" xml:space="preserve"><value>診斷輸出收集不完整：{0}</value></data>
+  <data name="ReloadDataIdentityConflict" xml:space="preserve"><value>拒絕重讀設定：既有執行個體被移除、PGDATA 目標改變或無法確認身分。舊設定僅保留供檢視，儲存和生命週期操作已阻止。請還原原設定及對應後重讀，再透過受控登記操作處理變更。</value></data>
+  <data name="OutputCleanupDeferred" xml:space="preserve"><value>有限等待後輸出清理尚未完成。已保留現有診斷；剩餘讀取工作結束後將回收其緩衝區和控制代碼。</value></data>
 </root>

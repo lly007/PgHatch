@@ -33,7 +33,13 @@ internal sealed class InstanceSettingsForm : LayoutForm
             if (string.IsNullOrWhiteSpace(name.Text)) throw new ArgumentException(L10n.Get("TheNameCannotBeEmpty"));
             if (binaries.SelectedItem is not Choice choice) throw new InvalidOperationException(L10n.Get("ChoosePostgreSQLBinaries"));
             if (choice.Id == instance.BinaryId) await manager.RenameAsync(instance, name.Text);
-            else await manager.ReassociateAsync(instance, choice.Id, name.Text);
+            else
+            {
+                var linked = manager.Config.Instances.Where(i => i.BinaryId == instance.BinaryId || i.BinaryId == choice.Id).Select(i => i.Name + " — " + i.DataDirectory);
+                var target = manager.Config.Binaries.Single(b => b.Id == choice.Id);
+                if (MessageBox.Show(this, L10n.Format("BinaryRepairConfirm", target.Version + " — " + target.BinDirectory, string.Join("\r\n", linked)), L10n.Get("LinkedBinaries"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) throw new OperationCanceledException();
+                await manager.ReassociateAsync(instance, choice.Id, name.Text);
+            }
         });
     }
 }

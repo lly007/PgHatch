@@ -7,6 +7,23 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--round3-controller", var round3Old, var round3New, var round3ControllerParent]) return await FinalReviewTests.ControllerCaptureAsync(round3Old, round3New, round3ControllerParent, true);
+if (args is ["--round3-tests", var round3Program, var round3Parent]) return await RecoveryRound3Tests.RunAsync(round3Program, round3Parent);
+if (args is ["--round3-pipe-parent", var round3Pid, var round3Gate]) return await RecoveryRound3Tests.PipeHelperAsync(round3Pid, round3Gate, true);
+if (args is ["--round3-pipe-child", var round3ChildPid, var round3ChildGate]) return await RecoveryRound3Tests.PipeHelperAsync(round3ChildPid, round3ChildGate, false);
+if (args is ["--round2-tests", var round2Parent]) return await RecoveryRound2Tests.RunAsync(round2Parent);
+if (args is ["--round2-controller", var round2Source, var round2Replacement, var round2Root]) return await FinalReviewTests.ControllerCaptureAsync(round2Source, round2Replacement, round2Root);
+if (args is ["--round2-capture-helper", var round2Pid, var round2Gate, var round2Done]) return await RecoveryRound2Tests.HelperAsync(round2Pid, round2Gate, round2Done);
+if (args is ["--round2-owned-helper", var round2ParentPid, var round2ChildPid]) return await RecoveryRound2Tests.OwnedHelperAsync(round2ParentPid, round2ChildPid);
+if (args is ["--round2-owned-child", var round2Child]) return await RecoveryRound2Tests.OwnedChildAsync(round2Child);
+if (args is ["--review-output-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
+if (args is ["--review-paths", var pathSource, var pathParent]) return await FinalReviewTests.PathsAsync(pathSource, pathParent);
+if (args is ["--review-share-paths", var shareMatrix]) return await FinalReviewTests.SharePathsAsync(shareMatrix);
+if (args is ["--review-timeout", var timeoutOld, var timeoutNew, var timeoutParent]) return await FinalReviewTests.TimeoutAsync(timeoutOld, timeoutNew, timeoutParent);
+if (args is ["--review-delayed-stop", var stopExe, var stopData, var stopGate, var stopPid, var stopDone]) return await FinalReviewTests.DelayedStopHelperAsync(stopExe, stopData, stopGate, stopPid, stopDone);
+if (args is ["--passive-timeout-helper", var helperPid]) { await File.WriteAllTextAsync(helperPid, Environment.ProcessId.ToString()); await Task.Delay(3000); return 0; }
+if (args is ["--reliability-real", var oldReal, var newReal, var reliabilityRoot]) return await ReliabilityTests.RunAsync(oldReal, newReal, reliabilityRoot);
+if (args is ["--cross-major-real", var major17, var major18, var crossRoot]) return await ReliabilityTests.RunCrossMajorAsync(major17, major18, crossRoot);
 // A renamed test apphost provides --version only in isolated deployment fixtures.
 if (args is ["--version"] && PostgresTools.RequiredTools.Contains(Path.GetFileName(Environment.ProcessPath)))
 {

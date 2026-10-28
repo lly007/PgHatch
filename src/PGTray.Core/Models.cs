@@ -23,7 +23,16 @@ public enum ConnectionState { Unknown, Ready, NotReady }
 public sealed record InstanceStatus(InstanceState State, string Detail, int? ActualPort = null, string? ListenAddress = null,
     ConnectionState Connection = ConnectionState.Unknown, bool? ServerRunning = null);
 public sealed record ClusterSettings(int Port, string ListenAddresses);
+public sealed class InitializedClusterException(string data, string detail) : IOException(L10n.Format("ClusterCreatedNotRegistered", data, detail))
+{
+    public string DataDirectory { get; } = data;
+}
 public sealed record CommandResult(int ExitCode, string Output, string Error, bool TimedOut)
 {
-    public string Diagnostic => L10n.Format("CommandDiagnostic", ExitCode, L10n.Get(TimedOut ? "DiagnosticYes" : "DiagnosticNo"), Output, Error);
+    internal Task<CommandResult>? PendingCompletion { get; init; }
+    internal bool ProcessExitConfirmed { get; init; }
+    internal Task<string?>? ResourceCleanup { get; init; }
+    internal string? OutputReadError { get; init; }
+    public string Diagnostic => L10n.Format("CommandDiagnostic", ExitCode, L10n.Get(TimedOut ? "DiagnosticYes" : "DiagnosticNo"), Output, Error) +
+        (OutputReadError is null ? "" : "\r\n" + L10n.Format("OutputCaptureIncomplete", OutputReadError));
 }
