@@ -7,6 +7,8 @@ public sealed class ProcessRunner
 {
     internal Action<bool, int>? OutputReadCheckpoint { get; set; }
     internal Func<Process, Task>? PendingExitWait { get; set; }
+    internal Func<Stream, bool, Stream>? OutputStream { get; set; }
+    internal Action? ResourceCleanupCheckpoint { get; set; }
     public async Task<CommandResult> RunAsync(string exe, IEnumerable<string> arguments, TimeSpan timeout,
         bool killChildrenOnTimeout = false, CancellationToken cancellationToken = default, bool terminateOnTimeout = true)
     {
@@ -22,14 +24,22 @@ public sealed class ProcessRunner
         var output = new MemoryStream(); var error = new MemoryStream();
         Task stdout = Task.CompletedTask, stderr = Task.CompletedTask;
         var transferred = false;
+        Stream? outputPipe = null, errorPipe = null;
+        StreamReader? outputReader = null, errorReader = null;
+        Task? closingPipes = null;
+        Task<string?>? cleanup = null;
+        var captureProblems = new System.Collections.Concurrent.ConcurrentQueue<string>();
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
             // Windows CreateProcess (including antivirus/DLL inspection) is synchronous.
             // Offload that call, while keeping process waiting and both pipe reads truly async.
             await Task.Run(() => process.Start(), cancellationToken).ConfigureAwait(false);
-            stdout = PumpAsync(process.StandardOutput.BaseStream, output, false, drain.Token);
-            stderr = PumpAsync(process.StandardError.BaseStream, error, true, drain.Token);
+            outputReader = process.StandardOutput; errorReader = process.StandardError;
+            outputPipe = OutputStream?.Invoke(outputReader.BaseStream, false) ?? outputReader.BaseStream;
+            errorPipe = OutputStream?.Invoke(errorReader.BaseStream, true) ?? errorReader.BaseStream;
+            stdout = PumpAsync(outputPipe, output, false, drain.Token);
+            stderr = PumpAsync(errorPipe, error, true, drain.Token);
             var timedOut = false;
             using var deadline = new CancellationTokenSource(timeout);
             using var stop = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, cancellationToken);
@@ -54,13 +64,17 @@ public sealed class ProcessRunner
             }
             // On Windows postgres can inherit pipe handles even when pg_ctl used -l.
             // Controller exit is authoritative for completion; never wait indefinitely for EOF.
-            var outputError = await CollectOutputAsync().ConfigureAwait(false);
+            await CollectOutputAsync().ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
-            return new(process.ExitCode, Snapshot(output), Snapshot(error), timedOut) { ProcessExitConfirmed = true, OutputReadError = outputError };
+            return await CompletedResultAsync(timedOut).ConfigureAwait(false);
         }
         finally
         {
-            if (!transferred) await DisposeAsync().ConfigureAwait(false);
+            if (!transferred && cleanup is null)
+            {
+                try { await BeginCleanup().WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+                catch (TimeoutException) { /* The cleanup task owns all buffers until readers complete. */ }
+            }
         }
 
         async Task<CommandResult> ObserveAsync(bool wasTimedOut)
@@ -69,33 +83,76 @@ public sealed class ProcessRunner
             {
                 await (PendingExitWait?.Invoke(process) ?? process.WaitForExitAsync()).ConfigureAwait(false);
                 // Output capture has its own outcome; it cannot revoke an observed OS exit.
-                var outputError = await CollectOutputAsync().ConfigureAwait(false);
-                return new(process.ExitCode, Snapshot(output), Snapshot(error), wasTimedOut) { ProcessExitConfirmed = true, OutputReadError = outputError };
+                await CollectOutputAsync().ConfigureAwait(false);
+                return await CompletedResultAsync(wasTimedOut).ConfigureAwait(false);
             }
-            finally { await DisposeAsync().ConfigureAwait(false); }
+            finally
+            {
+                // Exit-observation failure still leaves the manager's lifecycle fence held.
+                // Resource cleanup has a separate bounded foreground wait and never kills.
+                if (cleanup is null)
+                    try { await BeginCleanup().WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+                    catch (TimeoutException) { }
+            }
         }
-        async Task<string?> CollectOutputAsync()
+        async Task<CommandResult> CompletedResultAsync(bool wasTimedOut)
+        {
+            // Capture before handing buffers to cleanup. No buffer is disposed while a pump uses it.
+            var code = process.ExitCode;
+            var capturedOutput = Snapshot(output); var capturedError = Snapshot(error);
+            var reclaim = BeginCleanup();
+            try { await reclaim.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+            catch (TimeoutException) { captureProblems.Enqueue(L10n.Get("OutputCleanupDeferred")); }
+            var problems = captureProblems.ToArray();
+            return new(code, capturedOutput, capturedError, wasTimedOut) {
+                ProcessExitConfirmed = true,
+                OutputReadError = problems.Length == 0 ? null : string.Join("\r\n", problems),
+                ResourceCleanup = reclaim
+            };
+        }
+        void ClosePipes()
+        {
+            if (closingPipes is not null) return;
+            // Closing our pipe handles interrupts native reads even if descendants retain writers.
+            // Never close a destination buffer here. A stuck custom/native reader owns it until exit.
+            // Cancellation and each close proceed independently: a stuck callback/close on
+            // one pipe must not prevent the other handle from being closed.
+            closingPipes = Task.WhenAll(new Action[] { () => drain.Cancel(), () => outputPipe?.Dispose(), () => errorPipe?.Dispose() }
+                .Select(close => Task.Run(() => { try { close(); } catch (Exception ex) { captureProblems.Enqueue(ex.Message); } })));
+        }
+        async Task CollectOutputAsync()
         {
             var readers = Task.WhenAll(stdout, stderr);
-            var incomplete = false;
             try { await readers.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
             catch (TimeoutException)
             {
-                incomplete = true;
-                drain.Cancel();
-                try { await readers.ConfigureAwait(false); } catch (Exception) when (readers.IsFaulted || readers.IsCanceled) { }
+                captureProblems.Enqueue(new TimeoutException().Message);
+                ClosePipes();
+                try { await readers.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false); }
+                catch (TimeoutException) { captureProblems.Enqueue(L10n.Get("OutputCleanupDeferred")); }
+                catch (Exception) when (readers.IsFaulted || readers.IsCanceled) { }
             }
             catch (Exception) when (readers.IsFaulted || readers.IsCanceled) { }
-            return readers.Exception is { } failures
-                ? string.Join("\r\n", failures.Flatten().InnerExceptions.Select(ex => ex.Message))
-                : incomplete ? new TimeoutException().Message : null;
+            if (readers.Exception is { } failures)
+                foreach (var ex in failures.Flatten().InnerExceptions) captureProblems.Enqueue(ex.Message);
         }
-        async Task DisposeAsync()
+        // Always schedule cleanup off the foreground, including its synchronous Dispose calls.
+        Task<string?> BeginCleanup() => cleanup ??= Task.Run(ReclaimAsync);
+        async Task<string?> ReclaimAsync()
         {
-            drain.Cancel();
-            // Observe both readers even when start, exit observation or capture failed.
-            try { await Task.WhenAll(stdout, stderr).ConfigureAwait(false); } catch (Exception) { }
-            process.Dispose(); output.Dispose(); error.Dispose(); drain.Dispose();
+            ClosePipes();
+            // This continuation can outlive RunAsync, but only holds our own process/pipe resources.
+            // All exceptions are observed; the result exposes eventual cleanup diagnostics separately.
+            try { await Task.WhenAll(stdout, stderr).ConfigureAwait(false); }
+            catch (Exception ex) { captureProblems.Enqueue(ex.Message); }
+            await closingPipes!.ConfigureAwait(false);
+            foreach (Action release in new Action[] {
+                () => ResourceCleanupCheckpoint?.Invoke(),
+                () => outputReader?.Dispose(), () => errorReader?.Dispose(),
+                () => process.Dispose(), () => output.Dispose(), () => error.Dispose(), () => drain.Dispose() })
+                try { release(); } catch (Exception ex) { captureProblems.Enqueue(ex.Message); }
+            var problems = captureProblems.ToArray();
+            return problems.Length == 0 ? null : string.Join("\r\n", problems);
         }
     }
 

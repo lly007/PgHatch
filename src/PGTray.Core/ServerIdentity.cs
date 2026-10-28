@@ -33,9 +33,19 @@ internal static class ServerIdentity
         var directory = attributes(data);
         if (directory is null || !directory.Value.HasFlag(FileAttributes.Directory)) Fail();
         data = PathSafety.UnlinkedDataIdentity(data, attributes: attributes);
-        var version = File.ReadAllText(Path.Combine(data, "PG_VERSION")).Trim();
-        if (!System.Text.RegularExpressions.Regex.IsMatch(version, @"^\d+(\.\d+)?$") ||
-            attributes(Path.Combine(data, "global", "pg_control")) is not { } control || control.HasFlag(FileAttributes.Directory)) Fail();
+        // Only identity-critical markers: tablespace links elsewhere are not prohibited.
+        var versionPath = Path.Combine(data, "PG_VERSION");
+        var globalPath = Path.Combine(data, "global");
+        var controlPath = Path.Combine(globalPath, "pg_control");
+        RequireMarker(versionPath, false); RequireMarker(globalPath, true); RequireMarker(controlPath, false);
+        var version = File.ReadAllText(versionPath).Trim();
+        if (!System.Text.RegularExpressions.Regex.IsMatch(version, @"^\d+(\.\d+)?$")) Fail();
+        using (File.Open(controlPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)) { }
+        void RequireMarker(string path, bool directoryExpected)
+        {
+            if (attributes(path) is not { } marker || (marker & (FileAttributes.ReparsePoint | FileAttributes.Device)) != 0 ||
+                marker.HasFlag(FileAttributes.Directory) != directoryExpected) Fail();
+        }
         // A remaining PID file is uncertainty, even when pg_ctl reports exit code 3.
         // Attribute lookup distinguishes a missing file from an inaccessible file.
         if (attributes(Path.Combine(data, "postmaster.pid")) is not null) Fail();

@@ -142,7 +142,7 @@ internal static class FinalReviewTests
 
     public static async Task<int> DelayedStopHelperAsync(string executable, string data, string gate, string pidFile, string done)
     {
-        await File.WriteAllTextAsync(pidFile, Environment.ProcessId.ToString());
+        await RecoveryRound2Tests.PublishPidAsync(pidFile);
         var deadline = Stopwatch.StartNew();
         while (!File.Exists(gate) && deadline.Elapsed < TimeSpan.FromSeconds(45)) await Task.Delay(25);
         if (!File.Exists(gate)) return 2;
@@ -291,12 +291,13 @@ internal static class FinalReviewTests
         }
         return results.Any(r => r.StartsWith("FAIL:")) ? 1 : 0;
     }
-    public static async Task<int> ControllerCaptureAsync(string source, string replacement, string parent)
+    public static async Task<int> ControllerCaptureAsync(string source, string replacement, string parent, bool includeDelayedReader = false)
     {
         var root = Root(parent, "round2-controller"); var tools = new PostgresTools(new ProcessRunner());
         var store = new ConfigStore(root); var manager = new InstanceManager(store, tools); var results = new List<string>();
         InstanceConfig? instance = null; BinaryInstallation? actual = null; string? gate = null, pid = null;
         var success = false;
+        TaskCompletionSource? delayedRelease = null;
         void Check(bool valid, string name) { if (!valid) throw new Exception(name); results.Add("PASS: " + name); Console.WriteLine(results[^1]); }
         async Task Reject(Func<Task> work, string name)
         {
@@ -309,9 +310,9 @@ internal static class FinalReviewTests
             instance = await manager.AddInstanceAsync("Capture recovery", old, Path.Combine(root, "data"), Port(), "review_test", Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(Path.GetDirectoryName(instance.LogPath)!);
             CopyProgram(replacement, Directory.GetParent(old.BinDirectory)!.FullName); actual = await tools.InspectBinaryAsync(old.BinDirectory);
-            foreach (var fault in new[] { "reader", "exit" })
+            foreach (var fault in includeDelayedReader ? new[] { "reader", "slow-reader", "exit" } : new[] { "reader", "exit" })
             {
-                if (fault == "exit")
+                if (fault != "reader")
                 {
                     await store.SaveAsync(manager.Config with { Binaries = manager.Config.Binaries.Select(b => b.Id == old.Id ? old : b).ToList() });
                     await manager.LoadAsync();
@@ -322,6 +323,12 @@ internal static class FinalReviewTests
                 gate = Path.Combine(root, fault + ".gate"); pid = gate + ".pid"; var done = gate + ".done";
                 var runner = new ProcessRunner();
                 if (fault == "reader") runner.OutputReadCheckpoint = (isError, count) => { if (!isError && count == 0) throw new IOException("Injected controller output failure"); };
+                else if (fault == "slow-reader")
+                {
+                    delayedRelease = new(TaskCreationOptions.RunContinuationsAsynchronously);
+                    runner.OutputStream = (stream, err) => err ? stream : new RecoveryRound3Tests.DelayedEof(stream, delayedRelease.Task);
+                    runner.ResourceCleanupCheckpoint = () => throw new IOException("Late controller cleanup failure");
+                }
                 else runner.PendingExitWait = _ => Task.FromException(new IOException("Injected exit observation failure"));
                 CommandResult? command = null;
                 manager.EmergencyStopCommand = async () => command = await runner.RunAsync(Environment.ProcessPath!,
@@ -331,23 +338,30 @@ internal static class FinalReviewTests
                 if (!File.Exists(pid)) throw new IOException("Controller did not become ready");
                 using var controller = Process.GetProcessById(int.Parse(await File.ReadAllTextAsync(pid)));
                 await Reject(() => manager.RemoveAsync(instance), "Pending or unconfirmed controller blocks lifecycle mutation (" + fault + ")");
-                if (fault == "reader")
+                if (fault != "exit")
                 {
                     await tools.RunAsync(actual, "pg_ctl", ["stop", "-D", instance.DataDirectory, "-m", "fast", "-w", "-t", "20"], 30);
                     await Reject(() => manager.RepairBinaryAsync(old.Id, actual.BinDirectory), "A stopped server does not bypass its still-live controller fence");
                 }
                 await File.WriteAllTextAsync(gate, "release owned helper");
                 await controller.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(20));
-                if (fault == "reader")
+                if (fault != "exit")
                 {
                     var final = await command!.PendingCompletion!.WaitAsync(TimeSpan.FromSeconds(8));
-                    Check(final.ProcessExitConfirmed && final.OutputReadError?.Contains("Injected controller output failure") == true, "Reader failure cannot revoke confirmed controller exit");
+                    Check(final.ProcessExitConfirmed && (fault == "reader" ? final.OutputReadError?.Contains("Injected controller output failure") == true : final.ResourceCleanup is { IsCompleted: false }), "Reader fault or deferred cleanup cannot revoke confirmed controller exit (" + fault + ")");
                     var repaired = false;
                     for (var attempt = 0; attempt < 80 && !repaired; attempt++)
                     {
                         try { await manager.RepairBinaryAsync(old.Id, actual.BinDirectory); repaired = true; } catch (InvalidOperationException) { await Task.Delay(25); }
                     }
-                    Check(repaired && manager.LastOperationDiagnostics[instance.Id].Contains("Injected controller output failure") && manager.LastOperationDiagnostics[instance.Id].Contains("Late controller output observed"), "Reader failure is diagnosed and the lifecycle releases after natural exit");
+                    Check(repaired && manager.LastOperationDiagnostics[instance.Id].Contains(fault == "reader" ? "Injected controller output failure" : L10n.Get("OutputCleanupDeferred")) && manager.LastOperationDiagnostics[instance.Id].Contains("Late controller output observed"), "Reader failure/deferred cleanup is diagnosed and the lifecycle releases after natural exit (" + fault + ")");
+                    if (fault == "slow-reader")
+                    {
+                        delayedRelease!.TrySetResult();
+                        await final.ResourceCleanup!.WaitAsync(TimeSpan.FromSeconds(5));
+                        for (var attempt = 0; attempt < 100 && !manager.LastOperationDiagnostics[instance.Id].Contains("Late controller cleanup failure"); attempt++) await Task.Delay(20);
+                        Check(manager.LastOperationDiagnostics[instance.Id].Contains("Late controller cleanup failure"), "Late cleanup exception is observed in operation diagnostics after the lifecycle fence releases");
+                    }
                 }
                 else
                 {
@@ -362,6 +376,7 @@ internal static class FinalReviewTests
         catch (Exception ex) { results.Add("FAIL: " + ex); Console.Error.WriteLine(ex); }
         finally
         {
+            delayedRelease?.TrySetResult();
             if (gate is not null) await File.WriteAllTextAsync(gate, "cleanup release");
             if (pid is not null && File.Exists(pid))
                 try { using var pending = Process.GetProcessById(int.Parse(await File.ReadAllTextAsync(pid))); await pending.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(20)); } catch (ArgumentException) { }

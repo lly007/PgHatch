@@ -17,21 +17,27 @@ public sealed class ConfigStore(string root)
     private SemaphoreSlim Gate => Gates.GetOrAdd(FilePath, _ => new(1, 1));
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNameCaseInsensitive = true };
     private string? expectedHash;
-    private bool observed;
+    private bool observed, rejectedLoad;
     private string Expand(string path) => Path.GetFullPath(path, Root);
     private string Portable(string path) => Path.GetRelativePath(Root, Path.GetFullPath(path, Root));
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
     private async Task<string?> DiskHashAsync() => File.Exists(FilePath) ? Hash(await File.ReadAllBytesAsync(FilePath)) : null;
 
-    public async Task<AppConfig> LoadAsync()
+    public Task<AppConfig> LoadAsync() => LoadAsync(null);
+
+    // Validate the candidate before accepting its fingerprint or migrating a legacy file.
+    internal async Task<AppConfig> LoadAsync(Action<AppConfig>? validateCandidate)
     {
         await Gate.WaitAsync().ConfigureAwait(false);
+        var previousHash = expectedHash; var previouslyObserved = observed;
         try
         {
             var path = RecoveryFilePath;
-            if (!File.Exists(path)) { expectedHash = null; observed = true; return AppConfig.Empty; }
+            if (!File.Exists(path)) { validateCandidate?.Invoke(AppConfig.Empty); rejectedLoad = false; expectedHash = null; observed = true; return AppConfig.Empty; }
             var bytes = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
             var config = await Task.Run(() => Parse(bytes, path)).ConfigureAwait(false);
+            validateCandidate?.Invoke(config);
+            rejectedLoad = false;
             if (path == LegacyPath)
             {
                 // Relative paths keep their meaning because both files share the same root.
@@ -42,6 +48,11 @@ public sealed class ConfigStore(string root)
             }
             else { expectedHash = Hash(bytes); observed = true; }
             return config;
+        }
+        catch
+        {
+            expectedHash = previousHash; observed = previouslyObserved; rejectedLoad = true;
+            throw;
         }
         finally { Gate.Release(); }
     }
@@ -140,7 +151,7 @@ public sealed class ConfigStore(string root)
             if (fromBackup && recovered.Instances.Any(i => !recovered.Binaries.Any(b => b.Id == i.BinaryId)))
                 throw new InvalidDataException(L10n.Get("TheBackupHasInstancesWithMissingBinary"));
             if (File.Exists(source)) File.Copy(source, source + $".preserved-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}", false);
-            expectedHash = await DiskHashAsync().ConfigureAwait(false); observed = true;
+            expectedHash = await DiskHashAsync().ConfigureAwait(false); observed = true; rejectedLoad = false;
             await WriteAsync(recovered, true).ConfigureAwait(false);
             return recovered;
         }
@@ -156,6 +167,7 @@ public sealed class ConfigStore(string root)
 
     private async Task WriteAsync(AppConfig config, bool preserveBackup)
     {
+        if (rejectedLoad) throw new ConfigurationConflictException();
         var bytes = await Task.Run(() => {
             Validate(config);
             var portable = config with {

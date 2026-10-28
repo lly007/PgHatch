@@ -41,6 +41,11 @@ internal static class NetworkPathTests
             var operationData = manager.EnsureDataPath(manager.Config.Instances.Single());
             check(operationData == PathSafety.Identity(Path.Combine(remote, "directory-target")), "Operation receives the verified UNC identity while the stored drive-letter path is preserved");
             check(manager.Config.Instances.Single().DataDirectory == legacy.DataDirectory, "Manager loads an old mapped-drive registration without changing or rejecting its stable path");
+            store.SaveAsync(manager.Config with { Instances = [legacy with { DataDirectory = Path.Combine(remote, "directory-target") }] }).GetAwaiter().GetResult();
+            manager.LoadAsync().GetAwaiter().GetResult();
+            check(manager.EnsureDataPath(manager.Config.Instances.Single()) == operationData, "Reload accepts a stable real mapped-drive to UNC alias change");
+            store.SaveAsync(manager.Config with { Instances = [legacy] }).GetAwaiter().GetResult();
+            manager.LoadAsync().GetAwaiter().GetResult();
             Directory.CreateDirectory(Path.Combine(root, "remapped", "directory-target"));
             // Windows can cache metadata handles. This drive maps only the owned test root;
             // disconnecting it never closes or terminates a PostgreSQL server.
@@ -49,8 +54,8 @@ internal static class NetworkPathTests
             if (WNetAddConnection2(ref resource, null, null, 0) != 0) throw new IOException("Could not remap the owned test drive");
             try { manager.EnsureDataPath(manager.Config.Instances.Single()); throw new Exception("Changed mapping accepted"); } catch (IOException) { }
             check(true, "Manager rejects changed actual mapping against its loaded identity snapshot");
-            manager.LoadAsync().GetAwaiter().GetResult();
-            try { manager.EnsureDataPath(manager.Config.Instances.Single()); throw new Exception("Reload accepted changed mapping"); } catch (IOException) { }
+            try { manager.LoadAsync().GetAwaiter().GetResult(); throw new Exception("Reload accepted changed mapping"); } catch (IOException) { }
+            try { manager.EnsureDataPath(manager.Config.Instances.Single()); throw new Exception("Reload reset changed mapping"); } catch (IOException) { }
             check(true, "Reload of the same old registration does not reset its trusted mapping identity");
             manager.RefreshAllAsync().GetAwaiter().GetResult();
             check(manager.Statuses[legacy.Id].State == InstanceState.Unknown, "Read-only refresh cannot report another mapped target as the registered instance");

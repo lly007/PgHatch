@@ -1049,4 +1049,6 @@ PostgreSQL {2}
 保留 PGDATA 及執行個體設定，不自動啟動伺服器。</value></data>
   <data name="EmergencyControllerPending" xml:space="preserve"><value>停止控制器尚未退出。狀態探測繼續，但衝突的生命週期及程式變更仍被阻止。請等待自然退出，不要強制終止 PostgreSQL。</value></data>
   <data name="OutputCaptureIncomplete" xml:space="preserve"><value>診斷輸出收集不完整：{0}</value></data>
+  <data name="ReloadDataIdentityConflict" xml:space="preserve"><value>拒絕重讀設定：既有執行個體被移除、PGDATA 目標改變或無法確認身分。舊設定僅保留供檢視，儲存和生命週期操作已阻止。請還原原設定及對應後重讀，再透過受控登記操作處理變更。</value></data>
+  <data name="OutputCleanupDeferred" xml:space="preserve"><value>有限等待後輸出清理尚未完成。已保留現有診斷；剩餘讀取工作結束後將回收其緩衝區和控制代碼。</value></data>
 </root>

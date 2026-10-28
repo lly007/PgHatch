@@ -31,6 +31,7 @@ public sealed record CommandResult(int ExitCode, string Output, string Error, bo
 {
     internal Task<CommandResult>? PendingCompletion { get; init; }
     internal bool ProcessExitConfirmed { get; init; }
+    internal Task<string?>? ResourceCleanup { get; init; }
     internal string? OutputReadError { get; init; }
     public string Diagnostic => L10n.Format("CommandDiagnostic", ExitCode, L10n.Get(TimedOut ? "DiagnosticYes" : "DiagnosticNo"), Output, Error) +
         (OutputReadError is null ? "" : "\r\n" + L10n.Format("OutputCaptureIncomplete", OutputReadError));

@@ -3,10 +3,17 @@ using PGTray.Core;
 
 internal static class RecoveryRound2Tests
 {
+    internal static async Task PublishPidAsync(string path)
+    {
+        // Existence means ready: never publish a file while its writer still owns it.
+        var temp = path + ".tmp";
+        await File.WriteAllTextAsync(temp, Environment.ProcessId.ToString());
+        File.Move(temp, path, true);
+    }
     internal static async Task<int> HelperAsync(string pid, string gate, string done)
     {
         Console.WriteLine("early output"); Console.Error.WriteLine("early error");
-        await File.WriteAllTextAsync(pid, Environment.ProcessId.ToString());
+        await PublishPidAsync(pid);
         var deadline = Stopwatch.StartNew();
         while (!File.Exists(gate) && deadline.Elapsed < TimeSpan.FromSeconds(20)) await Task.Delay(20);
         try { Console.WriteLine("late output"); Console.Error.WriteLine("late error"); } catch (IOException) { }
@@ -14,7 +21,7 @@ internal static class RecoveryRound2Tests
     }
     internal static async Task<int> OwnedHelperAsync(string parentPid, string childPid)
     {
-        await File.WriteAllTextAsync(parentPid, Environment.ProcessId.ToString());
+        await PublishPidAsync(parentPid);
         var info = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, CreateNoWindow = true };
         info.ArgumentList.Add("--round2-owned-child"); info.ArgumentList.Add(childPid);
         using var child = Process.Start(info)!;
@@ -22,7 +29,7 @@ internal static class RecoveryRound2Tests
     }
     internal static async Task<int> OwnedChildAsync(string pid)
     {
-        await File.WriteAllTextAsync(pid, Environment.ProcessId.ToString()); await Task.Delay(TimeSpan.FromSeconds(40)); return 0;
+        await PublishPidAsync(pid); await Task.Delay(TimeSpan.FromSeconds(40)); return 0;
     }
     private static async Task ReadyAsync(string file)
     {
