@@ -10,6 +10,13 @@ internal static class Program
     {
         if (args is ["--pipe-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
         if (args is ["--delay-helper"]) { Thread.Sleep(10000); return 0; }
+        if (args is ["--about-checks"])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            var passed = 0;
+            AboutChecks.Run((valid, text) => { if (!valid) throw new Exception("FAIL: " + text); passed++; Console.WriteLine("PASS: " + text); });
+            Console.WriteLine(passed + " PASS; About native dialog, simulated DPI and substituted shell/error checks."); return 0;
+        }
         if (args is ["--creation-check", var binaries, var testParent])
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
@@ -119,6 +126,7 @@ internal static class Program
             catch (ObjectDisposedException) { Check(true, "Image cache releases ownership and rejects access after disposal"); }
             BrandChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
+            AboutChecks.Run(Check);
             EmergencyBindingChecks.Run(Check);
             WindowChecks.Run(args[0], Check);
             MainWindowLayoutChecks.Run(args[0], Check);

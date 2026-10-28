@@ -1,14 +1,23 @@
 # PgHatch v1.1.0 候选验收
 
-2026-10-28。**候选验收完成，尚未创建正式标签或 GitHub Release。** 正式发行仍为 v1.0.1。
+2026-10-28。**以下四包为版本准备提交的既有候选验收记录；当前分支追加 About 链接补丁后尚未重建发行候选。** 正式发行仍为 v1.0.1，没有创建新标签或 GitHub Release。
+
+## About 链接收尾（当前增量）
+
+- 将 MainForm 的 About MessageBox 替换为复用 LayoutForm 的原生模态 AboutForm；完整复用三语言原有版本、产品标语、社区声明和 Lucide/Feather 许可文本。GitHub URL 使用整行 LinkLabel，支持键盘访问；通过 UseShellExecute 调用系统默认浏览器，失败时显示三语言错误及 URL，窗口继续可用。
+- 本增量不修改数据库生命周期、配置、安全判断、版本号或依赖。测试通过注入启动调用检查 URL/UseShellExecute 参数及 Win32Exception/InvalidOperationException，不实际打开浏览器；DPI 为原生控件/字体缩放模拟，不冒充真实跨屏验收。未使用 Computer Use。
+- `dotnet build PGTray.sln -c Release --nologo`：0 警告、0 错误。
+- `PGTray.IconChecks.exe --about-checks`：84 PASS、0 FAIL、0 SKIP；三语言 × 四档缩放、完整说明、URL 可见性、启动参数、打开失败、小工作区与模态 Enter/Escape 关闭。
+- 完整 `PGTray.IconChecks.exe <新隔离输出目录>`：527 PASS、0 FAIL、0 SKIP，包含上述 84 项。日志位于本地忽略目录 `artifacts/dev/v1.1.0-about-20261028/`。定向测试发现并修正过链接被标签列挤窄的问题；最终所有相关测试重新执行通过。数据库逻辑未变，本轮未重跑下面的完整数据库回归。
+- **下方 d26d591 输入的四个旧 ZIP 不包含本次 About 修改，不能作为含此修改的正式发行包。正式发布前需从最新分支重新生成四配置候选并完成相应验收。** 旧候选和历史发行包均保留，不覆盖。
 
 ## Git 与构建输入
 
 - 合并 PR：[PR #1](https://github.com/lly007/PgHatch/pull/1)。合并前工作区/暂存区干净，可靠性分支相对 main 为领先 3、落后 0，无冲突。
 - 普通 Merge Commit：`aed6945b56d462cfe01a60bd8ccc1432d171b7b8`。父提交为原 main `f1a23df55d9369299c8b2615748d13f33ae03b4e` 与审查通过的 `dd2214f399485035e58757ea9e05ac5a328597f7`，合并树与后者相同。
 - 三个原始可靠性提交 `d6b5b8a56646358c9c335badf181ae7cd4489abd`、`0248de4615e42d03f8c15fdb5643293ed2d773c3`、`dd2214f399485035e58757ea9e05ac5a328597f7` 全部为 main 祖先；没有 squash、rebase 或强推。
-- 发行准备分支：`release/v1.1.0`。版本准备/实际构建输入提交：`d26d591845608a956f1df9f2fa6be329e2112aa5`；开始验收、打包时工作区干净。候选后仅更新本文的验收事实，没有改变构建输入。
-- 相对合并后的 main，仅修改 `Directory.Build.props` 和 README、CHANGELOG、用户指南、发行/本地化文档、文档索引及本文。`src/`、`tests/`、`scripts/`、Catalog 均无差异；配置 schema 2、稳定程序登记 ID、数据库主版本边界和默认初始化参数不变。main 保留版本 1.0.1，1.1.0 元数据尚未合回 main。
+- 发行准备分支：`release/v1.1.0`。版本准备/实际构建输入提交：`d26d591845608a956f1df9f2fa6be329e2112aa5`；开始验收、打包时工作区干净。候选生成后以 `3b9b673449fbd899ce6f60134e027eec72e2ac9e` 记录验收，随后追加上方 About 补丁；旧候选仍对应 d26d591，不追溯更新其验证结论。
+- 在上述 d26d591 构建输入中，相对合并后的 main，仅修改 `Directory.Build.props` 和 README、CHANGELOG、用户指南、发行/本地化文档、文档索引及本文。`src/`、`tests/`、`scripts/`、Catalog 均无差异；配置 schema 2、稳定程序登记 ID、数据库主版本边界和默认初始化参数不变。main 保留版本 1.0.1，1.1.0 元数据尚未合回 main。
 
 ## 本轮实际回归
 

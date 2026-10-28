@@ -1051,4 +1051,8 @@ PGDATA and instance settings are preserved. No server starts automatically.</val
   <data name="OutputCaptureIncomplete" xml:space="preserve"><value>Diagnostic output collection was incomplete: {0}</value></data>
   <data name="ReloadDataIdentityConflict" xml:space="preserve"><value>Configuration reload refused: an existing instance was removed, its PGDATA target changed, or its identity cannot be confirmed. The previous configuration remains visible for reference only; saving and lifecycle operations are blocked. Restore the original configuration and mapping, reload, then use controlled registration operations.</value></data>
   <data name="OutputCleanupDeferred" xml:space="preserve"><value>Output cleanup is pending after a bounded wait. Existing diagnostics are retained; remaining readers will release their buffers and handles when they finish.</value></data>
+  <data name="GitHubProjectHomepage" xml:space="preserve"><value>GitHub project homepage</value></data>
+  <data name="CouldNotOpenGitHubProject" xml:space="preserve"><value>Could not open the GitHub project page: {0}
+{1}
+You can copy the URL into your browser.</value></data>
 </root>
