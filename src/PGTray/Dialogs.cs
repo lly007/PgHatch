@@ -96,10 +96,12 @@ internal sealed class BinaryForm : LayoutForm
 {
     private sealed record Choice(BinaryInstallation Binary, string Label) { public override string ToString() => Label; }
     private readonly ListBox list = new() { Height = 112, IntegralHeight = false, HorizontalScrollbar = true };
+    private readonly TextBox path = new();
+    private readonly ContextMenuStrip candidatesMenu = new();
     public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
     {
         ClientSize = new(640, 400); MinimumSize = new(580, 300);
-        var path = new TextBox(); var busy = false;
+        var busy = false;
         void RefreshList()
         {
             var selected = (list.SelectedItem as Choice)?.Binary.Id;
@@ -137,11 +139,9 @@ internal sealed class BinaryForm : LayoutForm
         var discover = new Button { Text = L10n.Get("FindNearbyBinaries"), AutoSize = true }; discover.Click += async (_, _) => {
             await Run(async () => {
                 var candidates = await Task.Run(() => InstanceManager.DiscoverCandidates(AppContext.BaseDirectory).ToArray());
-                if (WindowsSessionShutdown.IsEnding) return;
+                if (IsDisposed || Disposing || WindowsSessionShutdown.IsEnding) return;
                 if (candidates.Length == 0) { MessageBox.Show(this, L10n.Get("NoBinariesFoundNearbyBrowseToA"), "PgHatch"); return; }
-                var menu = new ContextMenuStrip(); menu.Closed += (_, _) => menu.Dispose();
-                foreach (var candidate in candidates) menu.Items.Add(candidate, null, (_, _) => path.Text = candidate);
-                menu.Show(discover, new Point(0, discover.Height));
+                ShowCandidates(candidates, discover);
             });
         };
         actions.Controls.AddRange([add, repair, remove, discover]); Row(L10n.Get("Registration"), actions);
@@ -156,6 +156,21 @@ internal sealed class BinaryForm : LayoutForm
         RefreshList();
         Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy && e.CloseReason != CloseReason.WindowsShutDown) e.Cancel = true; };
+    }
+
+    internal void ShowCandidates(IEnumerable<string> candidates, Control anchor)
+    {
+        candidatesMenu.Close();
+        // Clear does not dispose ToolStripItems or their captured candidate paths.
+        foreach (var item in candidatesMenu.Items.Cast<ToolStripItem>().ToArray()) item.Dispose();
+        foreach (var candidate in candidates) candidatesMenu.Items.Add(candidate, null, (_, _) => path.Text = candidate);
+        candidatesMenu.Show(anchor, new Point(0, anchor.Height));
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) candidatesMenu.Dispose();
+        base.Dispose(disposing);
     }
 
     protected override void FitDialogToWorkArea(Rectangle work, int dpi) => FitToWorkArea(work, dpi);

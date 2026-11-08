@@ -128,6 +128,7 @@ internal static class Program
             LocalizationChecks.Run(args[0], Check);
             AboutChecks.Run(Check);
             EmergencyBindingChecks.Run(Check);
+            BinaryMenuChecks.Run(args[0], Check);
             WindowChecks.Run(args[0], Check);
             MainWindowLayoutChecks.Run(args[0], Check);
             SessionShutdownChecks.Run(args[0], Check);
