@@ -4,13 +4,14 @@
 - [releasing.md](releasing.md)：构建、四配置打包、校验和 GUI 发行验收流程。
 - [localization.md](localization.md)：语言资源和独立 UI 偏好的维护方式。
 - [postgresql-catalog.md](postgresql-catalog.md)：EDB ZIP 目录来源、在线更新、缓存回退与验证接口。
-- [Issue #3 修复与验收](issue-3-validation.md)记录菜单、实例移除、主窗口 DPI 和标题栏图标的根因、回归及待人工验收范围。
+- [Issue #3 修复与验收](issue-3-validation.md)记录菜单、实例移除、主窗口 DPI 和标题栏图标的根因、回归及维护者 GUI 验收范围。
 - `releases/`：正式版本的历史说明、验证结论与发行矩阵。
 
 ## 版本记录
 
 | 版本 | 说明 | 验证 |
 | --- | --- | --- |
+| v1.1.1 | [正式发行说明](releases/v1.1.1/release.md) | [维护发行验收](releases/v1.1.1/validation.md) |
 | v1.1.0 | [正式发行说明](releases/v1.1.0/release.md) | [发行验收与保留限制](releases/v1.1.0/validation.md) |
 | v1.0.1 | [窗口恢复布局维护版本](releases/v1.0.1/release.md) | [本轮验证与边界](releases/v1.0.1/release.md#验证与边界) |
 | v1.0.0 | [正式 Release Notes](releases/v1.0.0/release.md) | [验收与发行核验](releases/v1.0.0/validation.md) |

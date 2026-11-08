@@ -1,6 +1,6 @@
 # PgHatch UI localization
 
-The current release version is **1.1.0**. Reliability recovery and the native About dialog provide localized diagnostics and a clickable GitHub link in all three languages. Release verification and retained limitations are recorded in [1.1.0 validation](releases/v1.1.0/validation.md). Previous window-restore fixes remain documented in [1.0.1 release notes](releases/v1.0.1/release.md).
+The current release version is **1.1.1**. Instance removal offers localized stop-and-unregister, registration-only and cancel choices. The menu lifecycle, logical DPI layout and semantic window icons are included in this maintenance release. The maintainer confirmed that the four fixes passed real Windows GUI acceptance. Release verification and retained limitations are recorded in [1.1.1 validation](releases/v1.1.1/validation.md). Previous window-restore fixes remain documented in [1.0.1 release notes](releases/v1.0.1/release.md).
 
 ## Resources
 
