@@ -1055,4 +1055,12 @@ PGDATA and instance settings are preserved. No server starts automatically.</val
   <data name="CouldNotOpenGitHubProject" xml:space="preserve"><value>Could not open the GitHub project page: {0}
 {1}
 You can copy the URL into your browser.</value></data>
+  <data name="RemovalStateUnconfirmed" xml:space="preserve"><value>Cannot confirm a stable running or stopped database. Registration was retained. Wait for lifecycle operations to finish and verify the instance identity.</value></data>
+  <data name="RemovalRegistrationRetained" xml:space="preserve"><value>Instance registration retained. Resolve the diagnostic before retrying removal.</value></data>
+  <data name="StopAndUnregister" xml:space="preserve"><value>Stop database and unregister</value></data>
+  <data name="StopAndUnregisterDetail" xml:space="preserve"><value>Use the verified fast-stop flow. Unregister only after database and controller exit are confirmed. Keep PGDATA and logs.</value></data>
+  <data name="UnregisterKeepRunning" xml:space="preserve"><value>Unregister only, keep database running</value></data>
+  <data name="UnregisterKeepRunningDetail" xml:space="preserve"><value>PostgreSQL will keep running. PGDATA may remain in use. PgHatch will no longer monitor this instance. Keep all data and logs.</value></data>
+  <data name="RemovalRunningWarning" xml:space="preserve"><value>This database is running. Choose explicitly whether to stop it before unregistering. No data or logs will be deleted.</value></data>
+  <data name="RemovalUnknownWarning" xml:space="preserve"><value>Database state is uncertain or changing. Stop-and-unregister is unavailable. Registration-only removal may leave PostgreSQL running and PGDATA in use. Active controller operations block removal.</value></data>
 </root>

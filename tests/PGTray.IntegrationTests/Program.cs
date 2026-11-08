@@ -7,6 +7,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--removal-tests", var removalProgram, var removalParent]) return await RemovalTests.RunAsync(removalProgram, removalParent);
 if (args is ["--round3-controller", var round3Old, var round3New, var round3ControllerParent]) return await FinalReviewTests.ControllerCaptureAsync(round3Old, round3New, round3ControllerParent, true);
 if (args is ["--round3-tests", var round3Program, var round3Parent]) return await RecoveryRound3Tests.RunAsync(round3Program, round3Parent);
 if (args is ["--round3-pipe-parent", var round3Pid, var round3Gate]) return await RecoveryRound3Tests.PipeHelperAsync(round3Pid, round3Gate, true);

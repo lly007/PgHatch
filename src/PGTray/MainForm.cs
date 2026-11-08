@@ -459,8 +459,28 @@ public sealed class MainForm : Form
     private async Task RemoveAsync()
     {
         var instance = RequireSelected();
-        if (MessageBox.Show(this, L10n.Format("UnregisterRNDataAndLogsAreKept", instance.Name), L10n.Get("UnregisterInstance2"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
-        { await manager.RemoveAsync(instance); settings.Remove(instance.Id); }
+        await manager.RefreshAsync(instance);
+        var state = manager.Statuses.GetValueOrDefault(instance.Id)?.State ?? InstanceState.Unknown;
+        InstanceRemoval removal;
+        if (state == InstanceState.Stopped)
+        {
+            if (MessageBox.Show(this, L10n.Format("UnregisterRNDataAndLogsAreKept", instance.Name), L10n.Get("UnregisterInstance2"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            removal = InstanceRemoval.RequireStopped;
+        }
+        else
+        {
+            var stopAndRemove = new TaskDialogCommandLinkButton(L10n.Get("StopAndUnregister"), L10n.Get("StopAndUnregisterDetail")) { Enabled = state == InstanceState.Running };
+            var registrationOnly = new TaskDialogCommandLinkButton(L10n.Get("UnregisterKeepRunning"), L10n.Get("UnregisterKeepRunningDetail"));
+            var page = new TaskDialogPage {
+                Caption = L10n.Get("UnregisterInstance2"), Heading = instance.Name,
+                Text = L10n.Get(state == InstanceState.Running ? "RemovalRunningWarning" : "RemovalUnknownWarning"), Icon = TaskDialogIcon.Warning,
+                Buttons = { stopAndRemove, registrationOnly, TaskDialogButton.Cancel }, DefaultButton = TaskDialogButton.Cancel
+            };
+            var choice = TaskDialog.ShowDialog(this, page);
+            if (choice != stopAndRemove && choice != registrationOnly) return;
+            removal = choice == stopAndRemove ? InstanceRemoval.StopAndRemove : InstanceRemoval.RegistrationOnly;
+        }
+        await manager.RemoveAsync(instance, removal); settings.Remove(instance.Id);
     }
     private async Task LogsAsync()
     {

@@ -19,6 +19,7 @@ public sealed record AppConfig(int SchemaVersion, List<BinaryInstallation> Binar
     [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; init; }
 }
 public enum InstanceState { Unknown, Stopped, Starting, Running, Stopping, Error }
+public enum InstanceRemoval { RegistrationOnly, RequireStopped, StopAndRemove }
 public enum ConnectionState { Unknown, Ready, NotReady }
 public sealed record InstanceStatus(InstanceState State, string Detail, int? ActualPort = null, string? ListenAddress = null,
     ConnectionState Connection = ConnectionState.Unknown, bool? ServerRunning = null);
