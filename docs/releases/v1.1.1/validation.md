@@ -22,11 +22,48 @@
 
 ## 正式构建与资产
 
-本节当前记录版本准备状态。版本 PR 合并后的明确提交作为唯一正式构建输入，使用 `dotnet build PGTray.sln -c Release --nologo` 和 `pwsh -NoProfile -File scripts/Publish.ps1` 在干净工作区生成新的完整矩阵。
+正式发布于 2026-11-08T14:23:45+08:00，Release ID 为 `438072446`。[v1.1.1 Release](https://github.com/lly007/PgHatch/releases/tag/v1.1.1) 已确认为 Latest，Draft=false、Prerelease=false。
 
-构建输入 SHA、版本 PR、标签对象、四 ZIP 实际字节数和哈希、服务端五资产 digest、x64 实际解压包冒烟与最终 Release 状态在发布完成后由独立文档提交补充，标签指向构建输入。
+### Git 与构建输入
 
-原始发布证据存放于本地忽略目录 `artifacts/dev/v1.1.1-release-20261108/`，四配置构建使用新的候选目录，正式资产归档至新的 `artifacts/releases/v1.1.1/`。
+- [版本 PR #5](https://github.com/lly007/PgHatch/pull/5) 合并提交及唯一构建输入为 **`0900ef42a2f76580372eed031e5ac293e1a3b583`**。两个父提交分别为修复合并 `e0dedb32ea89c6e7d9871ffd0e5a11afe3c281db` 与版本准备 `1d548c6ff6438a16b870e542744a1b1f3814b422`。
+- 四个原始修复提交均为该输入的祖先。相对已审查 HEAD `755e69bcbc7c666693dc16efd3eeb68ca0f7d2ee`，业务源码、测试、脚本及 Catalog 树一致，版本准备差异仅为 Directory.Build.props 与当前版本/发行文档。
+- 开始正式构建时 main 与远端一致，工作区和暂存区干净。构建命令为 `dotnet build PGTray.sln -c Release --nologo` 和 `pwsh -NoProfile -File scripts/Publish.ps1`，SDK 10.0.403，Release 构建 0 警告、0 错误。
+- annotated tag `v1.1.1` 的 tag object 为 **`b2c79f18b40d3cbdef8e4628e4d2a09e59e62ec9`**，准确指向上述构建提交。发布后文档通过独立提交记录事实，正式 tag 继续标识构建输入。
+
+### 四配置构建与校验
+
+候选目录为 `artifacts/candidates/run-20261108-061459-cd605038`，COMPLETE.json 为 COMPLETE，Version=1.1.1，SelectedBuilds=4。四包由同一输入全新构建，分别使用隔离 obj/bin，发布日志均无编译警告或错误。正式归档首次创建于 `artifacts/releases/v1.1.1/`，只包含四 ZIP 和外部 SHA256SUMS.txt。
+
+- 每包通过现有 277 项静态检查。另直接读取四个实际 EXE 的 bundle、GUI/Core 元数据和内嵌资源，每包补充 25 项结构及资源检查，覆盖 1.1.1.0 程序集、拥有者菜单、逻辑尺寸状态、统一图标绑定、三种多帧窗口 ICO 的准确字节及显式移除模式/受控停止方法。
+- 独立读取四 ZIP，核对实际字节数、ZIP CRC、包内每个文件 SHA-256、EXE 哈希、版本/架构、Catalog 母版和完整许可证。包内清单逐项匹配，发行内容检查覆盖 PGDATA、用户配置、凭据文件名、测试文件、日志、PDB 和调试脚本。
+- 版本更新后的 About 原生窗口和三语言定向回归为 84 PASS，包含模拟 DPI 与替代 shell/错误检查。已有完整 IconChecks 1253 PASS、业务及安全回归 400 PASS / 1 SKIP 继续按其修复源码范围提供证据。
+
+| 正式资产 | 字节数 | SHA-256，已匹配 GitHub 服务端 digest |
+| --- | --- | --- |
+| PgHatch-win-x64-standalone.zip | 50158322 | `A6DFCD4B64F6D4B7A67669113680584A5C8AE2BF9AF0891BA229A7AF36C87BDE` |
+| PgHatch-win-x64-framework.zip | 2864918 | `60C09C9CE4F9E8321C32C749A27EE20354167A41486849161A01F558281F5980` |
+| PgHatch-win-arm64-standalone.zip | 48017908 | `8FE56D222CA348EDAE3E810C964770EA05868C339F084D4026C7AF958562EBE3` |
+| PgHatch-win-arm64-framework.zip | 2852361 | `36C747FF4519E2B03D898F73FE9338F178730AC3683732B0B5E732FD6F9F6E75` |
+| SHA256SUMS.txt | 394 | `E3B7EBC5422AF9B15B531D1F28A486E57C782C046005E4488FD5F359B1FF826B` |
+
+### 最终实际解压包 x64 冒烟
+
+使用 scripts/Test-ReleaseGui.ps1 对实际 ZIP 校验解压，在全新隔离目录启动两个最终包。窄范围原生窗口探针只向对应 PID/HWND 发送测试窗口消息。
+
+- Standalone 与 Framework 的实际主窗口均显示 1.1.1 和空实例状态，通过实际菜单打开原生模态 About，核对版本、许可文本、GitHub URL 和 owner，关闭后主窗口恢复，最终通过正常 Ctrl+Q 路径退出，退出码均为 0。
+- Framework 加载已安装的 Microsoft.WindowsDesktop.App 10.0.14。Standalone 在子进程隔离 DOTNET_ROOT 设置下运行，实际进程全局 .NET 模块列表为空。
+- 本轮冒烟只使用新建的空配置测试目录。原生窗口消息结果与维护者真实 GUI 验收分别记录，ARM64 继续采用静态验收范围。
+- 实际路径为 `artifacts/dev/v1.1.1-release-20261108/smoke-standalone-b336420a/` 与 `smoke-framework-ef0578ec/`。smoke-summary.json、live-process.json、exit-result.json 和宿主日志保存实际运行证据。
+
+### 服务端发布与下载
+
+- 首先创建 Release 草稿，上传四 ZIP 和 SHA256SUMS.txt，逐项核对五资产的名称、uploaded 状态、实际字节数及服务端 `sha256:` digest，再将 Release 发布并设为 Latest。
+- 发布后重新读取 Release、Latest、annotated tag ref/object 和历史 Release 列表，确认发布状态、准确输入及五资产摘要。
+- 使用 GitHub CLI 独立下载全部五个正式资产，大小和 SHA-256 全部匹配本地正式文件。另通过公开 browser_download_url 无认证下载 SHA256SUMS.txt，其内容摘要同样匹配。
+- 发布前后核对 35 个旧正式归档文件的 SHA-256，历史 tag refs 与基线一致。既有 Release 的标识、正文、目标、发布时间及资产 ID/名称/大小/digest 等内容元数据均通过核对。下载计数按实时服务数据处理。
+
+原始证据位于本地忽略目录 `artifacts/dev/v1.1.1-release-20261108/`，包括 build-input.json、构建/发布日志、package-*.json、package-audit.json、smoke-summary.json、final-assets.json、Release/tag/API 快照、服务端核验结果、下载文件和公开 checksum 下载。正式 tag 对应的原始包保存在独立正式归档目录。
 
 ## 保留的验证限制
 
