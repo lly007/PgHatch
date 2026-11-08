@@ -15,6 +15,7 @@ internal sealed class CatalogForm : Form
 
     public CatalogForm(ConfigStore store)
     {
+        ApplicationIcons.BindWindow(this, WindowIcon.Settings);
         service = new(Path.Combine(AppContext.BaseDirectory, "postgresql-catalog.xml"), store);
         Text = L10n.Get("CatalogTitle"); Font = new Font("Microsoft YaHei UI", 9F);
         AutoScaleDimensions = new SizeF(96, 96); AutoScaleMode = AutoScaleMode.Dpi;

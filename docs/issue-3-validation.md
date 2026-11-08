@@ -58,3 +58,63 @@
 
 本机真实 144 DPI 的原生窗口构造和回归已执行，尚未完成上述多 DPI 与多显示器人工验收。自动化最终计数在本单元完成后追加。
 `dotnet build PGTray.sln -c Release --nologo` 通过，0 警告、0 错误。首轮完整 IconChecks 705 PASS，日志 `artifacts/dev/issue3-dpi-verified.log`，测量和原生控件预览位于 `artifacts/dev/issue3-dpi-verified/`。最后补充 CellStyle.Padding 集中映射与 16 项断言，定向回归见 `artifacts/dev/issue3-final/dpi-cells4.log`，完整计数纳入下方最终联合验收。早期探针失败和诊断日志保留在同一忽略目录，最终计数仅取完整成功运行。
+
+## 子窗口标题栏图标
+
+### 窗体清单与分配
+
+基线只有 MainForm 显式设置正式 Icon。其余自定义窗体未赋值 Icon，ShowIcon 为 WinForms 默认 true，可能显示默认 .NET 图标。About 明确 ShowInTaskbar=false，其余子窗体使用默认值并在业务入口通过 ShowDialog(owner) 打开。LayoutForm 是公共布局基类，当前具体窗口共 11 个类型，创建和导入共用 InstanceForm。
+
+| 窗体 | 本轮标题栏图标 |
+| --- | --- |
+| MainForm、AboutForm | PgHatch 品牌 |
+| InstanceSettingsForm、BinaryForm | Lucide Settings 深蓝齿轮 |
+| RenameForm、EmergencyToolForm | Lucide Settings 深蓝齿轮 |
+| DownloadForm、CatalogForm | Lucide Settings 深蓝齿轮 |
+| InstanceForm 创建/导入、DiscoveryForm | Lucide Database |
+| LogForm | Lucide FileText |
+
+LayoutForm 接受语义图标参数，默认品牌用于 About。直接继承 Form 的子窗体通过同一 BindWindow 机制绑定。ShowIcon=true，子窗体 ShowInTaskbar=false。原有模态入口和 owner 继续使用。
+
+### 资源、来源与所有权
+
+ApplicationIcons 静态共享内嵌 ICO 字节，避免每个窗口重复读取资源。每个窗体独立持有图标句柄缓存，构造、HandleCreated、DpiChanged 共用同一选择路径，在 Form.Disposed 事件释放，生命周期晚于原生 HWND 和子控件销毁。关闭其中一个窗口不会释放其他窗口的句柄。主窗口和托盘继续使用各自原有品牌资源与缓存。
+
+新增 `Assets/Ui/Window/settings.ico`、`database.ico`、`file-text.ico`，来自现有 Lucide revision `1ef60af944de207e0d5176905a0759ba12e6ee8d` 的 SVG，统一深蓝 `#1e3a5f`。每个含 16、20、24、32、40、48、64、128、256px 九个 32-bit RGBA 帧，保留透明安全边缘，256px 用 PNG，其余用 DIB 与 AND mask。
+
+离线生成脚本为 `scripts/Generate-WindowIcons.cjs`，使用本机已有 sharp。ICO 编码从现有品牌生成器抽成 `Write-WindowsIco.cjs` 共用。将原有品牌 PNG 帧重新写入临时 ICO，与两份正式品牌 ICO 均逐字节相同，验证编码抽取没有改变原逻辑。资源及许可说明在 `Assets/Ui/Window/README.md` 与 `THIRD-PARTY-NOTICES.md`，完整 Lucide/Feather 许可继续随构建提供。
+
+### 验证与人工观察
+
+`WindowIconChecks` 为 532 PASS，已纳入最终完整 UI 入口。检查每个原生 ICO 帧的尺寸、透明边缘和可见笔画，反射枚举全部窗口类型并要求分配测试覆盖。每种子窗口重复打开、关闭三轮，核对原生 WM_GETICON 大小 HICON 尺寸与 ICO 像素，合成 DPI 事件验证资源切换及返回复用，GetIconInfo 验证窗体关闭后借用的 HICON 已销毁。另逐一执行真正 ShowDialog(owner)，通过原生 owner HWND 和 IsWindowEnabled 核对模态拥有者禁用及恢复。目录/下载窗口使用离线缓存和禁止网络的 HTTP 夹具，实际请求计数为零。
+
+已查看 16～256px 原始与放大帧预览，以及真实 144 DPI 原生控件绘制出的齿轮、数据库和文档标题栏预览。16px/32px 图形可辨、无边缘裁切。主窗口、托盘、EXE 原生品牌图标回归包含在完整 IconChecks 中。其他 DPI 的真实标题栏视觉效果、主题差异及实际跨屏清晰度仍待人工观察。
+
+## 最终联合验收
+
+全部命令使用 Release 构建。PostgreSQL 18.6 工具来自只读 `D:/PostgreSQL/PostgreSQL`，维护与跨主版本用已有 18.3、17.11 官方工具目录作为只读复制源。集群仅在 `E:/PgHatch-issue3-tests/` 下唯一命名的本轮目录中创建和正常停止，保留原始证据。
+
+| 回归入口 | PASS | SKIP | 证据类型 |
+| --- | --- | --- | --- |
+| IconChecks 完整入口 | 1253 | 0 | 资源、原生窗口、模拟 DPI 和窗口消息 |
+| --removal-tests | 46 | 0 | 临时真实集群及受控停止/保存/身份故障 |
+| 默认生命周期入口 | 75 | 0 | 临时真实多实例、SQL 和生命周期 |
+| --config-tests | 75 | 0 | 配置夹具、真实工具只读检查 |
+| --maintenance-tests 串行 | 15 | 0 | 维护版本工具与配置夹具 |
+| --round3-tests | 82 | 0 | 临时真实集群及确定性故障 |
+| --round3-controller | 15 | 0 | 真实控制器、退出观察和管道故障 |
+| --review-timeout | 22 | 0 | 真实 pg_ctl、被动超时及退出协调 |
+| --reliability-real | 64 | 1 | 真实同主版本维护及安全故障 |
+| --cross-major-real | 6 | 0 | 真实 17.11/18.6 拒绝与 SQL/数据保留 |
+
+业务/安全断言共 400 PASS。唯一 SKIP 为创建真实符号链接权限不足。窗口图标 532 项、菜单 25 项等定向断言已包含在完整 UI 入口中，不重复计数。另执行共享 ICO 写入器对两份品牌文件的逐字节重建检查，2 PASS。
+
+停止并移除的最终复核增加原始登记别名重验。执行停止始终使用先前核验的物理路径，在停止命令前和 ConfirmStopped 之后重新校验 Config 中原始登记路径，盘符或映射变化时保留登记。新夹具在停止命令完成期间注入别名变化，实际只停止本轮临时物理目标，并验证磁盘登记保留。加上外部启动与保留检查，定向断言由 42 增为 46，最终日志为 `artifacts/dev/issue3-final/removal-verified.log`。身份映射故障属于确定性注入，没有将其称为真实跨网络映射验收。
+
+补充维护夹具首轮与其他工具版本测试并行时，ServerIdentity 对临时 `postgres --version` 进程的身份不明做了保守拒绝。产品和测试预期均未为此调整。停止并行版本探针后，全新目录串行复跑 15 PASS。首轮日志保留为 `artifacts/dev/issue3-final/maintenance.log`，成功串行日志为 `maintenance-serial.log`。后续运行此类夹具应与进程身份核验串行执行。
+
+最终构建、联合 UI 和补充安全日志位于 `artifacts/dev/issue3-final/`，前三单元的专用日志位于同级 `issue3-*.log`。早期开发探针的故障日志不计入最终成功断言。全部临时真实服务器由其所属测试正常停止。
+
+### 交付边界
+
+可以进入代码审查。真实多 DPI、不同物理工作区、跨屏拖动、原生移除选择框的人工操作和标题栏视觉验收仍待维护者完成。当前设计保守拒绝未确认身份、退出或并发控制器状态，可能需要先处理诊断再重试。与真实数据库和平台权限相关的限制沿用既有安全边界。

@@ -8,7 +8,7 @@ internal sealed class InstanceSettingsForm : LayoutForm
     private readonly TextBox name = new();
     public string InstanceName => name.Text;
     private sealed record Choice(Guid Id, string Label);
-    public InstanceSettingsForm(InstanceConfig instance, InstanceManager manager) : base(L10n.Get("InstanceSettingsRepairBinaries"))
+    public InstanceSettingsForm(InstanceConfig instance, InstanceManager manager) : base(L10n.Get("InstanceSettingsRepairBinaries"), WindowIcon.Settings)
     {
         Table.Dock = DockStyle.Top; AutoScroll = true;
         Table.ColumnStyles[2] = new ColumnStyle(SizeType.Absolute, 0);

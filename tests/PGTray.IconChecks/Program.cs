@@ -24,6 +24,13 @@ internal static class Program
             DpiLayoutChecks.Run(dpiOutput, (valid, text) => { Console.WriteLine($"{(valid ? "PASS" : "FAIL")}: {text}"); if (!valid) throw new Exception(text); });
             return 0;
         }
+        if (args is ["--window-icon-checks", var windowIconOutput])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            Directory.CreateDirectory(windowIconOutput);
+            WindowIconChecks.Run(windowIconOutput, (valid, text) => { Console.WriteLine($"{(valid ? "PASS" : "FAIL")}: {text}"); if (!valid) throw new Exception(text); });
+            return 0;
+        }
         if (args is ["--creation-check", var binaries, var testParent])
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
@@ -132,6 +139,7 @@ internal static class Program
             try { disposed.Get(UiGlyph.Plus, 96); throw new Exception("Disposed cache accepted access"); }
             catch (ObjectDisposedException) { Check(true, "Image cache releases ownership and rejects access after disposal"); }
             BrandChecks.Run(args[0], Check);
+            WindowIconChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
             AboutChecks.Run(Check);
             EmergencyBindingChecks.Run(Check);
