@@ -29,6 +29,7 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
     public ConcurrentDictionary<Guid, IReadOnlyList<BinaryInstallation>> EmergencyCandidates { get; } = new();
     public event Action? Changed;
     internal Func<Task<CommandResult>>? EmergencyStopCommand { get; set; }
+    internal Func<Task<CommandResult>>? StopCommand { get; set; }
     internal Func<string, string?, string> ResolveDataIdentity { get; set; } =
         (path, expected) => PathSafety.UnlinkedDataIdentity(path, expected);
 
@@ -340,18 +341,74 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         lock (coordination.Sync) { coordination.Operating = false; coordination.Epoch++; }
         coordination.Lifecycle.Release();
     }
-    public Task RemoveAsync(InstanceConfig instance) => TrackAsync(async () => {
-        EnsureConfiguration();
-        var coordination = coordinators.GetOrAdd(instance.Id, _ => new());
-        if (!await coordination.Lifecycle.WaitAsync(0)) throw new InvalidOperationException(L10n.Get("ThisInstanceIsStartingOrStoppingWait"));
-        BeginOperation(coordination);
+    // Preserve registration-only behavior for existing callers. UI callers select an explicit mode.
+    public Task RemoveAsync(InstanceConfig instance) => RemoveAsync(instance, InstanceRemoval.RegistrationOnly);
+    public Task RemoveAsync(InstanceConfig selected, InstanceRemoval removal) => TrackAsync(async () => {
+        if (!Enum.IsDefined(removal)) throw new ArgumentOutOfRangeException(nameof(removal));
+        await configurationGate.WaitAsync();
+        Coordination? coordination = null;
+        InstanceConfig? instance = null;
+        IDisposable? lease = null;
+        Task<CommandResult>? pendingController = null;
         try
         {
-            await CommitAsync(c => c with { Instances = c.Instances.Where(i => i.Id != instance.Id).ToList() });
+            EnsureConfiguration();
+            instance = Config.Instances.Find(i => i.Id == selected.Id) ?? throw new InvalidOperationException(L10n.Get("TheInstanceIsNotRegistered"));
+            var candidate = coordinators.GetOrAdd(instance.Id, _ => new());
+            if (!await candidate.Lifecycle.WaitAsync(0)) throw new InvalidOperationException(L10n.Get("ThisInstanceIsStartingOrStoppingWait"));
+            coordination = candidate; BeginOperation(coordination);
+            if (removal != InstanceRemoval.RegistrationOnly)
+            {
+                instance = instance with { DataDirectory = EnsureUniqueData(instance) };
+                var binary = Binary(instance);
+                lease = tools.PinTools(binary);
+                var actualBinary = await tools.InspectBinaryAsync(binary.BinDirectory);
+                if (actualBinary.Version != binary.Version || actualBinary.Major != binary.Major) throw new IOException(L10n.Get("BinaryToolsInconsistent"));
+                await tools.ValidateClusterAsync(binary, instance.DataDirectory);
+                var before = await tools.StatusAsync(binary, instance);
+                if (before.State != InstanceState.Stopped)
+                {
+                    if (removal != InstanceRemoval.StopAndRemove || before.State != InstanceState.Running || before.ServerRunning != true)
+                        throw new IOException(L10n.Get("RemovalStateUnconfirmed") + "\r\n" + before.Detail);
+                    await Task.Run(() => ServerIdentity.ConfirmRunning(instance, binary));
+                    _ = EnsureUniqueData(Config.Instances.Single(i => i.Id == instance.Id));
+                    var result = await RunStopControllerAsync(binary, instance, terminateOnTimeout: false);
+                    pendingController = result.PendingCompletion ?? (result.ProcessExitConfirmed ? null : Task.FromResult(result));
+                    var stopped = await tools.StatusAsync(binary, instance);
+                    SetStatus(instance.Id, stopped);
+                    if (result.TimedOut || result.ExitCode != 0 || !result.ProcessExitConfirmed || pendingController is not null || stopped.State != InstanceState.Stopped)
+                        throw new IOException(L10n.Get("ShutdownIsNotYetConfirmedTheActual") + result.Diagnostic);
+                }
+                await Task.Run(() => ServerIdentity.ConfirmStopped(instance.DataDirectory));
+                _ = EnsureUniqueData(Config.Instances.Single(i => i.Id == instance.Id));
+            }
+            // The configuration gate and lifecycle fence remain held through durable registration removal.
+            var next = Config with { Instances = Config.Instances.Where(i => i.Id != instance.Id).ToList() };
+            await store.SaveAsync(next); Config = next;
             Statuses.TryRemove(instance.Id, out _); LastOperationDiagnostics.TryRemove(instance.Id, out _);
-            dataIdentities.TryRemove(instance.Id, out _);
+            dataIdentities.TryRemove(instance.Id, out _); EmergencyCandidates.TryRemove(instance.Id, out _);
         }
-        finally { EndOperation(coordination); }
+        catch (Exception ex)
+        {
+            if (coordination is not null && instance is not null)
+            {
+                LastOperationDiagnostics[instance.Id] = L10n.Get("RemovalRegistrationRetained") + "\r\n" + ex.Message + "\r\n" + LastOperationDiagnostics.GetValueOrDefault(instance.Id);
+                SetStatus(instance.Id, new(InstanceState.Unknown, LastOperationDiagnostics[instance.Id]));
+            }
+            throw;
+        }
+        finally
+        {
+            if (coordination is not null && instance is not null && pendingController is not null &&
+                !(pendingController.IsCompletedSuccessfully && pendingController.Result.ProcessExitConfirmed))
+            {
+                RetainPendingController(instance, coordination, pendingController, lease!);
+                coordination = null; lease = null;
+            }
+            lease?.Dispose();
+            if (coordination is not null) EndOperation(coordination);
+            configurationGate.Release();
+        }
         Changed?.Invoke();
     });
     public Task RefreshAllAsync(bool refreshVersions = false) => TrackAsync(async () => {
@@ -678,13 +735,20 @@ public sealed class InstanceManager(ConfigStore store, PostgresTools tools, int 
         var before = await tools.StatusAsync(binary, instance);
         if (before.State == InstanceState.Stopped) { SetStatus(instance.Id, before); return; }
         if (before.ServerRunning != true) throw new IOException(L10n.Get("CannotConfirmThatTheTargetClusterProcess") + before.Detail);
-        SetStatus(instance.Id, new(InstanceState.Stopping, L10n.Get("StoppingInFastMode"), ServerRunning: true));
-        var r = await tools.RunAsync(binary, "pg_ctl", ["stop", "-D", instance.DataDirectory, "-m", "fast", "-w", "-t", commandWaitSeconds.ToString()], Math.Max(10, commandWaitSeconds + 10));
+        var r = await RunStopControllerAsync(binary, instance);
         var actual = await tools.StatusAsync(binary, instance);
-        LastOperationDiagnostics[instance.Id] = r.Diagnostic;
-        RetainOutputCleanup(instance.Id, r);
         SetStatus(instance.Id, actual with { Detail = r.Diagnostic + "\r\n" + actual.Detail });
         if (actual.State != InstanceState.Stopped) throw new IOException(L10n.Get("ShutdownIsNotYetConfirmedTheActual") + r.Diagnostic);
+    }
+    private async Task<CommandResult> RunStopControllerAsync(BinaryInstallation binary, InstanceConfig instance, bool terminateOnTimeout = true)
+    {
+        SetStatus(instance.Id, new(InstanceState.Stopping, L10n.Get("StoppingInFastMode"), ServerRunning: true));
+        var result = StopCommand is { } injected ? await injected() : await tools.RunAsync(binary, "pg_ctl",
+            ["stop", "-D", instance.DataDirectory, "-m", "fast", "-w", "-t", commandWaitSeconds.ToString()],
+            Math.Max(10, commandWaitSeconds + 10), terminateOnTimeout: terminateOnTimeout);
+        LastOperationDiagnostics[instance.Id] = result.Diagnostic;
+        RetainOutputCleanup(instance.Id, result);
+        return result;
     }
     public static IEnumerable<string> DiscoverCandidates(string root)
     {

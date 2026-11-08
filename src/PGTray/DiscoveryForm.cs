@@ -20,6 +20,7 @@ internal sealed class DiscoveryForm : Form
 
     public DiscoveryForm(InstanceManager manager, PostgresTools tools)
     {
+        ApplicationIcons.BindWindow(this, WindowIcon.Database);
         this.manager = manager; discovery = new(tools);
         Text = L10n.Get("ScanLocalPostgreSQLInstances"); Font = new Font("Segoe UI", 9F); BackColor = Color.White;
         AutoScaleDimensions = new(96, 96); AutoScaleMode = AutoScaleMode.Dpi;

@@ -17,6 +17,20 @@ internal static class Program
             AboutChecks.Run((valid, text) => { if (!valid) throw new Exception("FAIL: " + text); passed++; Console.WriteLine("PASS: " + text); });
             Console.WriteLine(passed + " PASS; About native dialog, simulated DPI and substituted shell/error checks."); return 0;
         }
+        if (args is ["--dpi-checks", var dpiOutput])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            Directory.CreateDirectory(dpiOutput);
+            DpiLayoutChecks.Run(dpiOutput, (valid, text) => { Console.WriteLine($"{(valid ? "PASS" : "FAIL")}: {text}"); if (!valid) throw new Exception(text); });
+            return 0;
+        }
+        if (args is ["--window-icon-checks", var windowIconOutput])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            Directory.CreateDirectory(windowIconOutput);
+            WindowIconChecks.Run(windowIconOutput, (valid, text) => { Console.WriteLine($"{(valid ? "PASS" : "FAIL")}: {text}"); if (!valid) throw new Exception(text); });
+            return 0;
+        }
         if (args is ["--creation-check", var binaries, var testParent])
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
@@ -125,11 +139,14 @@ internal static class Program
             try { disposed.Get(UiGlyph.Plus, 96); throw new Exception("Disposed cache accepted access"); }
             catch (ObjectDisposedException) { Check(true, "Image cache releases ownership and rejects access after disposal"); }
             BrandChecks.Run(args[0], Check);
+            WindowIconChecks.Run(args[0], Check);
             LocalizationChecks.Run(args[0], Check);
             AboutChecks.Run(Check);
             EmergencyBindingChecks.Run(Check);
+            BinaryMenuChecks.Run(args[0], Check);
             WindowChecks.Run(args[0], Check);
             MainWindowLayoutChecks.Run(args[0], Check);
+            DpiLayoutChecks.Run(args[0], Check);
             SessionShutdownChecks.Run(args[0], Check);
             Console.WriteLine($"{results.Count} PASS. Offscreen DPI raster and native PE resource checks; real desktop scaling remains a separate GUI check.");
             return 0;

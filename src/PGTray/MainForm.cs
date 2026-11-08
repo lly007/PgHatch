@@ -6,6 +6,7 @@ namespace PGTray;
 public sealed class MainForm : Form
 {
     private static readonly Color Ink = Color.FromArgb(30, 41, 59), Muted = Color.FromArgb(100, 116, 139), Accent = Color.FromArgb(35, 92, 180);
+    private static readonly Size DesignClientSize = new(1080, 700), MinimumClientSize = new(860, 500);
     private readonly ConfigStore store = new(AppContext.BaseDirectory);
     private readonly PostgresTools tools = new(new ProcessRunner());
     private readonly InstanceManager manager;
@@ -43,36 +44,47 @@ public sealed class MainForm : Form
     private readonly Button start, stop, restart;
     private RegisteredWaitHandle? restoreWait;
     private bool loaded, configuring, refreshing, exiting, closing, importProgramHintShown;
+    private SizeF preferredLogicalClient = DesignClientSize;
+    private bool userSizing, constrainOnRestore;
     private InstanceConfig? Selected => grid.SelectedRows.Count > 0 ? grid.SelectedRows[0].Tag as InstanceConfig : null;
 
     public MainForm(EventWaitHandle showWindow) : this(showWindow, new UiPreferences(AppContext.BaseDirectory)) { }
     internal MainForm(EventWaitHandle showWindow, UiPreferences preferences)
     {
+        // Build one complete 96-DPI control tree before Font/layout can advance the autoscale baseline.
+        SuspendLayout();
         this.preferences = preferences;
         manager = new(store, tools);
         Text = L10n.Get("PgHatchPostgreSQLInstanceManager");
         AutoScaleDimensions = new(96, 96); AutoScaleMode = AutoScaleMode.Dpi;
         Font = new Font("Segoe UI", 9.5F); BackColor = Color.FromArgb(244, 246, 249); ForeColor = Ink;
-        ClientSize = new(1080, 700); MinimumSize = new(900, 520); StartPosition = FormStartPosition.CenterScreen; Icon = applicationIcons.Window(DeviceDpi);
-        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(20), ColumnCount = 1, RowCount = 4 };
+        ClientSize = DesignClientSize; StartPosition = FormStartPosition.CenterScreen; Icon = applicationIcons.Window(DeviceDpi);
+        var viewport = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new(20), ColumnCount = 1, RowCount = 4, MinimumSize = new(800, 540) };
+        layout.ColumnStyles.Add(new(SizeType.Percent, 100));
+        viewport.Controls.Add(layout);
         layout.RowStyles.Add(new(SizeType.Absolute)); layout.RowStyles.Add(new(SizeType.AutoSize)); layout.RowStyles.Add(new(SizeType.Percent, 100)); layout.RowStyles.Add(new(SizeType.AutoSize));
         var headerHost = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, Margin = new(0, 0, 0, 12) };
         headerHost.ColumnStyles.Add(new(SizeType.Percent, 100)); headerHost.ColumnStyles.Add(new(SizeType.Absolute, 116));
         headerHost.RowStyles.Add(new(SizeType.AutoSize));
-        var header = new TableLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top, ColumnCount = 1, Margin = Padding.Empty };
+        var header = new TableLayoutPanel { Dock = DockStyle.Top, ColumnCount = 1, Margin = Padding.Empty };
+        header.ColumnStyles.Add(new(SizeType.Percent, 100));
         header.RowStyles.Add(new(SizeType.AutoSize)); header.RowStyles.Add(new(SizeType.AutoSize)); header.RowStyles.Add(new(SizeType.AutoSize));
         using (var stream = typeof(MainForm).Assembly.GetManifestResourceStream("PgHatch.Brand.Header.png")!)
         using (var image = Image.FromStream(stream)) brandLogo.Image = new Bitmap(image);
         brandLogo.AccessibleName = L10n.Get("PgHatchLogo");
         headerHost.Controls.Add(header, 0, 0); headerHost.Controls.Add(brandLogo, 1, 0);
+        var buildingLayout = true;
         void ApplyHeaderHeight()
         {
             // Minimized windows have a zero client area. Measuring the temporarily wrapped
             // toolbar there can change this row while its parent is still restoring layout.
-            if (WindowState == FormWindowState.Minimized || header.Width <= 0) return;
-            // Nested percent columns can measure a wrapped toolbar at the wrong width.
-            // Use the actual left-column width and keep only the occupied content/logo height.
-            var height = Math.Max(header.GetPreferredSize(new(header.Width, 0)).Height, headerHost.ColumnStyles[1].Width > 0 ? brandLogo.Height : 0);
+            if (buildingLayout || WindowState == FormWindowState.Minimized || header.Width <= 0) return;
+            // PreferredSize can measure a percent-column toolbar at its minimum width.
+            // Measure its laid-out children after wrapping at the actual assigned width.
+            var occupied = header.Controls.Cast<Control>().Max(control => control.Bottom + control.Margin.Bottom) + header.Padding.Bottom;
+            if (header.Height != occupied) header.Height = occupied;
+            var height = Math.Max(occupied, headerHost.ColumnStyles[1].Width > 0 ? brandLogo.Height : 0);
             var rowHeight = height + headerHost.Margin.Vertical;
             if (layout.RowStyles[0].Height != rowHeight) layout.RowStyles[0].Height = rowHeight;
         }
@@ -94,19 +106,19 @@ public sealed class MainForm : Form
         header.SizeChanged += (_, _) => FitHeaderHeight();
         void FitLogo()
         {
-            if (WindowState == FormWindowState.Minimized || headerHost.ClientSize.Width <= 0) return;
-            var scale = DeviceDpi / 96F;
-            var logicalWidth = headerHost.ClientSize.Width / scale;
-            var size = logicalWidth < 680 ? 80 : 100;
-            var showLogo = logicalWidth >= 620;
+            if (buildingLayout || WindowState == FormWindowState.Minimized || headerHost.ClientSize.Width <= 0) return;
+            // Logo geometry is part of the control tree and is scaled once by WinForms.
+            // Only visibility depends on the available logical width.
+            var logicalWidth = DpiLayout.Logical(Math.Min(headerHost.ClientSize.Width, viewport.ClientSize.Width - layout.Padding.Horizontal), DeviceDpi);
+            var showLogo = logicalWidth >= 760;
             brandLogo.Visible = showLogo;
-            var width = showLogo ? (size + 16) * scale : 0;
+            var width = showLogo ? brandLogo.Width + brandLogo.Margin.Horizontal : 0;
             if (headerHost.ColumnStyles[1].Width != width) headerHost.ColumnStyles[1].Width = width;
-            brandLogo.Size = new((int)(size * scale), (int)(size * scale));
-            brandLogo.Margin = new((int)(16 * scale), 0, 0, 0);
             FitHeaderHeight();
         }
+        brandLogo.MinimumSize = brandLogo.MaximumSize = brandLogo.Size = new(100, 100); brandLogo.Margin = new(16, 0, 0, 0);
         headerHost.SizeChanged += (_, _) => FitLogo();
+        viewport.SizeChanged += (_, _) => FitLogo();
         header.Controls.Add(new Label { Text = "PgHatch", AutoSize = true, Font = new Font(Font.FontFamily, 22F, FontStyle.Bold), ForeColor = Ink, Margin = new(0, 0, 0, 2) });
         summary.Text = L10n.Format("LocalPostgreSQLInstancesV", AppVersion.Current); summary.Margin = new(0, 0, 0, 14); header.Controls.Add(summary);
         var toolbar = Flow();
@@ -139,16 +151,20 @@ public sealed class MainForm : Form
         recovery.Controls.Add(Button(L10n.Get("PreserveFileAndStartFresh"), () => RecoverAsync(false), requiresConfiguration: false));
         layout.Controls.Add(recovery, 0, 1);
         var content = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new(0, 0, 0, 14) };
+        content.RowStyles.Add(new(SizeType.Percent, 100));
         content.ColumnStyles.Add(new(SizeType.Percent, 42)); content.ColumnStyles.Add(new(SizeType.Percent, 58));
-        var listCard = new TableLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new(12), ColumnCount = 1, RowCount = 2, Margin = new(0, 0, 12, 0) };
+        var listCard = new TableLayoutPanel { Dock = DockStyle.Fill, BackColor = Color.White, Padding = new(12), ColumnCount = 1, RowCount = 2, Margin = new(0, 0, 12, 0), MinimumSize = new(300, 240) };
+        listCard.ColumnStyles.Add(new(SizeType.Percent, 100));
         listCard.RowStyles.Add(new(SizeType.AutoSize)); listCard.RowStyles.Add(new(SizeType.Percent, 100));
         listCard.Controls.Add(new Label { Text = L10n.Get("Instances"), AutoSize = true, Font = new Font(Font.FontFamily, 11F, FontStyle.Bold), Margin = new(0, 0, 0, 12) });
         foreach (var (name, weight) in new[] { (L10n.Get("Name"), 34F), (L10n.Get("Version"), 17F), (L10n.Get("Status"), 28F), (L10n.Get("Port"), 21F) })
             grid.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = name, FillWeight = weight, SortMode = DataGridViewColumnSortMode.NotSortable });
-        grid.ColumnHeadersDefaultCellStyle = new() { BackColor = Color.FromArgb(244, 247, 251), ForeColor = Muted, Padding = new(4), WrapMode = DataGridViewTriState.True };
+        grid.ColumnHeadersDefaultCellStyle = new() { BackColor = Color.FromArgb(244, 247, 251), ForeColor = Muted, WrapMode = DataGridViewTriState.True };
         grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-        grid.DefaultCellStyle = new() { SelectionBackColor = Color.FromArgb(225, 237, 255), SelectionForeColor = Ink, Padding = new(4), ForeColor = Ink, BackColor = Color.White };
+        grid.DefaultCellStyle = new() { SelectionBackColor = Color.FromArgb(225, 237, 255), SelectionForeColor = Ink, ForeColor = Ink, BackColor = Color.White };
         listCard.Controls.Add(grid, 0, 1); content.Controls.Add(listCard, 0, 0);
+        detailHost.MinimumSize = new(360, 240);
+        detailCard.ColumnStyles.Add(new(SizeType.Percent, 100));
         detailHost.Controls.Add(detailCard); detailHost.Controls.Add(emptyCard); content.Controls.Add(detailHost, 1, 0); layout.Controls.Add(content, 0, 2);
         heading.Font = new Font(Font.FontFamily, 17F, FontStyle.Bold); heading.MaximumSize = new(450, 0);
         detailCard.RowStyles.Add(new(SizeType.AutoSize)); detailCard.RowStyles.Add(new(SizeType.AutoSize)); detailCard.RowStyles.Add(new(SizeType.AutoSize));
@@ -177,16 +193,16 @@ public sealed class MainForm : Form
         var instanceMore = DropDownButton(L10n.Get("MoreActions"), UiGlyph.Ellipsis, dataDirectory, instanceSettings, new ToolStripSeparator(), remove);
         utilities.Controls.AddRange([logs, instanceMore]); instanceControls.AddRange([logs, instanceMore]); detailCard.Controls.Add(utilities, 0, 4);
         BuildEmptyCard();
-        status.Text = L10n.Get("LoadingConfiguration"); status.Padding = new(0, 2, 0, 0); layout.Controls.Add(status, 0, 3); Controls.Add(layout);
+        status.Text = L10n.Get("LoadingConfiguration"); status.Padding = new(0, 2, 0, 0); layout.Controls.Add(status, 0, 3); Controls.Add(viewport);
         grid.SelectionChanged += async (_, _) => { UpdateDetails(); await LoadSelectedSettingsAsync(); };
         grid.CellDoubleClick += async (_, e) => { if (e.RowIndex >= 0) await RunAsync(LogsAsync); };
         DpiChanged += (_, e) => {
             foreach (var menu in dropDownMenus) menu.Close();
             uiIcons.UpdateDpi(e.DeviceDpiNew); Icon = applicationIcons.Window(e.DeviceDpiNew);
             if (tray is not null) tray.Icon = applicationIcons.Tray(e.DeviceDpiNew);
-            UpdateRowHeight(); BeginInvoke(ClampToWorkingArea);
-            FitLogo();
-        }; UpdateRowHeight();
+            // WinForms applies the suggested rectangle and scales children after this event.
+            BeginInvoke(() => { if (!IsDisposed && !Disposing) { viewport.AutoScrollMinSize = layout.MinimumSize; UpdateRowHeight(); ClampToWorkingArea(); FitLogo(); } });
+        };
         HandleCreated += (_, _) => { Icon = applicationIcons.Window(DeviceDpi); if (tray is not null) tray.Icon = applicationIcons.Tray(DeviceDpi); };
         trayMenu.Items.Add(L10n.Get("OpenManager"), null, (_, _) => RestoreWindow());
         trayMenu.Items.Add(L10n.Get("HideWindow"), null, (_, _) => Hide()); trayMenu.Items.Add(new ToolStripSeparator());
@@ -217,10 +233,13 @@ public sealed class MainForm : Form
             }, null, Timeout.Infinite, false);
             await RunAsync(LoadAsync, requiresConfiguration: false);
         };
+        ResumeLayout(performLayout: true);
+        buildingLayout = false; viewport.AutoScrollMinSize = layout.MinimumSize; UpdateRowHeight(); FitLogo();
     }
     private void BuildEmptyCard()
     {
         var panel = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1 };
+        panel.ColumnStyles.Add(new(SizeType.Percent, 100));
         panel.Controls.Add(new Label { Text = L10n.Get("ManagePostgreSQL"), AutoSize = true, Font = new Font(Font.FontFamily, 17F, FontStyle.Bold), Margin = new(0, 0, 0, 12) });
         var welcome = new Label { Text = L10n.Get("CreateANewLocalInstanceOrRegister"), Dock = DockStyle.Fill, ForeColor = Muted, Margin = new(0, 0, 0, 22) };
         emptyCard.SizeChanged += (_, _) => {
@@ -339,16 +358,47 @@ public sealed class MainForm : Form
     private static Color StateColor(InstanceState state) => state switch { InstanceState.Running => Color.FromArgb(28, 122, 81), InstanceState.Starting or InstanceState.Stopping => Color.FromArgb(159, 99, 16), InstanceState.Error => Color.FromArgb(181, 54, 54), _ => Muted };
     private void UpdateRowHeight()
     {
-        grid.RowTemplate.Height = Math.Max(28, (int)Math.Ceiling(Font.GetHeight() + 16 * DeviceDpi / 96F));
+        // Cell styles are not Controls and WinForms does not autoscale their Padding.
+        var cellPadding = new Padding(DpiLayout.Pixels(4, DeviceDpi));
+        grid.ColumnHeadersDefaultCellStyle.Padding = cellPadding;
+        grid.DefaultCellStyle = new DataGridViewCellStyle(grid.DefaultCellStyle) { Padding = cellPadding };
+        grid.RowTemplate.Height = Math.Max(DpiLayout.Pixels(28, DeviceDpi), TextRenderer.MeasureText("Ag", Font).Height + DpiLayout.Pixels(16, DeviceDpi));
         foreach (DataGridViewRow row in grid.Rows) row.Height = grid.RowTemplate.Height;
         foreach (DataGridViewColumn column in grid.Columns)
-            column.MinimumWidth = TextRenderer.MeasureText(column.HeaderText, Font).Width + (int)(18 * DeviceDpi / 96F);
+            column.MinimumWidth = TextRenderer.MeasureText(column.HeaderText, Font).Width + DpiLayout.Pixels(18, DeviceDpi);
     }
     private void ClampToWorkingArea()
     {
-        var work = Screen.FromControl(this).WorkingArea;
-        MinimumSize = new(Math.Min(MinimumSize.Width, work.Width), Math.Min(MinimumSize.Height, work.Height));
-        if (Width > work.Width || Height > work.Height) Size = new(Math.Min(Width, work.Width), Math.Min(Height, work.Height));
+        ApplyWindowConstraints(Screen.FromControl(this).WorkingArea, DeviceDpi);
+    }
+    internal void ApplyWindowConstraints(Rectangle work, int dpi)
+    {
+        if (work.Width <= 0 || work.Height <= 0) return;
+        var frame = SizeFromClientSize(Size.Empty);
+        var minimum = DpiLayout.Pixels(MinimumClientSize, dpi) + frame;
+        MinimumSize = new(Math.Min(minimum.Width, work.Width), Math.Min(minimum.Height, work.Height));
+        if (WindowState != FormWindowState.Normal) { constrainOnRestore = true; return; }
+        var desired = DpiLayout.Pixels(preferredLogicalClient, dpi) + frame;
+        var size = new Size(Math.Min(desired.Width, work.Width), Math.Min(desired.Height, work.Height));
+        Bounds = new(new Point(Math.Clamp(Left, work.Left, work.Right - size.Width), Math.Clamp(Top, work.Top, work.Bottom - size.Height)), size);
+    }
+    protected override void OnResizeBegin(EventArgs e) { userSizing = false; base.OnResizeBegin(e); }
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        if (constrainOnRestore && WindowState == FormWindowState.Normal && IsHandleCreated)
+        {
+            constrainOnRestore = false;
+            BeginInvoke(() => { if (!IsDisposed && !Disposing) ClampToWorkingArea(); });
+        }
+    }
+    protected override void OnResizeEnd(EventArgs e)
+    {
+        if (userSizing && WindowState == FormWindowState.Normal)
+            preferredLogicalClient = new(DpiLayout.Logical(ClientSize.Width, DeviceDpi), DpiLayout.Logical(ClientSize.Height, DeviceDpi));
+        userSizing = false;
+        base.OnResizeEnd(e);
+        ClampToWorkingArea();
     }
     private void UpdateDetails()
     {
@@ -459,8 +509,28 @@ public sealed class MainForm : Form
     private async Task RemoveAsync()
     {
         var instance = RequireSelected();
-        if (MessageBox.Show(this, L10n.Format("UnregisterRNDataAndLogsAreKept", instance.Name), L10n.Get("UnregisterInstance2"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
-        { await manager.RemoveAsync(instance); settings.Remove(instance.Id); }
+        await manager.RefreshAsync(instance);
+        var state = manager.Statuses.GetValueOrDefault(instance.Id)?.State ?? InstanceState.Unknown;
+        InstanceRemoval removal;
+        if (state == InstanceState.Stopped)
+        {
+            if (MessageBox.Show(this, L10n.Format("UnregisterRNDataAndLogsAreKept", instance.Name), L10n.Get("UnregisterInstance2"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+            removal = InstanceRemoval.RequireStopped;
+        }
+        else
+        {
+            var stopAndRemove = new TaskDialogCommandLinkButton(L10n.Get("StopAndUnregister"), L10n.Get("StopAndUnregisterDetail")) { Enabled = state == InstanceState.Running };
+            var registrationOnly = new TaskDialogCommandLinkButton(L10n.Get("UnregisterKeepRunning"), L10n.Get("UnregisterKeepRunningDetail"));
+            var page = new TaskDialogPage {
+                Caption = L10n.Get("UnregisterInstance2"), Heading = instance.Name,
+                Text = L10n.Get(state == InstanceState.Running ? "RemovalRunningWarning" : "RemovalUnknownWarning"), Icon = TaskDialogIcon.Warning,
+                Buttons = { stopAndRemove, registrationOnly, TaskDialogButton.Cancel }, DefaultButton = TaskDialogButton.Cancel
+            };
+            var choice = TaskDialog.ShowDialog(this, page);
+            if (choice != stopAndRemove && choice != registrationOnly) return;
+            removal = choice == stopAndRemove ? InstanceRemoval.StopAndRemove : InstanceRemoval.RegistrationOnly;
+        }
+        await manager.RemoveAsync(instance, removal); settings.Remove(instance.Id);
     }
     private async Task LogsAsync()
     {
@@ -491,6 +561,7 @@ public sealed class MainForm : Form
     }
     protected override void WndProc(ref Message message)
     {
+        if (message.Msg == 0x0214) userSizing = true; // WM_SIZING identifies an actual user resize, including during a monitor move.
         if (message.Msg == WindowsSessionShutdown.QueryEndSession)
         {
             // Consent without closing or hiding. Another application may still cancel shutdown.
@@ -526,6 +597,8 @@ public sealed class MainForm : Form
             // Let WinForms complete the confirmed session end; never route it through tray hiding.
         }
         base.WndProc(ref message);
+        if (message.Msg is 0x001A or 0x007E && loaded && IsHandleCreated && !IsDisposed)
+            BeginInvoke(() => { if (!IsDisposed && !Disposing) ClampToWorkingArea(); });
     }
     private void WriteSessionShutdownLog(string text)
     {

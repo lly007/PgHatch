@@ -116,7 +116,7 @@ internal static class BrandChecks
         check(Pixels(trayBitmap).AsSpan().SequenceEqual(Pixels(expectedTray)), "NotifyIcon uses the production tray asset");
     }
 
-    private static int[] Pixels(Bitmap bitmap)
+    internal static int[] Pixels(Bitmap bitmap)
     {
         var pixels = new int[bitmap.Width * bitmap.Height];
         for (var y = 0; y < bitmap.Height; y++) for (var x = 0; x < bitmap.Width; x++) pixels[y * bitmap.Width + x] = bitmap.GetPixel(x, y).ToArgb();

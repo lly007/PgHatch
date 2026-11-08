@@ -1055,4 +1055,12 @@ PostgreSQL {2}
   <data name="CouldNotOpenGitHubProject" xml:space="preserve"><value>無法開啟 GitHub 專案首頁：{0}
 {1}
 可以將網址複製到瀏覽器中開啟。</value></data>
+  <data name="RemovalStateUnconfirmed" xml:space="preserve"><value>無法確認資料庫處於穩定的執行或停止狀態。已保留登記。請等待生命週期操作完成並核驗實例身分。</value></data>
+  <data name="RemovalRegistrationRetained" xml:space="preserve"><value>已保留實例登記。請處理診斷資訊後重試移除。</value></data>
+  <data name="StopAndUnregister" xml:space="preserve"><value>停止資料庫並移除登記</value></data>
+  <data name="StopAndUnregisterDetail" xml:space="preserve"><value>使用經身分核驗的 fast 停止流程。確認資料庫和控制器均已結束後才移除登記。保留 PGDATA 和日誌。</value></data>
+  <data name="UnregisterKeepRunning" xml:space="preserve"><value>僅移除登記，保持資料庫執行</value></data>
+  <data name="UnregisterKeepRunningDetail" xml:space="preserve"><value>PostgreSQL 仍會執行，PGDATA 可能繼續被占用。PgHatch 將不再監控此實例。保留全部資料和日誌。</value></data>
+  <data name="RemovalRunningWarning" xml:space="preserve"><value>此資料庫正在執行。請明確選擇是否先停止資料庫再移除登記。全部資料和日誌均會保留。</value></data>
+  <data name="RemovalUnknownWarning" xml:space="preserve"><value>資料庫狀態不明或正在變化，暫不能停止並移除。僅解除登記可能使 PostgreSQL 繼續執行、PGDATA 繼續被占用。存在未完成控制器操作時會拒絕移除。</value></data>
 </root>

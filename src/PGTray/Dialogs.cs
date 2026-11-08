@@ -9,8 +9,9 @@ internal class LayoutForm : Form
     protected readonly CancellationTokenSource Lifetime = new();
     private bool lifetimeDisposed;
     protected readonly TableLayoutPanel Table = new() { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new(16), ColumnCount = 3 };
-    protected LayoutForm(string title)
+    protected LayoutForm(string title, WindowIcon icon = WindowIcon.Brand)
     {
+        ApplicationIcons.BindWindow(this, icon);
         Text = title; Font = new Font("Microsoft YaHei UI", 9F); AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96); BackColor = Color.White;
         AutoScroll = true;
@@ -80,7 +81,7 @@ internal sealed class EmergencyToolForm : LayoutForm
     private sealed record Choice(BinaryInstallation Binary) { public override string ToString() => $"PostgreSQL {Binary.Version} — {Binary.BinDirectory}"; }
     private readonly ComboBox choices = new() { DropDownStyle = ComboBoxStyle.DropDownList };
     public Guid SelectedBinaryId => ((Choice)choices.SelectedItem!).Binary.Id;
-    public EmergencyToolForm(IReadOnlyList<BinaryInstallation> candidates) : base(L10n.Get("EmergencyStop"))
+    public EmergencyToolForm(IReadOnlyList<BinaryInstallation> candidates) : base(L10n.Get("EmergencyStop"), WindowIcon.Settings)
     {
         foreach (var binary in candidates) choices.Items.Add(new Choice(binary));
         choices.SelectedIndex = -1;
@@ -96,10 +97,12 @@ internal sealed class BinaryForm : LayoutForm
 {
     private sealed record Choice(BinaryInstallation Binary, string Label) { public override string ToString() => Label; }
     private readonly ListBox list = new() { Height = 112, IntegralHeight = false, HorizontalScrollbar = true };
-    public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"))
+    private readonly TextBox path = new();
+    private readonly ContextMenuStrip candidatesMenu = new();
+    public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"), WindowIcon.Settings)
     {
         ClientSize = new(640, 400); MinimumSize = new(580, 300);
-        var path = new TextBox(); var busy = false;
+        var busy = false;
         void RefreshList()
         {
             var selected = (list.SelectedItem as Choice)?.Binary.Id;
@@ -137,11 +140,9 @@ internal sealed class BinaryForm : LayoutForm
         var discover = new Button { Text = L10n.Get("FindNearbyBinaries"), AutoSize = true }; discover.Click += async (_, _) => {
             await Run(async () => {
                 var candidates = await Task.Run(() => InstanceManager.DiscoverCandidates(AppContext.BaseDirectory).ToArray());
-                if (WindowsSessionShutdown.IsEnding) return;
+                if (IsDisposed || Disposing || WindowsSessionShutdown.IsEnding) return;
                 if (candidates.Length == 0) { MessageBox.Show(this, L10n.Get("NoBinariesFoundNearbyBrowseToA"), "PgHatch"); return; }
-                var menu = new ContextMenuStrip(); menu.Closed += (_, _) => menu.Dispose();
-                foreach (var candidate in candidates) menu.Items.Add(candidate, null, (_, _) => path.Text = candidate);
-                menu.Show(discover, new Point(0, discover.Height));
+                ShowCandidates(candidates, discover);
             });
         };
         actions.Controls.AddRange([add, repair, remove, discover]); Row(L10n.Get("Registration"), actions);
@@ -156,6 +157,21 @@ internal sealed class BinaryForm : LayoutForm
         RefreshList();
         Footer(L10n.Get("DiscoveryListsCandidatesOnlyRegisterSavesThem"), () => Task.CompletedTask);
         FormClosing += (_, e) => { if (busy && e.CloseReason != CloseReason.WindowsShutDown) e.Cancel = true; };
+    }
+
+    internal void ShowCandidates(IEnumerable<string> candidates, Control anchor)
+    {
+        candidatesMenu.Close();
+        // Clear does not dispose ToolStripItems or their captured candidate paths.
+        foreach (var item in candidatesMenu.Items.Cast<ToolStripItem>().ToArray()) item.Dispose();
+        foreach (var candidate in candidates) candidatesMenu.Items.Add(candidate, null, (_, _) => path.Text = candidate);
+        candidatesMenu.Show(anchor, new Point(0, anchor.Height));
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) candidatesMenu.Dispose();
+        base.Dispose(disposing);
     }
 
     protected override void FitDialogToWorkArea(Rectangle work, int dpi) => FitToWorkArea(work, dpi);
@@ -187,7 +203,7 @@ internal sealed class InstanceForm : LayoutForm
     public int Port => (int)port.Value;
     public string Username => username.Text;
     public string Password => password.Text;
-    public InstanceForm(List<BinaryInstallation> installations, PostgresTools tools, bool create) : base(create ? L10n.Get("NewPostgreSQLInstance") : L10n.Get("ImportPostgreSQLInstance"))
+    public InstanceForm(List<BinaryInstallation> installations, PostgresTools tools, bool create) : base(create ? L10n.Get("NewPostgreSQLInstance") : L10n.Get("ImportPostgreSQLInstance"), WindowIcon.Database)
     {
         this.installations = installations;
         ClientSize = new(720, create ? 460 : 390); MinimumSize = new(640, create ? 470 : 400);
@@ -238,7 +254,7 @@ internal sealed class RenameForm : LayoutForm
 {
     private readonly TextBox name = new();
     public string Value => name.Text;
-    public RenameForm(string current) : base(L10n.Get("RenameInstance"))
+    public RenameForm(string current) : base(L10n.Get("RenameInstance"), WindowIcon.Settings)
     {
         ClientSize = new(580, 240); name.Text = current; Row(L10n.Get("DisplayName"), name);
         Footer(L10n.Get("OnlyTheDisplayNameInPgHatchWill"), () => { if (string.IsNullOrWhiteSpace(name.Text)) throw new ArgumentException(L10n.Get("TheNameCannotBeEmpty")); return Task.CompletedTask; });
@@ -252,6 +268,7 @@ internal sealed class LogForm : Form
     private readonly TextBox text = new() { ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false, Dock = DockStyle.Fill };
     public LogForm(InstanceConfig instance, string diagnostic)
     {
+        ApplicationIcons.BindWindow(this, WindowIcon.FileText);
         this.instance = instance; this.diagnostic = diagnostic;
         Text = L10n.Format("LogWindowTitle", instance.Name); AutoScaleMode = AutoScaleMode.Dpi; ClientSize = new(900, 560); MinimumSize = new(600, 350); StartPosition = FormStartPosition.CenterParent;
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, Padding = new(8) };

@@ -26,6 +26,7 @@ internal sealed class DownloadForm : Form
 
     public DownloadForm(InstanceManager manager, ConfigStore store)
     {
+        ApplicationIcons.BindWindow(this, WindowIcon.Settings);
         this.manager = manager; this.store = store;
         catalog = new(Path.Combine(AppContext.BaseDirectory, "postgresql-catalog.xml"), store);
         Text = L10n.Get("DownloadTitle"); Font = new Font("Microsoft YaHei UI", 9F); AutoScaleDimensions = new(96, 96); AutoScaleMode = AutoScaleMode.Dpi;

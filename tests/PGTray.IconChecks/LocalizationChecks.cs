@@ -89,7 +89,7 @@ internal static class LocalizationChecks
                 check(welcome.Height >= TextRenderer.MeasureText(welcome.Text, welcome.Font, new(welcome.Width, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl).Height,
                     $"{code}: welcome label has room for its wrapped text");
                 var picture = (PictureBox)typeof(MainForm).GetField("brandLogo", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(main)!;
-                var mainLayout = main.Controls.OfType<TableLayoutPanel>().Single();
+                var mainLayout = main.Controls.OfType<Panel>().Single().Controls.OfType<TableLayoutPanel>().Single();
                 var headerHost = (TableLayoutPanel)mainLayout.GetControlFromPosition(0, 0)!;
                 var header = (TableLayoutPanel)headerHost.GetControlFromPosition(0, 0)!;
                 var toolbar = header.Controls.OfType<FlowLayoutPanel>().Single();

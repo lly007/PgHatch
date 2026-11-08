@@ -41,7 +41,8 @@ internal static class MainWindowLayoutChecks
                 manager.Config.Instances.Add(instance);
                 typeof(MainForm).GetMethod("Render", Private)!.Invoke(form, null);
                 Pump();
-                var layout = form.Controls.OfType<TableLayoutPanel>().Single();
+                var viewport = form.Controls.OfType<Panel>().Single();
+                var layout = viewport.Controls.OfType<TableLayoutPanel>().Single();
                 var headerHost = (TableLayoutPanel)layout.GetControlFromPosition(0, 0)!;
                 var header = (TableLayoutPanel)headerHost.GetControlFromPosition(0, 0)!;
                 var toolbar = header.Controls.OfType<FlowLayoutPanel>().Single();
@@ -87,9 +88,11 @@ internal static class MainWindowLayoutChecks
                     check((content.Bounds, list.Bounds, detail.Bounds, detail.VerticalScroll.Visible) == before, $"{language}: restore preserves layout at width {width}");
                 }
                 form.WindowState = FormWindowState.Maximized; Pump();
+                Snapshot("maximized-before");
                 var maximized = (content.Bounds, list.Bounds, detail.Bounds, detail.VerticalScroll.Visible);
                 form.WindowState = FormWindowState.Minimized; Pump();
                 form.WindowState = FormWindowState.Maximized; Pump();
+                Snapshot("maximized-after");
                 check((content.Bounds, list.Bounds, detail.Bounds, detail.VerticalScroll.Visible) == maximized, $"{language}: maximized restore retains its layout");
                 form.WindowState = FormWindowState.Normal; Pump();
                 check((content.Bounds, list.Bounds, detail.Bounds, detail.VerticalScroll.Visible) == initial, $"{language}: returning from maximized retains original normal layout");
