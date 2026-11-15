@@ -1063,4 +1063,20 @@ PostgreSQL {2}
   <data name="UnregisterKeepRunningDetail" xml:space="preserve"><value>PostgreSQL 仍會執行，PGDATA 可能繼續被占用。PgHatch 將不再監控此實例。保留全部資料和日誌。</value></data>
   <data name="RemovalRunningWarning" xml:space="preserve"><value>此資料庫正在執行。請明確選擇是否先停止資料庫再移除登記。全部資料和日誌均會保留。</value></data>
   <data name="RemovalUnknownWarning" xml:space="preserve"><value>資料庫狀態不明或正在變化，暫不能停止並移除。僅解除登記可能使 PostgreSQL 繼續執行、PGDATA 繼續被占用。存在未完成控制器操作時會拒絕移除。</value></data>
+  <data name="ProgramPathRiskTitle" xml:space="preserve"><value>PostgreSQL 程式路徑相容性提醒</value></data>
+  <data name="ProgramPathRiskMessage" xml:space="preserve"><value>偵測到所選 PostgreSQL 程式或資源路徑包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 在此類路徑下可能出現字元編碼相容性問題，導致資料庫初始化失敗。
+
+建議將 PostgreSQL 程式部署在純英文路徑。
+
+這不代表資料庫資料目錄（PGDATA）必須使用英文路徑。</value></data>
+  <data name="ContinueCreation" xml:space="preserve"><value>繼續建立</value></data>
+  <data name="ReturnToEdit" xml:space="preserve"><value>返回修改</value></data>
+  <data name="InitializationPathDetails" xml:space="preserve"><value>PostgreSQL bin
+{0}
+
+PostgreSQL share
+{1}</value></data>
+  <data name="SharePathUnconfirmed" xml:space="preserve"><value>無法確認實際 share 資源路徑。</value></data>
 </root>

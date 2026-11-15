@@ -31,6 +31,32 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
 
     public Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
         => InspectBinaryCoreAsync(directory, true, cancellationToken);
+
+    public async Task<InitializationPaths> InspectInitializationPathsAsync(BinaryInstallation binary, CancellationToken cancellationToken = default)
+    {
+        var paths = new InitializationPaths(binary.BinDirectory, null);
+        var config = Path.Combine(binary.BinDirectory, "pg_config.exe");
+        if (!File.Exists(config)) return paths;
+        try
+        {
+            // Optional, read-only query. Never invoke initdb or guess a sibling share directory.
+            var result = await runner.RunAsync(config, ["--version", "--bindir", "--sharedir"],
+                TimeSpan.FromSeconds(10), cancellationToken: cancellationToken).ConfigureAwait(false);
+            if (result.ExitCode != 0 || result.TimedOut) return paths;
+            var lines = result.Output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length == 3 && lines[0].Trim() == "PostgreSQL " + binary.Version &&
+                Path.IsPathFullyQualified(lines[1]) && Path.IsPathFullyQualified(lines[2]) &&
+                string.Equals(InitializationPaths.ExpandReportedPath(lines[1]), InitializationPaths.ExpandReportedPath(binary.BinDirectory), StringComparison.OrdinalIgnoreCase) &&
+                File.Exists(Path.Combine(lines[2], "postgres.bki")))
+                return paths with { ShareDirectory = InitializationPaths.ExpandReportedPath(lines[2]) };
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or ArgumentException)
+        {
+            // An unavailable optional probe cannot certify the resource path or prevent creation.
+        }
+        return paths;
+    }
+
     private async Task<BinaryInstallation> InspectBinaryCoreAsync(string directory, bool allTools, CancellationToken cancellationToken)
     {
         var bin = await Task.Run(() => {

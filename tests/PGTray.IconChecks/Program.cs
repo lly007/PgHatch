@@ -10,6 +10,14 @@ internal static class Program
     {
         if (args is ["--pipe-burst"]) { Console.Out.Write(new string('o', 2 * 1024 * 1024)); Console.Error.Write(new string('e', 2 * 1024 * 1024)); return 7; }
         if (args is ["--delay-helper"]) { Thread.Sleep(10000); return 0; }
+        if (args is ["--initialization-checks", var initializationOutput])
+        {
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            Directory.CreateDirectory(initializationOutput);
+            InitializationPathChecks.Run(initializationOutput, (valid, text) => { if (!valid) throw new Exception("FAIL: " + text); Console.WriteLine("PASS: " + text); });
+            LocalizationChecks.Run(initializationOutput, (valid, text) => { if (!valid) throw new Exception("FAIL: " + text); Console.WriteLine("PASS: " + text); });
+            return 0;
+        }
         if (args is ["--about-checks"])
         {
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);

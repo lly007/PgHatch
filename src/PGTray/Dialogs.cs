@@ -203,9 +203,11 @@ internal sealed class InstanceForm : LayoutForm
     public int Port => (int)port.Value;
     public string Username => username.Text;
     public string Password => password.Text;
+    internal Func<InitializationPaths, bool> ConfirmPathRisk;
     public InstanceForm(List<BinaryInstallation> installations, PostgresTools tools, bool create) : base(create ? L10n.Get("NewPostgreSQLInstance") : L10n.Get("ImportPostgreSQLInstance"), WindowIcon.Database)
     {
         this.installations = installations;
+        ConfirmPathRisk = paths => InitializationDialogs.ConfirmPathRisk(this, paths);
         ClientSize = new(720, create ? 460 : 390); MinimumSize = new(640, create ? 470 : 400);
         foreach (var b in installations) binaries.Items.Add(new { Label = $"{b.Version} — {b.BinDirectory}" });
         binaries.SelectedIndex = 0;
@@ -233,7 +235,13 @@ internal sealed class InstanceForm : LayoutForm
             L10n.Get("ImportChecksTheClusterVersionAndConfigured"), async () => {
                 if (string.IsNullOrWhiteSpace(name.Text) || string.IsNullOrWhiteSpace(data.Text)) throw new ArgumentException(L10n.Get("EnterAnInstanceNameAndDataDirectory"));
                 if (create && (string.IsNullOrWhiteSpace(username.Text) || password.Text.Length == 0)) throw new ArgumentException(L10n.Get("EnterASuperuserNameAndInitialPassword"));
-                if (create) { var selectedData = data.Text; await Task.Run(() => PathSafety.ValidateInitializationTarget(selectedData)); }
+                if (create)
+                {
+                    var selectedData = data.Text;
+                    await Task.Run(() => PathSafety.ValidateInitializationTarget(selectedData));
+                    var paths = await tools.InspectInitializationPathsAsync(Binary, Lifetime.Token);
+                    if (paths.HasNonAscii && !ConfirmPathRisk(paths)) throw new OperationCanceledException();
+                }
                 if (!create) port.Value = (await tools.ReadSettingsAsync(Binary, data.Text, Lifetime.Token)).Port;
             });
         if (!create) port.ReadOnly = true;
