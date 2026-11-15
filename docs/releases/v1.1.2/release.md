@@ -29,3 +29,16 @@ Windows x64 和 ARM64 各提供 Standalone、Framework 两种 ZIP，并提供外
 修复阶段通过注册 WinForms 检查 63 项、初始化分类检查 89 项、创建及本地化检查 103 项、下载部署回归 78 项及真实 PostgreSQL 18.6 集成 75 项。维护者已确认最终修复的真实 Windows GUI 验收通过，具体 DPI 和显示器组合按维护者原始记录确认。
 
 ARM64 Windows 实机、其他代码页和第三方扩展兼容性仍需对应环境验证。混合 UTF-8/CP936 日志可能出现部分文字乱码，已知错误识别及真实退出状态按验证范围保留。强制关机、断电和网络数据目录的既有支持边界继续适用。
+
+## 正式资产校验
+
+正式构建输入及 v1.1.2 annotated tag 的目标为 `daf42aec2481bc829b08ad340a4bb7c848eb3616`。四包各通过 277 项静态检查、31 项组件与资源检查、ZIP CRC 和包内 SHA-256 核验。最终解压的两个 x64 包主窗口、About、v1.1.2 版本及 Ctrl+Q 正常退出通过，退出码均为 0。
+
+| ZIP | 字节数 | SHA-256 |
+| --- | --- | --- |
+| PgHatch-win-x64-standalone.zip | 50190508 | `168370A2C6E30F506FA40AC381CCD27D9716596ABC26FE4D64932862E3773727` |
+| PgHatch-win-x64-framework.zip | 2875699 | `84BEFEDA98CA353335E6CDEAD118DCC2B586595910688FE057517CDAF791668B` |
+| PgHatch-win-arm64-standalone.zip | 48019154 | `3020180076AD0F69AA181F681A916EFF4F42166DE29EBBCA0165ADF038A9E695` |
+| PgHatch-win-arm64-framework.zip | 2862844 | `A1B0D1C671A3DFE4401E648E013871FF25B6D7A1C73F0FDB1F3D4754EEFC43D8` |
+
+五个正式资产的字节数和服务端 SHA-256 digest 均已匹配。公开 Latest、校验文件及 x64 Framework 包下载校验通过，实际发布为 Latest、Draft=false、Prerelease=false。[正式 Release](https://github.com/lly007/PgHatch/releases/tag/v1.1.2)
