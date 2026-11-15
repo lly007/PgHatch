@@ -1079,4 +1079,26 @@ PostgreSQL {2}
 PostgreSQL share
 {1}</value></data>
   <data name="SharePathUnconfirmed" xml:space="preserve"><value>無法確認實際 share 資源路徑。</value></data>
+  <data name="InitializationFailedTitle" xml:space="preserve"><value>資料庫初始化失敗</value></data>
+  <data name="InitializationTimeoutMessage" xml:space="preserve"><value>PostgreSQL 初始化等候逾時，無法確認資料庫已成功建立。
+
+請先檢視技術診斷，檢查原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationPathEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化過程中遇到了字元編碼錯誤，資料庫未能成功建立。
+
+目前程式或資源路徑可能觸發 Windows 字元編碼相容性問題。
+
+建議檢查 PostgreSQL 程式目錄，必要時將其部署到純英文路徑，並使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化過程中遇到了字元編碼錯誤，資料庫未能成功建立。
+
+具體原因仍需查證，PostgreSQL 程式及資源路徑的相容性是待查證原因之一。請檢視技術診斷，處理原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationUnknownMessage" xml:space="preserve"><value>PostgreSQL 未能完成資料庫初始化，現有資訊不足以確定原因。
+
+請檢視技術診斷中的結束代碼和輸出，處理原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationFilesPreserved" xml:space="preserve"><value>本次操作產生的檔案已保留。PgHatch 沒有自動刪除資料目錄，也沒有自動重試初始化。</value></data>
+  <data name="InitializationDiagnosticContext" xml:space="preserve"><value>initdb 初始化
+PGDATA
+{0}</value></data>
+  <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>檢視技術診斷</value></data>
+  <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>初始化技術診斷</value></data>
+  <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>複製完整診斷</value></data>
 </root>

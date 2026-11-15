@@ -315,6 +315,10 @@ public sealed class MainForm : Form
         if (configure) configuring = true; Render(); status.Text = L10n.Get("Working");
         try { await action(); if (!closing) status.Text = L10n.Format("CloseToHideInTrayCtrlQ", L10n.Instances(manager.Config.Instances.Count)); }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+        catch (InitializationFailedException ex)
+        {
+            if (!closing && !IsDisposed) { status.Text = L10n.Get("InitializationFailedTitle"); InitializationDialogs.ShowFailure(this, ex); }
+        }
         catch (Exception ex) { if (!closing && !IsDisposed) { status.Text = ex.Message; if (ex is ConfigurationConflictException) { recoveryText.Text = ex.Message; recovery.Visible = true; } MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); } }
         finally { if (configure) configuring = false; actions.Remove(completion.Task); completion.SetResult(); if (!closing && !IsDisposed) Render(); }
     }

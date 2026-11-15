@@ -11,11 +11,11 @@ public sealed record InitializationPaths(string BinDirectory, string? ShareDirec
     {
         // pg_config on Windows can report 8.3 names. Expand for risk assessment only.
         // The selected executable path and initdb arguments are never rewritten.
-        if (!OperatingSystem.IsWindows()) return ConfigStore.Identity(path);
+        if (!OperatingSystem.IsWindows()) return PathSafety.Normalize(path);
         var buffer = new StringBuilder(32768);
         var length = GetLongPathName(path, buffer, buffer.Capacity);
         if (length == 0 || length >= buffer.Capacity) throw new IOException("Cannot expand PostgreSQL resource path.");
-        return ConfigStore.Identity(buffer.ToString());
+        return PathSafety.Normalize(buffer.ToString());
     }
 
     [DllImport("kernel32.dll", EntryPoint = "GetLongPathNameW", CharSet = CharSet.Unicode, ExactSpelling = true)]

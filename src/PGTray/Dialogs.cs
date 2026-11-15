@@ -237,10 +237,16 @@ internal sealed class InstanceForm : LayoutForm
                 if (create && (string.IsNullOrWhiteSpace(username.Text) || password.Text.Length == 0)) throw new ArgumentException(L10n.Get("EnterASuperuserNameAndInitialPassword"));
                 if (create)
                 {
-                    var selectedData = data.Text;
-                    await Task.Run(() => PathSafety.ValidateInitializationTarget(selectedData));
-                    var paths = await tools.InspectInitializationPathsAsync(Binary, Lifetime.Token);
-                    if (paths.HasNonAscii && !ConfirmPathRisk(paths)) throw new OperationCanceledException();
+                    // Keep the user's selection stable across asynchronous validation and confirmation.
+                    Table.Enabled = false;
+                    try
+                    {
+                        var selectedData = data.Text;
+                        await Task.Run(() => PathSafety.ValidateInitializationTarget(selectedData));
+                        var paths = await tools.InspectInitializationPathsAsync(Binary, Lifetime.Token);
+                        if (paths.HasNonAscii && !ConfirmPathRisk(paths)) throw new OperationCanceledException();
+                    }
+                    finally { if (!IsDisposed) Table.Enabled = true; }
                 }
                 if (!create) port.Value = (await tools.ReadSettingsAsync(Binary, data.Text, Lifetime.Token)).Port;
             });

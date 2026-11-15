@@ -1079,4 +1079,26 @@ PostgreSQL {2}
 PostgreSQL share
 {1}</value></data>
   <data name="SharePathUnconfirmed" xml:space="preserve"><value>无法确认实际 share 资源路径。</value></data>
+  <data name="InitializationFailedTitle" xml:space="preserve"><value>数据库初始化失败</value></data>
+  <data name="InitializationTimeoutMessage" xml:space="preserve"><value>PostgreSQL 初始化等待超时，无法确认数据库已成功创建。
+
+请先查看技术诊断，检查原因后使用新的空数据目录重新创建实例。</value></data>
+  <data name="InitializationPathEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化过程中遇到了字符编码错误，数据库未能成功创建。
+
+当前程序或资源路径可能触发 Windows 字符编码兼容性问题。
+
+建议检查 PostgreSQL 程序目录，必要时将其部署到纯英文路径，并使用新的空数据目录重新创建实例。</value></data>
+  <data name="InitializationEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化过程中遇到了字符编码错误，数据库未能成功创建。
+
+具体原因仍需核查，PostgreSQL 程序及资源路径的兼容性是待核查原因之一。请查看技术诊断，处理原因后使用新的空数据目录重新创建实例。</value></data>
+  <data name="InitializationUnknownMessage" xml:space="preserve"><value>PostgreSQL 未能完成数据库初始化，现有信息不足以确定原因。
+
+请查看技术诊断中的退出码和输出，处理原因后使用新的空数据目录重新创建实例。</value></data>
+  <data name="InitializationFilesPreserved" xml:space="preserve"><value>本次操作产生的文件已保留。PgHatch 没有自动删除数据目录，也没有自动重试初始化。</value></data>
+  <data name="InitializationDiagnosticContext" xml:space="preserve"><value>initdb 初始化
+PGDATA
+{0}</value></data>
+  <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>查看技术诊断</value></data>
+  <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>初始化技术诊断</value></data>
+  <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>复制完整诊断</value></data>
 </root>

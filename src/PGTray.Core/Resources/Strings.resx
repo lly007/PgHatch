@@ -1079,4 +1079,26 @@ The database data directory (PGDATA) can still contain non-ASCII characters.</va
 PostgreSQL share
 {1}</value></data>
   <data name="SharePathUnconfirmed" xml:space="preserve"><value>The actual share path could not be confirmed.</value></data>
+  <data name="InitializationFailedTitle" xml:space="preserve"><value>Database initialization failed</value></data>
+  <data name="InitializationTimeoutMessage" xml:space="preserve"><value>PostgreSQL initialization timed out. The database could not be confirmed as successfully created.
+
+Review the technical diagnostics before trying again with a new empty data directory.</value></data>
+  <data name="InitializationPathEncodingMessage" xml:space="preserve"><value>PostgreSQL encountered a character encoding error during initialization. The database was not successfully created.
+
+The current program or resource path may trigger a Windows character encoding compatibility problem.
+
+Check the PostgreSQL program directory. If needed, deploy it in an ASCII-only path and create the instance again with a new empty data directory.</value></data>
+  <data name="InitializationEncodingMessage" xml:space="preserve"><value>PostgreSQL encountered a character encoding error during initialization. The database was not successfully created.
+
+The cause needs investigation. PostgreSQL program and resource path compatibility is one possible cause to check. Review the technical diagnostics and use a new empty data directory when creating the instance again.</value></data>
+  <data name="InitializationUnknownMessage" xml:space="preserve"><value>PostgreSQL could not initialize the database. The cause could not be determined from the available evidence.
+
+Review the technical diagnostics, including the exit code and output, before trying again with a new empty data directory.</value></data>
+  <data name="InitializationFilesPreserved" xml:space="preserve"><value>Any files produced by this attempt have been retained. PgHatch has not automatically deleted the data directory or retried initialization.</value></data>
+  <data name="InitializationDiagnosticContext" xml:space="preserve"><value>initdb initialization
+PGDATA
+{0}</value></data>
+  <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>View technical diagnostics</value></data>
+  <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>Initialization technical diagnostics</value></data>
+  <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>Copy full diagnostics</value></data>
 </root>
