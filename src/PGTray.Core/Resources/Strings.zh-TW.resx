@@ -1063,4 +1063,60 @@ PostgreSQL {2}
   <data name="UnregisterKeepRunningDetail" xml:space="preserve"><value>PostgreSQL 仍會執行，PGDATA 可能繼續被占用。PgHatch 將不再監控此實例。保留全部資料和日誌。</value></data>
   <data name="RemovalRunningWarning" xml:space="preserve"><value>此資料庫正在執行。請明確選擇是否先停止資料庫再移除登記。全部資料和日誌均會保留。</value></data>
   <data name="RemovalUnknownWarning" xml:space="preserve"><value>資料庫狀態不明或正在變化，暫不能停止並移除。僅解除登記可能使 PostgreSQL 繼續執行、PGDATA 繼續被占用。存在未完成控制器操作時會拒絕移除。</value></data>
+  <data name="ProgramPathRiskTitle" xml:space="preserve"><value>PostgreSQL 程式路徑相容性提醒</value></data>
+  <data name="ProgramPathRiskMessage" xml:space="preserve"><value>偵測到所選 PostgreSQL 程式或資源路徑包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 在此類路徑下可能出現字元編碼相容性問題，導致資料庫初始化失敗。
+
+建議將 PostgreSQL 程式部署在純英文路徑。
+
+這不代表資料庫資料目錄（PGDATA）必須使用英文路徑。</value></data>
+  <data name="ContinueCreation" xml:space="preserve"><value>繼續建立</value></data>
+  <data name="ReturnToEdit" xml:space="preserve"><value>返回修改</value></data>
+  <data name="InitializationPathDetails" xml:space="preserve"><value>PostgreSQL bin
+{0}
+
+PostgreSQL share
+{1}</value></data>
+  <data name="SharePathUnconfirmed" xml:space="preserve"><value>無法確認實際 share 資源路徑。</value></data>
+  <data name="InitializationFailedTitle" xml:space="preserve"><value>資料庫初始化失敗</value></data>
+  <data name="InitializationTimeoutMessage" xml:space="preserve"><value>PostgreSQL 初始化等候逾時，無法確認資料庫已成功建立。
+
+請先檢視技術診斷，檢查原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationPathEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化過程中遇到了字元編碼錯誤，資料庫未能成功建立。
+
+目前程式或資源路徑可能觸發 Windows 字元編碼相容性問題。
+
+建議檢查 PostgreSQL 程式目錄，必要時將其部署到純英文路徑，並使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationEncodingMessage" xml:space="preserve"><value>PostgreSQL 在初始化過程中遇到了字元編碼錯誤，資料庫未能成功建立。
+
+具體原因仍需查證，PostgreSQL 程式及資源路徑的相容性是待查證原因之一。請檢視技術診斷，處理原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationUnknownMessage" xml:space="preserve"><value>PostgreSQL 未能完成資料庫初始化，現有資訊不足以確定原因。
+
+請檢視技術診斷中的結束代碼和輸出，處理原因後使用新的空資料目錄重新建立執行個體。</value></data>
+  <data name="InitializationFilesPreserved" xml:space="preserve"><value>本次操作產生的檔案已保留。PgHatch 沒有自動刪除資料目錄，也沒有自動重試初始化。</value></data>
+  <data name="InitializationDiagnosticContext" xml:space="preserve"><value>initdb 初始化
+PGDATA
+{0}</value></data>
+  <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>檢視技術診斷</value></data>
+  <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>初始化技術診斷</value></data>
+  <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>複製完整診斷</value></data>
+  <data name="ContinueRegistration" xml:space="preserve"><value>繼續註冊</value></data>
+  <data name="ContinueDeployment" xml:space="preserve"><value>繼續下載與部署</value></data>
+  <data name="ProgramRegistrationRiskMessage" xml:space="preserve"><value>偵測到所選 PostgreSQL 程式或資源路徑包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 在此類路徑下，後續初始化資料庫時可能出現字元編碼相容性問題。
+
+建議將 PostgreSQL 程式部署在純英文路徑。資料庫資料目錄（PGDATA）可以使用中文或其他非 ASCII 字元。</value></data>
+  <data name="ProgramDeploymentRiskMessage" xml:space="preserve"><value>偵測到所選部署目標目錄包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 從此類程式路徑初始化資料庫時可能失敗。建議在下載前選擇純英文程式目錄。
+
+準備部署套件時還將檢查實際 bin 及能夠確認的 share 路徑。資料庫資料目錄（PGDATA）可以使用中文或其他非 ASCII 字元。</value></data>
+  <data name="DeploymentPathDetails" xml:space="preserve"><value>計劃部署 PostgreSQL 的目標目錄
+{0}
+
+PostgreSQL share
+{1}</value></data>
+  <data name="ProgramRegistrationCanceled" xml:space="preserve"><value>已返回修改，本次程式註冊及部署已取消。</value></data>
 </root>

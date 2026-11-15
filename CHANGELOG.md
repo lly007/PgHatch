@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 — 开发中
+
+- 创建实例前检查所选 PostgreSQL bin 及可核验的 share 路径，发现非 ASCII 字符时提供兼容性提醒，默认返回修改并允许继续。
+- 初始化失败时显示简短原因和保留目录说明，支持独立查看及复制经过密码脱敏的技术诊断。
+- 根据真实退出状态、UTF8 非法字节错误、post-bootstrap 上下文及程序资源路径谨慎分类，保留未知原因诊断。
+- 补充三语言 UI、初始化失败安全、已知字节解码及真实 PostgreSQL 18.6 隔离路径验证。[Issue #7 验证记录](docs/issue-7-validation.md)
+
 ## 1.1.1 — 2026-11-08
 
 - 附近程序候选菜单由 BinaryForm 持有和复用，在窗体释放时统一回收，修复点击关闭过程中的 ContextMenuStrip ObjectDisposedException。

@@ -73,7 +73,8 @@ public sealed class PackageDeployment
     public static string ValidateTarget(string target, InstanceManager manager) => DeploymentPaths.Target(target, manager);
 
     public Task<DeploymentResult> DeployAsync(PostgresPackage package, string archive, string target, PostgresTools tools, InstanceManager manager,
-        IProgress<PackageProgress>? progress = null, CancellationToken cancellationToken = default) => Task.Run(async () =>
+        IProgress<PackageProgress>? progress = null, CancellationToken cancellationToken = default,
+        Func<InitializationPaths, CancellationToken, Task>? confirmRegistration = null) => Task.Run(async () =>
     {
         target = ValidateTarget(target, manager);
         var parent = Path.GetDirectoryName(target)!;
@@ -132,6 +133,14 @@ public sealed class PackageDeployment
             var inspected = await tools.InspectBinaryAsync(bins[0], cancellationToken).ConfigureAwait(false);
             if (inspected.Version != package.Version) throw new InvalidDataException(L10n.Get("DeployVersionMismatch"));
             finalBin = Path.Combine(target, Path.GetRelativePath(payload, bins[0]));
+            if (confirmRegistration is not null)
+            {
+                var paths = await tools.InspectInitializationPathsAsync(inspected, cancellationToken).ConfigureAwait(false);
+                var share = paths.ShareDirectory is { } resource && DeploymentPaths.Within(resource, payload)
+                    ? Path.Combine(target, Path.GetRelativePath(payload, resource)) : null;
+                // Read-only UI preflight before the existing deployment commit and registration sequence.
+                await confirmRegistration(new(finalBin, share), cancellationToken).ConfigureAwait(false);
+            }
             cancellationToken.ThrowIfCancellationRequested(); ValidateTarget(target, manager);
             // Existing empty directories are moved aside, never recursively deleted or overwritten.
             if (Directory.Exists(target))

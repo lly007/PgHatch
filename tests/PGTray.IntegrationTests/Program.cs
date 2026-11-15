@@ -7,6 +7,15 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--registration-fixture", var registrationFixture]) { RegistrationFixture.Write(registrationFixture); return 0; }
+if (args is ["--decoding-tests"]) return await TextDecodingChecks.RunAsync();
+if (args is ["--mixed-encoding-helper"])
+{
+    await Console.OpenStandardOutput().WriteAsync(TextDecodingChecks.MixedSample());
+    await Console.OpenStandardError().WriteAsync(TextDecodingChecks.MixedSample()); return 1;
+}
+if (args is ["--initialization-tests", var initializationParent]) return await InitializationDiagnosticsTests.RunAsync(initializationParent);
+if (args is ["--initialization-real", var initializationSource, var initializationRealParent]) return await RealInitializationChecks.RunAsync(initializationSource, initializationRealParent);
 if (args is ["--removal-tests", var removalProgram, var removalParent]) return await RemovalTests.RunAsync(removalProgram, removalParent);
 if (args is ["--round3-controller", var round3Old, var round3New, var round3ControllerParent]) return await FinalReviewTests.ControllerCaptureAsync(round3Old, round3New, round3ControllerParent, true);
 if (args is ["--round3-tests", var round3Program, var round3Parent]) return await RecoveryRound3Tests.RunAsync(round3Program, round3Parent);
@@ -31,6 +40,9 @@ if (args is ["--version"] && PostgresTools.RequiredTools.Contains(Path.GetFileNa
     var marker = Path.Combine(AppContext.BaseDirectory, Path.GetFileName(Environment.ProcessPath) + ".fixture-version");
     Console.WriteLine($"{Path.GetFileNameWithoutExtension(Environment.ProcessPath)} (PostgreSQL) {(File.Exists(marker) ? File.ReadAllText(marker).Trim() : "18.6")}"); return 0;
 }
+if (File.Exists(Path.Combine(AppContext.BaseDirectory, "issue7.mode")) &&
+    (PostgresTools.RequiredTools.Contains(Path.GetFileName(Environment.ProcessPath)) || Path.GetFileName(Environment.ProcessPath) == "pg_config.exe"))
+    return InitializationDiagnosticsTests.Fixture(args);
 if (Path.GetFileName(Environment.ProcessPath) == "pg_ctl.exe" && File.Exists(Path.Combine(AppContext.BaseDirectory, "postgres.exe.fixture-version")) && args is ["status", "-D", var fixtureData])
     return File.Exists(Path.Combine(fixtureData, ".fixture-running")) ? 0 : 3;
 if (args is ["--maintenance-tests", var maintenanceRoot]) return await MaintenanceTests.RunAsync(maintenanceRoot);

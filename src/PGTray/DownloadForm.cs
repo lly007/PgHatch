@@ -8,7 +8,7 @@ internal sealed class DownloadForm : Form
     private sealed record Choice(PostgresPackage Package) { public override string ToString() => $"PostgreSQL {Package.Version}-{Package.Revision} · Windows {Package.Architecture}"; }
     private readonly CancellationTokenSource lifetime = new();
     private readonly PostgresCatalogService catalog;
-    private readonly PackageDownloader downloader = new();
+    private readonly PackageDownloader downloader;
     private readonly ConfigStore store;
     private readonly InstanceManager manager;
     private readonly PostgresTools tools = new(new ProcessRunner());
@@ -22,13 +22,16 @@ internal sealed class DownloadForm : Form
     private readonly Button start = new() { AutoSize = true }, cancel = new() { AutoSize = true }, browse = new() { AutoSize = true };
     private CancellationTokenSource? operation;
     private bool busy, closingRequested, resourcesDisposed, fitting;
+    internal Func<InitializationPaths, ProgramPathPurpose, bool> ConfirmPathRisk;
     public bool Installed { get; private set; }
 
-    public DownloadForm(InstanceManager manager, ConfigStore store)
+    public DownloadForm(InstanceManager manager, ConfigStore store, HttpMessageHandler? handler = null)
     {
         ApplicationIcons.BindWindow(this, WindowIcon.Settings);
         this.manager = manager; this.store = store;
-        catalog = new(Path.Combine(AppContext.BaseDirectory, "postgresql-catalog.xml"), store);
+        ConfirmPathRisk = (paths, purpose) => InitializationDialogs.ConfirmPathRisk(this, paths, purpose);
+        catalog = new(Path.Combine(AppContext.BaseDirectory, "postgresql-catalog.xml"), store, handler);
+        downloader = new(handler);
         Text = L10n.Get("DownloadTitle"); Font = new Font("Microsoft YaHei UI", 9F); AutoScaleDimensions = new(96, 96); AutoScaleMode = AutoScaleMode.Dpi;
         StartPosition = FormStartPosition.CenterParent; ClientSize = new(780, 360); MinimumSize = new(650, 330); MinimizeBox = false; MaximizeBox = false;
         layout.ColumnStyles.Add(new(SizeType.AutoSize)); layout.ColumnStyles.Add(new(SizeType.Percent, 100)); layout.ColumnStyles.Add(new(SizeType.AutoSize));
@@ -85,9 +88,21 @@ internal sealed class DownloadForm : Form
         var reporter = new Progress<PackageProgress>(UpdateProgress);
         try
         {
-            await Task.Run(() => PackageDeployment.ValidateTarget(destination, manager), operation.Token);
+            destination = await Task.Run(() => PackageDeployment.ValidateTarget(destination, manager), operation.Token);
+            var targetPaths = new InitializationPaths(destination, null);
+            if (targetPaths.HasNonAscii && !ConfirmPathRisk(targetPaths, ProgramPathPurpose.Deployment))
+            { status.Text = L10n.Get("ProgramRegistrationCanceled"); return; }
+            var targetConfirmed = targetPaths.HasNonAscii;
+            operation.Token.ThrowIfCancellationRequested();
             var archive = await downloader.DownloadAsync(selected.Package, Path.Combine(store.Root, "cache"), reporter, operation.Token);
-            var result = await new PackageDeployment().DeployAsync(selected.Package, archive, destination, tools, manager, reporter, operation.Token);
+            var result = await new PackageDeployment().DeployAsync(selected.Package, archive, destination, tools, manager, reporter, operation.Token,
+                async (paths, token) => {
+                    if (targetConfirmed || !paths.HasNonAscii) return;
+                    await this.InvokeAsync(() => {
+                        token.ThrowIfCancellationRequested();
+                        if (!ConfirmPathRisk(paths, ProgramPathPurpose.Registration)) throw new OperationCanceledException(token);
+                    }, token);
+                });
             Installed = true; status.Text = L10n.Format("DownloadReady", result.Binary.BinDirectory);
             progressBar.Style = ProgressBarStyle.Blocks; progressBar.Value = 100;
             if (result.CleanupWarning is not null && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, result.CleanupWarning, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);

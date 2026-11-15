@@ -54,7 +54,7 @@ internal static class FinalReviewTests
             throw new OwnedInitializationException(string.Join("\r\n", diagnostics).Replace(password, "[redacted]", StringComparison.Ordinal), cleaned);
         }
     }
-    private static string CopyProgram(string source, string target)
+    internal static string CopyProgram(string source, string target)
     {
         if (File.Exists(Path.Combine(source, "postgres.exe"))) source = Directory.GetParent(source)!.FullName;
         foreach (var directory in new[] { "bin", "lib", "share" })

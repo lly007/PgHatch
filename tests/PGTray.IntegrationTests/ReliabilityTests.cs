@@ -202,7 +202,7 @@ internal static class ReliabilityTests
         return success ? 0 : 1;
     }
 
-    private static async Task InitializationFailures(string root, BinaryInstallation binary, Action<bool, string> check, Func<Func<Task>, string, Task<Exception>> reject)
+    internal static async Task InitializationFailures(string root, BinaryInstallation binary, Action<bool, string> check, Func<Func<Task>, string, Task<Exception>> reject)
     {
         var tools = new PostgresTools(new ProcessRunner()); var store = new ConfigStore(Path.Combine(root, "failure-manager"));
         Directory.CreateDirectory(store.Root);

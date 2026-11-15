@@ -31,6 +31,33 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
 
     public Task<BinaryInstallation> InspectBinaryAsync(string directory, CancellationToken cancellationToken = default)
         => InspectBinaryCoreAsync(directory, true, cancellationToken);
+
+    public async Task<InitializationPaths> InspectInitializationPathsAsync(BinaryInstallation binary, CancellationToken cancellationToken = default)
+    {
+        var paths = new InitializationPaths(binary.BinDirectory, null);
+        try
+        {
+            paths = paths with { BinDirectory = InitializationPaths.ExpandReportedPath(binary.BinDirectory) };
+            var config = Path.Combine(binary.BinDirectory, "pg_config.exe");
+            if (!File.Exists(config)) return paths;
+            // Optional, read-only query. Never invoke initdb or guess a sibling share directory.
+            var result = await runner.RunAsync(config, ["--version", "--bindir", "--sharedir"],
+                TimeSpan.FromSeconds(10), cancellationToken: cancellationToken).ConfigureAwait(false);
+            if (result.ExitCode != 0 || result.TimedOut) return paths;
+            var lines = result.Output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length == 3 && lines[0].Trim() == "PostgreSQL " + binary.Version &&
+                Path.IsPathFullyQualified(lines[1]) && Path.IsPathFullyQualified(lines[2]) &&
+                string.Equals(ConfigStore.Identity(InitializationPaths.ExpandReportedPath(lines[1])), ConfigStore.Identity(paths.BinDirectory), StringComparison.OrdinalIgnoreCase) &&
+                File.Exists(Path.Combine(lines[2], "postgres.bki")))
+                return paths with { ShareDirectory = InitializationPaths.ExpandReportedPath(lines[2]) };
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or ArgumentException)
+        {
+            // An unavailable optional probe cannot certify the resource path or prevent creation.
+        }
+        return paths;
+    }
+
     private async Task<BinaryInstallation> InspectBinaryCoreAsync(string directory, bool allTools, CancellationToken cancellationToken)
     {
         var bin = await Task.Run(() => {
@@ -195,6 +222,7 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
         }).ConfigureAwait(false);
         var secret = Path.Combine(secretDirectory, "password");
         Exception? failure = null;
+        CommandResult? initializationResult = null;
         var initialized = false;
         try
         {
@@ -204,7 +232,8 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
             var r = await runner.RunAsync(Path.Combine(binary.BinDirectory, "initdb.exe"),
                 ["-D", data, "-U", username, "--pwfile", secret, "--auth-local=scram-sha-256", "--auth-host=scram-sha-256", "--encoding=UTF8", "--no-clean"],
                 TimeSpan.FromMinutes(2), killChildrenOnTimeout: true).ConfigureAwait(false);
-            if (r.ExitCode != 0 || r.TimedOut) throw new IOException(L10n.Get("InitializationFailedTheTargetDirectoryIsKept") + r.Diagnostic.Replace(password, "[redacted]", StringComparison.Ordinal));
+            initializationResult = r;
+            if (r.ExitCode != 0 || r.TimedOut) throw new IOException(L10n.Get("InitializationFailedTitle"));
             initialized = true;
             InitializationStage?.Invoke("initialized");
             await File.AppendAllTextAsync(Path.Combine(data, "postgresql.conf"),
@@ -214,12 +243,15 @@ public sealed class PostgresTools(ProcessRunner runner, Func<int, int, List<IPEn
         var cleanup = SecretCleanup.Run(secret, secretDirectory, DeleteSecretFile, DeleteSecretDirectory);
         if (failure is not null)
         {
-            var message = failure.Message.Replace(password, "[redacted]", StringComparison.Ordinal);
+            var message = failure.Message;
             if (cleanup is not null) message += "\r\n" + cleanup;
-            if (initialized) throw new InitializedClusterException(data, message);
-            throw new IOException(message); // Do not retain an exception containing secret text.
+            if (initialized) throw new InitializedClusterException(InitializationFailedException.Redact(data, password), InitializationFailedException.Redact(message, password));
+            var paths = await InspectInitializationPathsAsync(currentBinary).ConfigureAwait(false);
+            // Retain the observed result separately from the concise user message, without an inner secret-bearing exception.
+            throw InitializationFailedException.Create(paths, data, initializationResult, failure.Message, password, cleanup);
         }
-        if (cleanup is not null) throw new InitializedClusterException(data, L10n.Get("ClusterCreatedCleanupFailed") + "\r\n" + cleanup);
+        if (cleanup is not null) throw new InitializedClusterException(InitializationFailedException.Redact(data, password),
+            InitializationFailedException.Redact(L10n.Get("ClusterCreatedCleanupFailed") + "\r\n" + cleanup, password));
     }
 }
 

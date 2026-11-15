@@ -5,6 +5,7 @@
 - [localization.md](localization.md)：语言资源和独立 UI 偏好的维护方式。
 - [postgresql-catalog.md](postgresql-catalog.md)：EDB ZIP 目录来源、在线更新、缓存回退与验证接口。
 - [Issue #3 修复与验收](issue-3-validation.md)记录菜单、实例移除、主窗口 DPI 和标题栏图标的根因、回归及维护者 GUI 验收范围。
+- [Issue #7 修复与验证](issue-7-validation.md)记录 Windows 非 ASCII 程序路径风险、创建前预警、初始化异常分类及真实 PostgreSQL 18.6 矩阵。
 - `releases/`：正式版本的历史说明、验证结论与发行矩阵。
 
 ## 版本记录
