@@ -99,8 +99,11 @@ internal sealed class BinaryForm : LayoutForm
     private readonly ListBox list = new() { Height = 112, IntegralHeight = false, HorizontalScrollbar = true };
     private readonly TextBox path = new();
     private readonly ContextMenuStrip candidatesMenu = new();
+    internal Func<InitializationPaths, bool> ConfirmPathRisk;
     public BinaryForm(InstanceManager manager, ConfigStore? store = null) : base(L10n.Get("PostgreSQLBinaries"), WindowIcon.Settings)
     {
+        var tools = new PostgresTools(new ProcessRunner());
+        ConfirmPathRisk = paths => InitializationDialogs.ConfirmPathRisk(this, paths, ProgramPathPurpose.Registration);
         ClientSize = new(640, 400); MinimumSize = new(580, 300);
         var busy = false;
         void RefreshList()
@@ -120,17 +123,25 @@ internal sealed class BinaryForm : LayoutForm
         var actions = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill };
         async Task Run(Func<Task> action)
         {
-            if (busy) return; busy = true; actions.Enabled = list.Enabled = path.Enabled = false;
+            if (busy) return; busy = true; Table.Enabled = false;
             try { await action(); await manager.RefreshAllAsync(); RefreshList(); }
             catch (Exception ex) { if (!IsDisposed && !WindowsSessionShutdown.IsEnding) MessageBox.Show(this, ex.Message, "PgHatch", MessageBoxButtons.OK, MessageBoxIcon.Error); }
-            finally { busy = false; actions.Enabled = list.Enabled = path.Enabled = true; }
+            finally { busy = false; if (!IsDisposed) Table.Enabled = true; }
         }
-        var add = new Button { Text = L10n.Get("RegisterBinaries"), AutoSize = true }; add.Click += async (_, _) => await Run(async () => { await manager.AddBinaryAsync(path.Text); });
+        var add = new Button { Text = L10n.Get("RegisterBinaries"), AutoSize = true }; add.Click += async (_, _) => await Run(async () => {
+            var selected = await tools.InspectBinaryAsync(path.Text, Lifetime.Token);
+            var paths = await tools.InspectInitializationPathsAsync(selected, Lifetime.Token);
+            if (paths.HasNonAscii && !ConfirmPathRisk(paths)) return;
+            await manager.AddBinaryAsync(selected.BinDirectory);
+        });
         var repair = new Button { Text = L10n.Get("RepairSelectedPath"), AutoSize = true }; repair.Click += async (_, _) => await Run(async () => {
             var c = list.SelectedItem as Choice ?? throw new InvalidOperationException(L10n.Get("SelectRegisteredBinariesFirstThenEnterThe"));
+            var selected = await tools.InspectBinaryAsync(path.Text, Lifetime.Token);
+            var paths = await tools.InspectInitializationPathsAsync(selected, Lifetime.Token);
+            if (paths.HasNonAscii && !ConfirmPathRisk(paths)) return;
             var linked = manager.Config.Instances.Where(i => i.BinaryId == c.Binary.Id).Select(i => i.Name + " — " + i.DataDirectory);
-            if (MessageBox.Show(this, L10n.Format("BinaryRepairConfirm", path.Text, string.Join("\r\n", linked)), L10n.Get("RepairSelectedPath"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
-            await manager.RepairBinaryAsync(c.Binary.Id, path.Text);
+            if (MessageBox.Show(this, L10n.Format("BinaryRepairConfirm", selected.BinDirectory, string.Join("\r\n", linked)), L10n.Get("RepairSelectedPath"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) != DialogResult.OK) return;
+            await manager.RepairBinaryAsync(c.Binary.Id, selected.BinDirectory);
         });
         var remove = new Button { Text = L10n.Get("UnregisterBinaries"), AutoSize = true }; remove.Click += async (_, _) => {
             if (list.SelectedItem is not Choice c) return;

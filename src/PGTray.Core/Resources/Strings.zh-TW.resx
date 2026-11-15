@@ -1101,4 +1101,22 @@ PGDATA
   <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>檢視技術診斷</value></data>
   <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>初始化技術診斷</value></data>
   <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>複製完整診斷</value></data>
+  <data name="ContinueRegistration" xml:space="preserve"><value>繼續註冊</value></data>
+  <data name="ContinueDeployment" xml:space="preserve"><value>繼續下載與部署</value></data>
+  <data name="ProgramRegistrationRiskMessage" xml:space="preserve"><value>偵測到所選 PostgreSQL 程式或資源路徑包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 在此類路徑下，後續初始化資料庫時可能出現字元編碼相容性問題。
+
+建議將 PostgreSQL 程式部署在純英文路徑。資料庫資料目錄（PGDATA）可以使用中文或其他非 ASCII 字元。</value></data>
+  <data name="ProgramDeploymentRiskMessage" xml:space="preserve"><value>偵測到所選部署目標目錄包含中文或其他非 ASCII 字元。
+
+部分 Windows 版本的 PostgreSQL 從此類程式路徑初始化資料庫時可能失敗。建議在下載前選擇純英文程式目錄。
+
+準備部署套件時還將檢查實際 bin 及能夠確認的 share 路徑。資料庫資料目錄（PGDATA）可以使用中文或其他非 ASCII 字元。</value></data>
+  <data name="DeploymentPathDetails" xml:space="preserve"><value>計劃部署 PostgreSQL 的目標目錄
+{0}
+
+PostgreSQL share
+{1}</value></data>
+  <data name="ProgramRegistrationCanceled" xml:space="preserve"><value>已返回修改，本次程式註冊及部署已取消。</value></data>
 </root>

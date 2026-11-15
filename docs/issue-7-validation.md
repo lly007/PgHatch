@@ -31,7 +31,7 @@
 | initdb 返回 0 且未超时 | 继续配置写入与验收，locale 和 text search 提示不触发失败分类 |
 | initdb 已成功，随后配置写入、验收、凭据清理或实例登记失败 | 继续使用 `InitializedClusterException`，提示已初始化目录及登记恢复信息 |
 
-错误匹配包含英文特征、本机实测的简体中文旧译，以及 PostgreSQL 翻译目录中的简体、繁体、日文和韩文对应特征。匹配采用精确错误短语，其他本地化形式或被混合编码破坏的短语会进入通用诊断。当前更明确的路径建议要求可识别的 `post-bootstrap` 上下文。中文旧译由本轮真实运行确认，其他译文已核对 PostgreSQL 翻译目录。[PostgreSQL 翻译源](https://github.com/postgres/postgres/tree/REL_18_STABLE/src/backend/po)
+错误匹配包含英文特征、本机实测的简体中文旧译，以及 PostgreSQL 翻译目录中的简体、繁体、日文和韩文对应特征。匹配采用精确错误短语，其他本地化形式或被混合编码破坏的短语会进入通用诊断。当前更明确的路径建议要求英文 `post-bootstrap` 或补充核查的中文“正在执行启动脚本后续初始化”上下文。中文旧译由本轮真实运行确认，其他译文已核对 PostgreSQL 翻译目录。[PostgreSQL 翻译源](https://github.com/postgres/postgres/tree/REL_18_STABLE/src/backend/po)
 
 `InitializationFailedException.Message` 只包含简短用户提示。`Diagnostic` 单独保留实际退出码、超时标志、PGDATA、bin、share 的确认状态及捕获输出。主窗口针对该异常显示原生错误提示，通过“查看技术诊断”打开可选择、滚动和复制完整捕获内容的 WinForms 窗口。技术诊断保留在本次异常的内存属性中。
 
@@ -73,7 +73,7 @@
 
 矩阵只在该新目录内创建数据文件，初始化参数沿用 UTF8、SCRAM、密码文件和 `--no-clean`，保留默认 locale。未向本轮矩阵加入 `-L`。本组没有启动服务器，所有失败目录保留，临时凭据已清理。
 
-## 回归结果
+## 原始三个修复提交的回归结果
 
 | 检查 | 结果 | 类型及范围 |
 | --- | --- | --- |
@@ -120,3 +120,74 @@ tests/PGTray.IntegrationTests/bin/Release/net10.0/PGTray.IntegrationTests.exe --
 ## 维护者验收
 
 维护者可在目标用户 Windows 环境确认预警默认按钮、继续与返回操作、真实初始化失败提示及技术诊断复制。当前版本元数据仍为 1.1.1，后续正式发布再推进版本号及制品生成。管理员密码修改与恢复另行开发。已有正式发行及历史文档继续保留。
+
+## 发布前补充 — 程序注册阶段预警
+
+本补充以维护者已审查的 `e5476d5db18b3023a134067a055eb9cc803e0fe9` 为基线，开发及验证日期为 2026-11-15。维护者已确认原修复范围的真实 GUI 验收通过，本补充另行交付最后验收。正式发布流程等待补充验收完成后恢复。
+
+### 入口与确认时机
+
+| 入口 | 检查与返回行为 |
+| --- | --- |
+| BinaryForm 手动注册 | 先核验所选程序并读取实际 bin/share，再显示注册提醒。返回后保留已有登记，继续时提交已经确认的 bin |
+| BinaryForm 修复路径 | 检查替换程序的 bin/share，再执行既有修复确认和核心关联核验。返回后原登记文件字节保持一致 |
+| DiscoveryForm 扫描后导入 | 在批次保存前，针对实际将新增登记的程序预先确认。同一程序供多行使用时只确认一次，返回时结束整批导入。已有登记的程序继续走既有导入机制 |
+| DownloadForm 下载部署 | 下载前检查目标目录。准备包后，在文件提交和自动登记前，核验实际 bin 以及可映射到最终位置的 share。下载前已经确认的目标风险覆盖本次操作，避免相同风险重复提示 |
+
+上述检查共用 `InitializationPaths.HasNonAscii`、`InspectInitializationPathsAsync()` 和原生风险提示页面。注册、部署分别使用相应的三语言说明及“继续注册”“继续下载和部署”按钮，默认选择“返回修改”。实际 share 无法确认时继续明确显示未知状态。拟部署目录在下载前以“计划部署 PostgreSQL 的目标目录”展示。
+
+下载入口通过 `PackageDeployment.DeployAsync()` 新增的可选确认回调，在原有校验和提交步骤之间完成只读检查。回调看到的路径指向最终目标。已确认的暂存 share 只有位于本次 payload 内时才映射到目标位置，其他情况保持未知。拒绝回调时清理本次创建的暂存文件，已存在的空目标仍保留原位置。既有后台调用可省略回调，继续使用原来的核心部署流程。
+
+UI 在异步检查期间冻结有关选择，并使用已经捕获或检查过的路径提交。扫描导入在等待前捕获全部选中行和程序选择。下载同时捕获目标和包版本，后续控件内容变化无法重定向此次部署。
+
+附近候选列表、只读扫描、已登记程序刷新和现有实例启动停止各自沿用原入口。注册预警只在显式注册、修复或实际新增程序登记时运行。创建实例前的确认继续独立存在，PGDATA 字符不参与程序路径风险判断。
+
+### 中文阶段最小修复
+
+原实现仅识别英文 `post-bootstrap` 阶段，以下给定样本的阶段条件为 false，因而只能得到普通 Encoding 分类。
+
+```text
+正在执行启动脚本后续初始化 ...
+无效的 "UTF8" 编码字节顺序: 0xd6 0xd0
+```
+
+补充识别准确的中文阶段短语“正在执行启动脚本后续初始化”。同时具备非零退出、该阶段、已知 UTF8 错误及非 ASCII bin 或已确认 share 时，分类为 `ProgramPathEncoding`。ASCII 程序配合中文 PGDATA、阶段短语不完整或缺少已知错误时，仍按原证据条件保守处理。
+
+该样本由维护者提供，本补充使用受控结果进行定向验证。此前真实 18.6 路径矩阵继续作为实际 PostgreSQL 复现证据。
+
+### 补充验证
+
+| 检查 | 结果 | 验证范围 |
+| --- | --- | --- |
+| Release 构建 | 0 警告、0 错误 | .NET SDK 10.0.404，项目目标 .NET 10 |
+| `--registration-checks` | 63 PASS | 实际 WinForms 注册、修复、扫描、导入及下载按钮路径，使用模拟 PostgreSQL 工具与受控 HTTP 响应 |
+| `--initialization-tests` | 89 PASS | 包含新增 15 项中文阶段正反例，原有异常分类、脱敏及保留目录检查继续通过 |
+| `--initialization-checks` | 103 PASS | 既有创建预警、技术诊断窗口及三语言完整性检查 |
+| `--download-tests` | 78 PASS | 既有真实环回 HTTP 下载和部署夹具，覆盖校验、取消、目录保护、登记失败及暂存清理 |
+| 既有真实 PostgreSQL 集成入口 | 75 PASS | PostgreSQL 18.6 真实创建、导入、SQL、启动停止、刷新、配置保护及初始化失败处理 |
+
+原生注册与部署提示分别检查英文、简体和繁体文案，并观察实际 TaskDialog 截图。手动注册的三语言按钮流程均覆盖 ASCII、返回和继续。修复流程运行了既有原生修复 MessageBox。下载测试核实中文目标返回时包请求数为零，继续后只有一次提醒。另用包内部中文目录验证目标为 ASCII 时也能在提交前提醒，并保留正确的最终 bin/share 路径。控件值在提示回调中被刻意修改，提交仍使用已确认路径。
+
+63 项 UI 检查使用 PE 程序夹具执行正常版本、配置读取及停止状态响应，通过 HTTP 处理器提供受控 Catalog 和 ZIP 字节，运行生产下载校验、解压及配置保存代码。它们属于原生 UI 与受控工具验证。75 项集成检查使用真实 PostgreSQL 18.6，其真实 SQL、启动和停止结果单独记录。
+
+本地日志如下。
+
+- `artifacts/dev/issue7-registration-build.log`
+- `artifacts/dev/issue7-chinese-stage.log`
+- `artifacts/dev/issue7-registration-ui.log`
+- `artifacts/dev/issue7-registration-existing-ui.log`
+- `artifacts/dev/issue7-registration-download.log`
+- `artifacts/dev/issue7-registration-real-regression.log`
+
+UI 证据目录为 `E:\PgHatch-Issue7-Registration-20261115\ui-registration-f91764c3f7fc4613a12f80ce2cb7572a`。真实集成证据目录为 `E:\PgHatch-Issue7-Registration-20261115\run-20261115-121739-790dbe6b`。新增测试仅操作各自新建的隔离目录。
+
+### 补充修改文件及边界
+
+- `src/PGTray/Dialogs.cs`、`DiscoveryForm.cs`、`DownloadForm.cs` 接入程序注册及部署预警，捕获选择并冻结相关输入。
+- `src/PGTray/InitializationDialogs.cs` 复用提示页面，增加注册和部署文案上下文。三套 `Strings*.resx` 增加对应资源。
+- `src/PGTray.Core/PackageDeployment.cs` 增加提交前的可选路径确认回调，沿用既有下载校验、目录提交和登记步骤。
+- `src/PGTray.Core/InitializationFailedException.cs` 增加准确中文阶段短语识别。
+- `tests/PGTray.IconChecks/RegistrationPathChecks.cs`、`Program.cs` 以及 `InitializationPathChecks.cs` 的截图复用入口覆盖新增 UI 路径。
+- `tests/PGTray.IntegrationTests/RegistrationFixture.cs`、`Program.cs` 和 `InitializationDiagnosticsTests.cs` 提供工具夹具及中文阶段定向回归。
+
+本补充的原生界面检查在当前 Windows x64 桌面完成，新增注册流程的真实 ARM64 设备操作和其他系统代码页仍待平台验收。供应商 ZIP 的真实在线下载由此前记录支撑，本次新增部署 UI 使用受控包验证。下载前只能确认目标目录，包内部路径须待包准备后识别。混合 UTF-8/CP936 输出及其他本地化阶段短语继续适用前文记录的边界。

@@ -18,7 +18,8 @@ internal static class InitializationDiagnosticsTests
         {
             Console.WriteLine(mode == "wrong-version" ? "PostgreSQL 18.3" : "PostgreSQL 18.6");
             Console.WriteLine(mode == "wrong-bin" ? Path.GetDirectoryName(bin.TrimEnd(Path.DirectorySeparatorChar)) : bin.TrimEnd(Path.DirectorySeparatorChar));
-            Console.WriteLine(File.ReadAllText(Path.Combine(bin, "issue7.share"))); return 0;
+            var shareFile = Path.Combine(bin, "issue7.share");
+            Console.WriteLine(File.Exists(shareFile) ? File.ReadAllText(shareFile) : Path.GetFullPath(Path.Combine(bin, "..", "share"))); return 0;
         }
         string Value(string key) => args[Array.IndexOf(args, key) + 1];
         if (tool == "initdb")
@@ -80,6 +81,20 @@ internal static class InitializationDiagnosticsTests
                 }
                 var earlyEncoding = InitializationFailedException.Create(new(@"C:\程序\bin", null), "data", new(1, "", EncodingError, false), "", password, null);
                 Check(earlyEncoding.Kind == InitializationFailureKind.Encoding, language + ": missing post-bootstrap context keeps path as an unconfirmed cause");
+                const string chineseStage = "正在执行启动脚本后续初始化 ...";
+                const string chineseError = "无效的 \"UTF8\" 编码字节顺序: 0xd6 0xd0";
+                foreach (var paths in new[] { new InitializationPaths(@"C:\程序\bin", null), new InitializationPaths(@"C:\program\bin", @"C:\资源\share") })
+                {
+                    var error = InitializationFailedException.Create(paths, @"C:\data", new(1, chineseStage, chineseError, false), "", password, null);
+                    Check(error.Kind == InitializationFailureKind.ProgramPathEncoding && error.ExitCode == 1 && error.TimedOut == false,
+                        language + ": exact Chinese post-bootstrap stage plus real UTF8 error and non-ASCII program resources identifies path risk");
+                }
+                var asciiEncoding = InitializationFailedException.Create(new(@"C:\program\bin", null), @"C:\中文数据", new(1, chineseStage, chineseError, false), "", password, null);
+                Check(asciiEncoding.Kind == InitializationFailureKind.Encoding, language + ": Chinese PGDATA and Chinese stage alone cannot establish program path risk");
+                var incompleteStage = InitializationFailedException.Create(new(@"C:\程序\bin", null), "data", new(1, "正在执行启动脚本", chineseError, false), "", password, null);
+                Check(incompleteStage.Kind == InitializationFailureKind.Encoding, language + ": incomplete Chinese stage retains conservative encoding guidance");
+                var stageWarning = InitializationFailedException.Create(new(@"C:\程序\bin", null), "data", new(1, chineseStage, Warnings, false), "", password, null);
+                Check(stageWarning.Kind == InitializationFailureKind.Unknown, language + ": Chinese stage and nonfatal locale text cannot establish an encoding failure");
                 foreach (var localized in new[] { "无效的 \"UTF8\" 编码字节顺序", "编码 \"UTF8\" 的字节序列无效", "編碼 \"UTF8\" 的位元組序列無效",
                     "符号化方式\"UTF8\"に対する不正なバイト列です", "\"UTF8\" 인코딩에서 사용할 수 없는 문자가 있음" })
                 {

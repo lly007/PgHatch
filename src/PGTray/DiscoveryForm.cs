@@ -7,6 +7,8 @@ internal sealed class DiscoveryForm : Form
     private sealed record BinaryChoice(Guid Id, string Label);
     private readonly InstanceManager manager;
     private readonly InstanceDiscovery discovery;
+    private readonly PostgresTools tools;
+    internal Func<InitializationPaths, bool> ConfirmPathRisk;
     private readonly CancellationTokenSource lifetime = new();
     private readonly TextBox root = new() { Dock = DockStyle.Fill };
     private readonly Label note = new() { AutoSize = true, Dock = DockStyle.Fill };
@@ -21,7 +23,8 @@ internal sealed class DiscoveryForm : Form
     public DiscoveryForm(InstanceManager manager, PostgresTools tools)
     {
         ApplicationIcons.BindWindow(this, WindowIcon.Database);
-        this.manager = manager; discovery = new(tools);
+        this.manager = manager; this.tools = tools; discovery = new(tools);
+        ConfirmPathRisk = paths => InitializationDialogs.ConfirmPathRisk(this, paths, ProgramPathPurpose.Registration);
         Text = L10n.Get("ScanLocalPostgreSQLInstances"); Font = new Font("Segoe UI", 9F); BackColor = Color.White;
         AutoScaleDimensions = new(96, 96); AutoScaleMode = AutoScaleMode.Dpi;
         StartPosition = FormStartPosition.CenterParent; ClientSize = new(1000, 590); MinimumSize = new(850, 490);
@@ -86,6 +89,7 @@ internal sealed class DiscoveryForm : Form
     }
     private async Task ImportAsync()
     {
+        if (working || importing) return;
         grid.EndEdit();
         var selected = grid.Rows.Cast<DataGridViewRow>().Where(r => r.Cells[0].Value is true).ToArray();
         if (selected.Length == 0) { note.Text = L10n.Get("SelectTheInstancesYouWantToImport"); return; }
@@ -94,14 +98,23 @@ internal sealed class DiscoveryForm : Form
         var errors = new List<string>(); var count = 0;
         try
         {
-            foreach (var row in selected)
+            // Snapshot the choices before any await and confirm all new binaries before saving the batch.
+            var requests = selected.Where(row => candidates[row.Index].CanImport).Select(row => (
+                Row: row, Candidate: candidates[row.Index],
+                Binary: candidates[row.Index].CompatibleBinaries.Single(b => b.Id == (Guid)row.Cells[5].Value!))).ToArray();
+            foreach (var binary in requests.Select(r => r.Binary).DistinctBy(b => ConfigStore.RegistrationIdentity(b.BinDirectory), StringComparer.OrdinalIgnoreCase))
             {
-                var candidate = candidates[row.Index];
-                if (!candidate.CanImport) continue;
+                if (manager.Config.Binaries.Any(b => string.Equals(ConfigStore.RegistrationIdentity(b.BinDirectory),
+                    ConfigStore.RegistrationIdentity(binary.BinDirectory), StringComparison.OrdinalIgnoreCase))) continue;
+                var inspected = await tools.InspectBinaryAsync(binary.BinDirectory, lifetime.Token);
+                var paths = await tools.InspectInitializationPathsAsync(inspected, lifetime.Token);
+                if (paths.HasNonAscii && !ConfirmPathRisk(paths)) { note.Text = L10n.Get("ProgramRegistrationCanceled"); return; }
+            }
+            foreach (var (row, candidate, selectedBinary) in requests)
+            {
                 try
                 {
-                    var binary = candidate.CompatibleBinaries.Single(b => b.Id == (Guid)row.Cells[5].Value!);
-                    binary = await manager.AddBinaryAsync(binary.BinDirectory);
+                    var binary = await manager.AddBinaryAsync(selectedBinary.BinDirectory);
                     await manager.AddInstanceAsync(Path.GetFileName(candidate.DataDirectory), binary, candidate.DataDirectory, candidate.Settings!.Port);
                     row.Cells[0].Value = false; row.ReadOnly = true; row.Cells[6].Value = L10n.Get("ImportedNotStarted"); count++;
                 }
@@ -109,6 +122,8 @@ internal sealed class DiscoveryForm : Form
             }
             note.Text = L10n.Format("ImportedAllDatabasesKeepTheirCurrentState", count) + (errors.Count == 0 ? "" : "\r\n" + string.Join("\r\n", errors));
         }
+        catch (OperationCanceledException) { note.Text = L10n.Get("ProgramRegistrationCanceled"); }
+        catch (Exception ex) { note.Text = ex.Message; }
         finally { importing = false; scan.Enabled = grid.Enabled = true; import.Enabled = true; }
     }
 }

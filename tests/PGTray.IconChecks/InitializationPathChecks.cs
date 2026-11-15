@@ -13,7 +13,7 @@ internal static class InitializationPathChecks
     [DllImport("user32.dll")]
     private static extern bool PrintWindow(IntPtr window, IntPtr deviceContext, uint flags);
 
-    private static void CaptureDialog(TaskDialogPage page, string output, string filename, Action close)
+    internal static void CaptureDialog(TaskDialogPage page, string output, string filename, Action close)
     {
         using var timer = new System.Windows.Forms.Timer { Interval = 150 };
         timer.Tick += (_, _) => {

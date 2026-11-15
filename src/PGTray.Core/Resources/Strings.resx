@@ -1101,4 +1101,22 @@ PGDATA
   <data name="ViewTechnicalDiagnostics" xml:space="preserve"><value>View technical diagnostics</value></data>
   <data name="TechnicalDiagnosticsTitle" xml:space="preserve"><value>Initialization technical diagnostics</value></data>
   <data name="CopyTechnicalDiagnostics" xml:space="preserve"><value>Copy full diagnostics</value></data>
+  <data name="ContinueRegistration" xml:space="preserve"><value>Continue registration</value></data>
+  <data name="ContinueDeployment" xml:space="preserve"><value>Continue download and deployment</value></data>
+  <data name="ProgramRegistrationRiskMessage" xml:space="preserve"><value>The selected PostgreSQL program or resource path contains non-ASCII characters.
+
+Some Windows builds of PostgreSQL may encounter character encoding compatibility problems with these paths when initializing databases later.
+
+Consider deploying PostgreSQL in an ASCII-only path. The database data directory (PGDATA) can contain non-ASCII characters.</value></data>
+  <data name="ProgramDeploymentRiskMessage" xml:space="preserve"><value>The selected deployment destination contains non-ASCII characters.
+
+Some Windows builds of PostgreSQL may fail to initialize databases from these program paths. Consider an ASCII-only program destination before downloading.
+
+The actual bin and available share paths will be checked during package preparation. The database data directory (PGDATA) can contain non-ASCII characters.</value></data>
+  <data name="DeploymentPathDetails" xml:space="preserve"><value>Planned PostgreSQL deployment destination
+{0}
+
+PostgreSQL share
+{1}</value></data>
+  <data name="ProgramRegistrationCanceled" xml:space="preserve"><value>Returned to editing. Program registration and deployment were canceled.</value></data>
 </root>

@@ -2,24 +2,34 @@ using PGTray.Core;
 
 namespace PGTray;
 
+internal enum ProgramPathPurpose { Creation, Registration, Deployment }
+
 internal static class InitializationDialogs
 {
-    internal static TaskDialogPage PathRiskPage(InitializationPaths paths)
+    internal static TaskDialogPage PathRiskPage(InitializationPaths paths, ProgramPathPurpose purpose = ProgramPathPurpose.Creation)
     {
-        var proceed = new TaskDialogButton(L10n.Get("ContinueCreation"));
+        var proceed = new TaskDialogButton(L10n.Get(purpose switch {
+            ProgramPathPurpose.Registration => "ContinueRegistration",
+            ProgramPathPurpose.Deployment => "ContinueDeployment",
+            _ => "ContinueCreation"
+        }));
         var back = new TaskDialogButton(L10n.Get("ReturnToEdit"));
         return new TaskDialogPage {
             Caption = L10n.Get("ProgramPathRiskTitle"), Heading = L10n.Get("ProgramPathRiskTitle"),
-            Text = L10n.Get("ProgramPathRiskMessage"), Icon = TaskDialogIcon.Warning,
-            Expander = new TaskDialogExpander { Text = L10n.Format("InitializationPathDetails", paths.BinDirectory,
+            Text = L10n.Get(purpose switch {
+                ProgramPathPurpose.Registration => "ProgramRegistrationRiskMessage",
+                ProgramPathPurpose.Deployment => "ProgramDeploymentRiskMessage",
+                _ => "ProgramPathRiskMessage"
+            }), Icon = TaskDialogIcon.Warning,
+            Expander = new TaskDialogExpander { Text = L10n.Format(purpose == ProgramPathPurpose.Deployment ? "DeploymentPathDetails" : "InitializationPathDetails", paths.BinDirectory,
                 paths.ShareDirectory ?? L10n.Get("SharePathUnconfirmed")) },
             Buttons = { proceed, back }, DefaultButton = back, AllowCancel = true
         };
     }
 
-    internal static bool ConfirmPathRisk(IWin32Window owner, InitializationPaths paths)
+    internal static bool ConfirmPathRisk(IWin32Window owner, InitializationPaths paths, ProgramPathPurpose purpose = ProgramPathPurpose.Creation)
     {
-        var page = PathRiskPage(paths);
+        var page = PathRiskPage(paths, purpose);
         return TaskDialog.ShowDialog(owner, page) == page.Buttons[0];
     }
 

@@ -32,7 +32,8 @@ public sealed class InitializationFailedException : IOException
         if (result is { ExitCode: 0, TimedOut: false }) throw new ArgumentException("initdb succeeded", nameof(result));
         var output = result is null ? "" : result.Output + "\n" + result.Error;
         var encodingError = Utf8EncodingErrors.Any(signature => output.Contains(signature, StringComparison.OrdinalIgnoreCase));
-        var postBootstrap = output.Contains("post-bootstrap", StringComparison.OrdinalIgnoreCase);
+        var postBootstrap = output.Contains("post-bootstrap", StringComparison.OrdinalIgnoreCase) ||
+            output.Contains("正在执行启动脚本后续初始化", StringComparison.Ordinal);
         var kind = result?.TimedOut == true ? InitializationFailureKind.Timeout
             : encodingError && paths.HasNonAscii && postBootstrap ? InitializationFailureKind.ProgramPathEncoding
             : encodingError ? InitializationFailureKind.Encoding : InitializationFailureKind.Unknown;

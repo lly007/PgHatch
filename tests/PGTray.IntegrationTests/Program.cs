@@ -7,6 +7,7 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 
 if (args is ["--delay-helper"]) { await Task.Delay(10000); return 0; }
+if (args is ["--registration-fixture", var registrationFixture]) { RegistrationFixture.Write(registrationFixture); return 0; }
 if (args is ["--decoding-tests"]) return await TextDecodingChecks.RunAsync();
 if (args is ["--mixed-encoding-helper"])
 {
