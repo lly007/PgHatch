@@ -12,6 +12,7 @@
 
 | 版本 | 说明 | 验证 |
 | --- | --- | --- |
+| v1.1.2 | [正式发行说明](releases/v1.1.2/release.md) | [Issue #7 维护发行验收](releases/v1.1.2/validation.md) |
 | v1.1.1 | [正式发行说明](releases/v1.1.1/release.md) | [维护发行验收](releases/v1.1.1/validation.md) |
 | v1.1.0 | [正式发行说明](releases/v1.1.0/release.md) | [发行验收与保留限制](releases/v1.1.0/validation.md) |
 | v1.0.1 | [窗口恢复布局维护版本](releases/v1.0.1/release.md) | [本轮验证与边界](releases/v1.0.1/release.md#验证与边界) |

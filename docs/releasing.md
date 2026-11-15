@@ -1,6 +1,6 @@
 # PgHatch 发布与验证
 
-发行工程只发布 `src/PGTray/PGTray.csproj`，不会发布解决方案或混入测试程序。应用版本统一维护在根目录 `Directory.Build.props`，由 MSBuild 求值读取，当前正式版本为 1.1.1（Issue #3 四项维护修复）。脚本仍先生成独立候选目录；正式 Release 需另行核对标签、上传和服务端校验。
+发行工程发布 `src/PGTray/PGTray.csproj`。应用版本统一维护在根目录 `Directory.Build.props`，由 MSBuild 求值读取，当前正式版本为 1.1.2，对应 Issue #7 的程序路径风险预警和初始化诊断修复。脚本先生成独立候选目录，正式 Release 另行核对标签、上传和服务端校验。
 
 ## 一次生成四种候选包
 
@@ -97,6 +97,6 @@ Start 在独立终端等待程序结束；从实际解压目录检查主窗口�
 
 ARM64 两种包都必须在真实 ARM64 Windows 上补测。x64 交叉构建成功、静态检查通过、真实 ARM64 运行通过是三项不同结论。Windows 图标缓存可能保留旧外观，可使用本轮全新解压路径检查，避免误判。
 
-历史四配置验证见 [v0.2.0 发行矩阵](releases/v0.2.0/release-matrix.md)，当前正式发行核验和仍未覆盖的边界见 [v1.1.1 验收](releases/v1.1.1/validation.md)。COMPLETE.json 仅证明所选构建及静态/压缩包检查成功，不代表正式发布获准或全部实机验收完成。
+历史四配置验证见 [v0.2.0 发行矩阵](releases/v0.2.0/release-matrix.md)，当前正式发行核验和平台边界见 [v1.1.2 验收](releases/v1.1.2/validation.md)。COMPLETE.json 证明所选构建及静态/压缩包检查成功，实机和发布状态在独立验收记录中说明。
 
 配置回归支持可选的第三个输出目录参数，便于将全部测试写入保留在仓库内。
